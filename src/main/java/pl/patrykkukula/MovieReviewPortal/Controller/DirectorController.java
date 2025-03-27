@@ -1,0 +1,55 @@
+package pl.patrykkukula.MovieReviewPortal.Controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.ResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Model.Director;
+import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
+import java.net.URI;
+import java.util.List;
+import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
+
+@RestController
+@RequestMapping(value = "/directors", produces = MediaType.APPLICATION_JSON_VALUE)
+@AllArgsConstructor
+public class DirectorController {
+
+    private IDirectorService directorService;
+
+    @PostMapping
+    public ResponseEntity<ResponseDto> addDirector(@Valid @RequestBody DirectorDto directorDto, HttpServletRequest request) {
+        Long directorId = directorService.addDirector(directorDto);
+        URI location = setUri(directorId,request.getRequestURI());
+        return ResponseEntity.created(location).body(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDto> deleteDirector(@PathVariable Long id) {
+        directorService.removeDirector(id);
+        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<DirectorDtoWithMovies> getDirectorByIdWithMovies(@PathVariable Long id) {
+        return ResponseEntity.ok().body(directorService.fetchDirectorByIdWithMovies(id));
+    }
+    @GetMapping
+    public ResponseEntity<List<DirectorDto>> getAllDirectors(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted,
+    @RequestParam(name = "findBy", required = false) String findBy) {
+        if (findBy == null || findBy.isEmpty()) {
+            return ResponseEntity.ok().body(directorService.fetchAllDirectors(sorted));
+        }
+        return ResponseEntity.ok().body(directorService.fetchAllDirectorsByNameOrLastName(findBy, sorted));
+    }
+    @PutMapping("{id}")
+    public ResponseEntity<ResponseDto> updateDirector(@PathVariable Long id, @Valid @RequestBody DirectorUpdateDto directorDto) {
+        directorService.updateDirector(directorDto,id);
+        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
+    }
+}

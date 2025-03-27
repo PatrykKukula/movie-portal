@@ -1,0 +1,42 @@
+package pl.patrykkukula.MovieReviewPortal.Model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter @Setter @ToString
+@NoArgsConstructor @AllArgsConstructor
+@Builder
+public class UserEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
+    @Column(unique=true, nullable=false)
+    private String username;
+    @Column(unique=true, nullable=false)
+    private String email;
+    @Column(nullable=false)
+    private String password;
+    private boolean isEnabled = false;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private VerificationToken verificationToken;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PasswordResetToken passwordResetToken;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<MovieRate> movieRates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+}

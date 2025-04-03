@@ -17,11 +17,9 @@ public class Topic extends BaseEntity{
     private Long topicId;
     @Column(nullable = false)
     private String title;
-
     @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    private List<Comment> comments;
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "movie_id")
     private Movie movie;
 }

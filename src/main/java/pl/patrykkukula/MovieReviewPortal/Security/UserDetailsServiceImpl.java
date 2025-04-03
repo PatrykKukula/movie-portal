@@ -1,5 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Security;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,14 +16,13 @@ import java.util.List;
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserEntityRepository userRepository;
+    private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found"));
-        if (!userEntity.isEnabled()) throw new UsernameNotFoundException("Account not verified");
-
-        return new User(username, userEntity.getPassword(), mapRoleToAuthorities(userEntity));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmailWithRoles(email)
+                .map(userEntity -> new User(userEntity.getEmail(), userEntity.getPassword(), mapRoleToAuthorities(userEntity))
+                ).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
     }
     private List<SimpleGrantedAuthority> mapRoleToAuthorities(UserEntity userEntity) {
        return userEntity.getRoles().stream()

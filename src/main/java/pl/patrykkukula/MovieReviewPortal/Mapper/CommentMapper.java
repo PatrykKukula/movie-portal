@@ -8,6 +8,7 @@ public class CommentMapper {
         return CommentDtoWithUser.builder()
                         .text(comment.getText())
                         .commentIdInPost(comment.getCommentIdInPost())
+                        .topicId(comment.getTopic().getTopicId())
                         .user(comment.getCreatedBy())
                         .build();
     }

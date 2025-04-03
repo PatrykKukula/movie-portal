@@ -4,9 +4,9 @@ import pl.patrykkukula.MovieReviewPortal.Dto.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserEntityDto;
 
 public interface IAuthService {
-    void register(UserEntityDto userDto);
+    String register(UserEntityDto userDto);
     void verifyAccount(String token);
-    void resendVerificationToken(String username);
+    String resendVerificationToken(String username);
     void resetPassword(PasswordResetDto passwordResetDto);
     String generatePasswordResetToken(String email);
 }

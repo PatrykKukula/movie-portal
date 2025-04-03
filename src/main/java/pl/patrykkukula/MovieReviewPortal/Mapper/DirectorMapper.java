@@ -1,12 +1,11 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
+
 import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.MovieDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
-import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +24,7 @@ public class DirectorMapper {
     }
     public static DirectorDto mapToDirectorDto (Director director) {
         return DirectorDto.builder()
+                .id(director.getDirectorId())
                 .firstName(director.getFirstName())
                 .lastName(director.getLastName())
                 .country(director.getCountry())
@@ -39,6 +39,7 @@ public class DirectorMapper {
                 .toList();
 
         return DirectorDtoWithMovies.builder()
+                .id(director.getDirectorId())
                 .firstName(director.getFirstName())
                 .lastName(director.getLastName())
                 .country(director.getCountry())

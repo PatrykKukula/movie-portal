@@ -2,6 +2,8 @@ package pl.patrykkukula.MovieReviewPortal.Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 public class ActorController {
 
     private IActorService actorService;
+    private static final Logger logger = LoggerFactory.getLogger(ActorController.class);
 
     @PostMapping
     public ResponseEntity<ResponseDto> addActor(@Valid @RequestBody ActorDto actorDto, HttpServletRequest request) {
@@ -38,12 +41,13 @@ public class ActorController {
         return ResponseEntity.ok(actorService.fetchActorByIdWithMovies(id));
     }
     @GetMapping
-    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sort,
+    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false) String sorted,
                                                         @RequestParam(name = "findBy", required = false) String findBy) {
+
         if (findBy == null || findBy.isEmpty()) {
-            return ResponseEntity.ok(actorService.fetchAllActors(sort));
+            return ResponseEntity.ok(actorService.fetchAllActors(sorted));
         }
-        return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sort));
+        return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sorted));
     }
     @PatchMapping("/{id}")
     public ResponseEntity<ResponseDto> updateActor(@PathVariable Long id, @Valid @RequestBody ActorUpdateDto actorUpdateDto) {

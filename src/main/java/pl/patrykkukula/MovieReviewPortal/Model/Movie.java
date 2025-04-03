@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,9 +22,10 @@ public class Movie extends BaseEntity{
     private String description;
     @Column(nullable = false)
     private LocalDate releaseDate;
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private MovieCategory category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Director director;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -36,6 +38,6 @@ public class Movie extends BaseEntity{
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Topic> topics = new ArrayList<>();
 
-    @OneToMany(mappedBy = "movie")
+    @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MovieRate> movieRates = new ArrayList<>();
 }

@@ -6,13 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class CommentDtoWithUser {
-
-    private String text;
-    private Long topicId;
-    private Long commentIdInPost;
-    private String user;
+public class MovieDtoBasic {
+    private Long id;
+    private String title;
 }

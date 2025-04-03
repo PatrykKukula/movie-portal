@@ -3,12 +3,16 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.CommentDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.CommentMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
@@ -18,8 +22,9 @@ import pl.patrykkukula.MovieReviewPortal.Repository.CommentRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.ICommentService;
-import java.nio.file.AccessDeniedException;
+
 import java.util.List;
+
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
 
@@ -30,13 +35,15 @@ public class CommentServiceImpl implements ICommentService {
     private final CommentRepository commentRepository;
     private final TopicRepository topicRepository;
     private final UserEntityRepository userRepository;
+    private final UserEntityRepository userEntityRepository;
+    private static final Logger logger = LoggerFactory.getLogger(CommentServiceImpl.class);
 
     @Override
     @Transactional
     public Long addComment(CommentDto commentDto) {
         Long topicId = commentDto.getTopicId();
         Tuple topicWithMaxCommentId = topicRepository
-                .fetchTopicWithCurrentMaxCommentId(topicId)
+                .findTopicWithCurrentMaxCommentId(topicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Topic", "topic id",  String.valueOf(topicId)));
         Topic topic = topicWithMaxCommentId.get("topic", Topic.class);
         Long currentMaxCommentId = topicWithMaxCommentId.get("maxId", Long.class);
@@ -44,18 +51,19 @@ public class CommentServiceImpl implements ICommentService {
                         .text(commentDto.getText())
                         .topic(topic)
                         .commentIdInPost(currentMaxCommentId+1)
+                        .user(getUserEntity())
                         .build();
         Comment savedComment = commentRepository.save(comment);
         return savedComment.getCommentId();
     }
     @Override
-    public void removeComment(Long commentId) throws AccessDeniedException{
+    public void removeComment(Long commentId){
         validateId(commentId);
         Comment comment = commentRepository
                 .findCommentByIdWithUser(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
         Long userId = comment.getUser().getUserId();
-        if (!canUserModify(userId)) throw new AccessDeniedException("You do not have permission to delete this comment");
+        if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to delete this comment");
         commentRepository.delete(comment);
     }
     @Override
@@ -67,20 +75,25 @@ public class CommentServiceImpl implements ICommentService {
         return mapToCommentsDtoWithUser(comments);
     }
     @Override
-    public List<CommentDtoWithUser> fetchAllComments(String sorted) {
-        String validSorting = validateSorting(sorted);
-        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllOrderByIdAsc() :
-                commentRepository.findAllOrderByIdDesc();
+    public List<CommentDtoWithUser> fetchAllCommentsForUser(String username) {
+        List<Comment> comments = commentRepository.findByUsername(username);
         return mapToCommentsDtoWithUser(comments);
     }
     @Override
-    public void updateComment(Long commentId, CommentDto commentDto) throws AccessDeniedException{
+    public List<CommentDtoWithUser> fetchAllComments(String sorted) {
+        String validSorting = validateSorting(sorted);
+        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllWithTopicOrderByIdAsc() :
+                commentRepository.findAllWithTopicOrderByIdDesc();
+        return mapToCommentsDtoWithUser(comments);
+    }
+    @Override
+    public void updateComment(Long commentId, CommentDto commentDto){
         validateId(commentId);
         Comment comment = commentRepository
                 .findCommentByIdWithUser(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
         Long userId = comment.getUser().getUserId();
-        if (!canUserModify(userId)) throw new AccessDeniedException("You do not have permission to modify this comment");
+        if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to modify this comment");
         comment.setText(commentDto.getText());
         commentRepository.save(comment);
     }
@@ -92,7 +105,17 @@ public class CommentServiceImpl implements ICommentService {
     private boolean canUserModify(Long userId){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User)auth.getPrincipal();
-        UserEntity userEntity = userRepository.findByUsername(user.getUsername()).orElseThrow(() -> new IllegalStateException("Error"));
-        return userEntity.getUserId().equals(userId);
+        UserEntity userEntity = userRepository.findByEmailWithRoles(user.getUsername())
+                .orElseThrow(() -> new IllegalStateException("Error during resource modification. Please try again or contact technical support"));
+
+        return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
+    }
+    private UserEntity getUserEntity() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new UsernameNotFoundException("User is not logged in");
+        }
+        User user = (User) auth.getPrincipal();
+        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

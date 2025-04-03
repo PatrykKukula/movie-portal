@@ -3,7 +3,7 @@ package pl.patrykkukula.MovieReviewPortal.Dto;
 import lombok.*;
 
 @Data
-@AllArgsConstructor @NoArgsConstructor @ToString
+@AllArgsConstructor @NoArgsConstructor
 @Builder
 public class ResponseDto {
 

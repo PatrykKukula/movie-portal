@@ -1,5 +1,4 @@
 package pl.patrykkukula.MovieReviewPortal.Exception;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,7 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     private ResponseEntity<ErrorResponseDto> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        String path = request.getContextPath();
+        String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -26,7 +25,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(InvalidIdException.class)
     private ResponseEntity<ErrorResponseDto> handleInvalidIdException(InvalidIdException ex, WebRequest request) {
-        String path = request.getContextPath();
+        String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -34,7 +33,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(ResourceNotFoundException.class)
     private ResponseEntity<ErrorResponseDto> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        String path = request.getContextPath();
+        String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -42,7 +41,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(IllegalArgumentException.class)
     private ResponseEntity<ErrorResponseDto> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        String path = request.getContextPath();
+        String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -50,14 +49,14 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
-        String path = request.getContextPath();
+        String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDto(path, STATUS_404, STATUS_404_MESSAGE, errorMessage, occurrenceTime));
     }
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponseDto> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
-        String path = request.getContextPath();
+        String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDto(path, STATUS_500, STATUS_500_MESSAGE, errorMessage, occurrenceTime));

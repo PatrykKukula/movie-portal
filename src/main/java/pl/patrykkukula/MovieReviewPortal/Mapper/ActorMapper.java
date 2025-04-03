@@ -5,10 +5,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.ActorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.MovieDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.ActorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
-import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +24,7 @@ public class ActorMapper {
     }
     public static ActorDto mapToActorDto(Actor actor) {
         return ActorDto.builder()
+                        .id(actor.getActorId())
                         .firstName(actor.getFirstName())
                         .lastName(actor.getLastName())
                         .country(actor.getCountry())
@@ -41,6 +39,7 @@ public class ActorMapper {
                     .toList();
 
         return ActorDtoWithMovies.builder()
+                .id(actor.getActorId())
                 .firstName(actor.getFirstName())
                 .lastName(actor.getLastName())
                 .country(actor.getCountry())

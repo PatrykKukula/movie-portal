@@ -1,5 +1,4 @@
 package pl.patrykkukula.MovieReviewPortal.Dto;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommentDtoWithUser {
+public class TopicDtoBasic {
 
-    private String text;
-    private Long topicId;
-    private Long commentIdInPost;
-    private String user;
+    private String title;
+    private String author;
+    private String movieTitle;
+    private long postCount;
 }

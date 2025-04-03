@@ -12,14 +12,14 @@ import java.util.Optional;
 @Repository
 public interface ActorRepository extends JpaRepository<Actor, Long> {
 
-    @Query("SELECT a FROM Actor a WHERE LOWER(a.firstName) = LOWER(:name) OR LOWER(a.lastName) = LOWER(:name) ORDER BY a.firstName ASC, a.lastName ASC ")
+    @Query("SELECT a FROM Actor a WHERE LOWER(a.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :name, '%')) ORDER BY a.firstName ASC, a.lastName ASC")
     List<Actor> findAllByFirstOrLastNameAsc(@Param(value="name") String name);
-    @Query("SELECT a FROM Actor a WHERE LOWER(a.firstName) = LOWER(:name) OR LOWER(a.lastName) = LOWER(:name) ORDER BY a.firstName DESC, a.lastName DESC ")
+    @Query("SELECT a FROM Actor a WHERE LOWER(a.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :name, '%')) ORDER BY a.firstName DESC, a.lastName DESC")
     List<Actor> findAllByFirstOrLastNameDesc(@Param(value="name") String name);
     @Query("SELECT a FROM Actor a ORDER BY a.firstName ASC, a.lastName ASC")
     List<Actor> findAllSortedByNameAsc();
     @Query("SELECT a FROM Actor a ORDER BY a.firstName DESC, a.lastName DESC")
     List<Actor> findAllSortedByNameDesc();
-    @Query("SELECT a FROM Actor a JOIN FETCH a.movies WHERE a.actorId = :actorId")
+    @Query("SELECT a FROM Actor a LEFT JOIN FETCH a.movies WHERE a.actorId = :actorId")
     Optional<Actor> findByIdWithMovies(@Param(value = "actorId") Long actorId);
 }

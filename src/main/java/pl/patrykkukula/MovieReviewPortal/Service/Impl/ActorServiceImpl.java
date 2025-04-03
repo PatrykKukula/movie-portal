@@ -1,6 +1,9 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.ActorDtoWithMovies;
@@ -10,7 +13,9 @@ import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IActorService;
+
 import java.util.List;
+
 import static java.lang.String.valueOf;
 import static pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
@@ -22,6 +27,7 @@ public class ActorServiceImpl implements IActorService {
 
     private final ActorRepository actorRepository;
 
+    @Transactional
     @Override
     public Long addActor(ActorDto actorDto) {
         Actor actor = actorRepository.save(mapToActor(actorDto));
@@ -54,8 +60,8 @@ public class ActorServiceImpl implements IActorService {
                actorRepository.findAllByFirstOrLastNameAsc(name).stream().map(ActorMapper::mapToActorDto).toList() :
                actorRepository.findAllByFirstOrLastNameDesc(name).stream().map(ActorMapper::mapToActorDto).toList();
     }
-    @Override
     @Transactional
+    @Override
     public void updateActor(ActorUpdateDto actorDto, Long actorId) {
         validateId(actorId);
         Actor actor = actorRepository.findById(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));

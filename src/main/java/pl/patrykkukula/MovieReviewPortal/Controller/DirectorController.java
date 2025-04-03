@@ -8,12 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.ResponseDto;
-import pl.patrykkukula.MovieReviewPortal.Model.Director;
+import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
+
 import java.net.URI;
 import java.util.List;
+
 import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
@@ -47,7 +48,7 @@ public class DirectorController {
         }
         return ResponseEntity.ok().body(directorService.fetchAllDirectorsByNameOrLastName(findBy, sorted));
     }
-    @PutMapping("{id}")
+    @PatchMapping("{id}")
     public ResponseEntity<ResponseDto> updateDirector(@PathVariable Long id, @Valid @RequestBody DirectorUpdateDto directorDto) {
         directorService.updateDirector(directorDto,id);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));

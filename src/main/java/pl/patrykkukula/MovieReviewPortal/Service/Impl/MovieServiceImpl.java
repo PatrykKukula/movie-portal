@@ -14,7 +14,6 @@ import pl.patrykkukula.MovieReviewPortal.Dto.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Dto.MovieDtoWithDetails;
 import pl.patrykkukula.MovieReviewPortal.Dto.MovieRateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.MovieUpdateDto;
-import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
@@ -121,7 +120,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
-    public void addRateToMovie(MovieRateDto movieRateDto) {
+    public Long addRateToMovie(MovieRateDto movieRateDto) {
         validateId(movieRateDto.getMovieId());
         UserEntity user = getUserEntity();
         Movie movie = movieRepository.findByIdWithMovieRates(movieRateDto.getMovieId())
@@ -130,25 +129,26 @@ public class MovieServiceImpl implements IMovieService {
         if (optCurrentRate.isPresent()) {
             MovieRate currentRate = optCurrentRate.get();
             currentRate.setRate(movieRateDto.getRate());
-            movieRateRepository.save(currentRate);
+            MovieRate updatedRate = movieRateRepository.save(currentRate);
+            return updatedRate.getMovieRateId();
         } else {
             MovieRate movieRate = MovieRate.builder()
                     .movie(movie)
                     .user(user)
                     .rate(movieRateDto.getRate())
                     .build();
-            movieRateRepository.save(movieRate);
+            MovieRate addedRate = movieRateRepository.save(movieRate);
+            return addedRate.getMovieRateId();
         }
     }
     @Override
     @Transactional
-    public void removeRate(Long movieId) {
+    public boolean removeRate(Long movieId) {
         validateId(movieId);
         UserEntity user = getUserEntity();
         int deleted = movieRateRepository.deleteByMovieIdAndUserId(movieId, user.getUserId());
 
-        if (deleted == 0) throw new IllegalResourceModifyException("You didn't set score for this movie");
-
+        return deleted > 0;
     }
     private MovieCategory findCategory(String category) {
         return Arrays.stream(MovieCategory.values())
@@ -162,10 +162,10 @@ public class MovieServiceImpl implements IMovieService {
     }
     private UserEntity getUserEntity() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+        if (auth ==     null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
             throw new UsernameNotFoundException("User is not logged in");
         }
         User user = (User) auth.getPrincipal();
-        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+        return userEntityRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

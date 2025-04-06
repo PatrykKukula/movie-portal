@@ -18,6 +18,6 @@ public interface IMovieService {
     List<MovieDtoBasic> fetchAllMoviesByTitle(String title, String sorted);
     List<MovieDtoBasic> fetchAllMovies(String sorted);
     void updateMovie(Long movieId, MovieUpdateDto movieDto);
-    void addRateToMovie(MovieRateDto movieRateDto);
-    void removeRate(Long movieId);
+    Long addRateToMovie(MovieRateDto movieRateDto);
+    boolean removeRate(Long movieId);
 }

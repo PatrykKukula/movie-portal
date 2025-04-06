@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto;
 
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor @NoArgsConstructor
+@Builder
 public class DirectorUpdateDto {
     private String firstName;
     private String lastName;

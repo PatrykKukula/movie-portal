@@ -101,6 +101,6 @@ public class TopicServiceImpl implements ITopicService {
             throw new UsernameNotFoundException("User is not logged in");
         }
         User user = (User) auth.getPrincipal();
-        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+        return userEntityRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import pl.patrykkukula.MovieReviewPortal.Dto.ErrorResponseDto;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.stream.Collectors;
+
 import static java.time.LocalDateTime.now;
 import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 
@@ -62,13 +63,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDto(path, STATUS_500, STATUS_500_MESSAGE, errorMessage, occurrenceTime));
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private ResponseEntity<List<String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult()
+    private ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+        String errorMessage = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(field -> field.getField() + ": " + field.getDefaultMessage())
-                .toList();
+                .collect(Collectors.joining(", "));
+
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errors);
+                .body(new ErrorResponseDto(
+                        request.getDescription(false),
+                        "400",
+                        "Bad Request",
+                        errorMessage,
+                        LocalDateTime.now()
+                ));
     }
 }

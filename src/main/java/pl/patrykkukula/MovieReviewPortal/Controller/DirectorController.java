@@ -29,7 +29,7 @@ public class DirectorController {
     public ResponseEntity<ResponseDto> addDirector(@Valid @RequestBody DirectorDto directorDto, HttpServletRequest request) {
         Long directorId = directorService.addDirector(directorDto);
         URI location = setUri(directorId,request.getRequestURI());
-        return ResponseEntity.created(location).body(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
+        return ResponseEntity.created(location).body(new ResponseDto(STATUS_201, STATUS_201_MESSAGE));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDto> deleteDirector(@PathVariable Long id) {

@@ -9,12 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-
-
 @Component("AuditorAwareImpl")
 @RequiredArgsConstructor
 public class AuditorAwareImpl implements AuditorAware<String> {
-
 
     @Override
     public Optional<String> getCurrentAuditor() {
@@ -23,7 +20,6 @@ public class AuditorAwareImpl implements AuditorAware<String> {
             return Optional.empty();
         }
         User user = (User) auth.getPrincipal();
-
         return Optional.of(user.getUsername());
     }
 }

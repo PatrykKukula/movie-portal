@@ -105,7 +105,7 @@ public class CommentServiceImpl implements ICommentService {
     private boolean canUserModify(Long userId){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = (User)auth.getPrincipal();
-        UserEntity userEntity = userRepository.findByEmailWithRoles(user.getUsername())
+        UserEntity userEntity = userRepository.findByUsernameWithRoles(user.getUsername())
                 .orElseThrow(() -> new IllegalStateException("Error during resource modification. Please try again or contact technical support"));
 
         return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
@@ -116,6 +116,6 @@ public class CommentServiceImpl implements ICommentService {
             throw new UsernameNotFoundException("User is not logged in");
         }
         User user = (User) auth.getPrincipal();
-        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+        return userEntityRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

@@ -19,7 +19,7 @@ public class AuthEntryPointImpl implements AuthenticationEntryPoint {
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        String message = "Invalid email or password";
+        String message = "Unauthorized";
 
         String path = request.getRequestURI();
         ErrorResponseDto errorResponse = new ErrorResponseDto(

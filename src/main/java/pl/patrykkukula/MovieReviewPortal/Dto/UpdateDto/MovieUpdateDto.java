@@ -18,7 +18,7 @@ public class MovieUpdateDto {
     private String title;
     @Size(max = 1024, message = "Movie description cannot exceed 1024 characters")
     private String description;
-    @PastOrPresent(message = "Release date cannot be in the past")
+    @PastOrPresent(message = "Release date cannot be in the future")
     private LocalDate releaseDate;
     private String category;
     private Long directorId;

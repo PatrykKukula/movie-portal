@@ -16,7 +16,6 @@ public class ServiceUtils {
     public static String validateSorting(String sorting) {
         return (sorting != null && (sorting.equalsIgnoreCase("ASC") || sorting.equalsIgnoreCase("DESC"))) ? sorting : "ASC";
     }
-
     public static <T> void updateField(Supplier<T> field, Consumer<T> update) {
         ofNullable(field.get()).ifPresent(update);
     }

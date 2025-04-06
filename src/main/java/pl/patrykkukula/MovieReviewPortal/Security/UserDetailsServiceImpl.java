@@ -21,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmailWithRoles(email)
-                .map(userEntity -> new User(userEntity.getEmail(), userEntity.getPassword(), mapRoleToAuthorities(userEntity))
+                .map(userEntity -> new User(userEntity.getUsername(), userEntity.getPassword(), mapRoleToAuthorities(userEntity))
                 ).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
     }
     private List<SimpleGrantedAuthority> mapRoleToAuthorities(UserEntity userEntity) {

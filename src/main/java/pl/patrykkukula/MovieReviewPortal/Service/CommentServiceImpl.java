@@ -1,10 +1,8 @@
-package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+package pl.patrykkukula.MovieReviewPortal.Service;
 
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -35,8 +33,7 @@ public class CommentServiceImpl implements ICommentService {
     private final CommentRepository commentRepository;
     private final TopicRepository topicRepository;
     private final UserEntityRepository userRepository;
-    private final UserEntityRepository userEntityRepository;
-    private static final Logger logger = LoggerFactory.getLogger(CommentServiceImpl.class);
+
 
     @Override
     @Transactional
@@ -116,6 +113,6 @@ public class CommentServiceImpl implements ICommentService {
             throw new UsernameNotFoundException("User is not logged in");
         }
         User user = (User) auth.getPrincipal();
-        return userEntityRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+        return userRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

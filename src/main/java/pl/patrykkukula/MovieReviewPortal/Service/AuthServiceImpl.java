@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+package pl.patrykkukula.MovieReviewPortal.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

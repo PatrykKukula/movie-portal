@@ -23,7 +23,7 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 @AllArgsConstructor
 public class DirectorController {
 
-    private IDirectorService directorService;
+    private final IDirectorService directorService;
 
     @PostMapping
     public ResponseEntity<ResponseDto> addDirector(@Valid @RequestBody DirectorDto directorDto, HttpServletRequest request) {

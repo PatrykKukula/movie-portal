@@ -19,7 +19,7 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 @RequestMapping("/comments")
 public class CommentController {
 
-    private ICommentService commentService;
+    private final ICommentService commentService;
 
     @PostMapping
     public ResponseEntity<ResponseDto> createComment(@Valid @RequestBody CommentDto commentDto, HttpServletRequest request) {
@@ -42,7 +42,7 @@ public class CommentController {
         return ResponseEntity.ok().body(commentService.fetchAllCommentsForUser(username));
     }
     @GetMapping
-    public ResponseEntity<List<CommentDtoWithUser>> fetchAllComments(@RequestParam(required = false, defaultValue = "ASC") String sorting) {
+    public ResponseEntity<List<CommentDtoWithUser>> fetchAllComments(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorting) {
         return ResponseEntity.ok().body(commentService.fetchAllComments(sorting));
     }
     @PatchMapping("/{commentId}")

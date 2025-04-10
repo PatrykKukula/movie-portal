@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import pl.patrykkukula.MovieReviewPortal.Dto.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.MovieUpdateDto;
-import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.MovieServiceImpl;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;

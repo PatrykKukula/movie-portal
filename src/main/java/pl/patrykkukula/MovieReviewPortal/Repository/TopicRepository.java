@@ -27,4 +27,6 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     List<Topic> findAllOrderByTopicIdDesc();
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleAsc(String title);
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleDesc(String title);
+    @Query("SELECT t FROM Topic t INNER JOIN t.user")
+    Optional<Topic> findByIdWithUser(@Param(value = "topicId") Long topicId);
 }

@@ -33,7 +33,7 @@ public class SecurityConfig {
                     .requestMatchers("/actors/**").hasRole("ADMIN")
                     .requestMatchers("/directors/**").hasRole("ADMIN")
                     .requestMatchers("/movies/**").hasRole("ADMIN")
-                    .requestMatchers("/topics/**").hasRole("ADMIN")
+                    .requestMatchers("/topics/**").authenticated()
                     .requestMatchers("/comments/**").authenticated()
 
         );
@@ -42,7 +42,6 @@ public class SecurityConfig {
             ehc.authenticationEntryPoint(new AuthEntryPointImpl());
         });
         http.httpBasic(withDefaults());
-        http.formLogin(form -> form.loginPage("/login").permitAll());
         return http.build();
     }
     @Bean

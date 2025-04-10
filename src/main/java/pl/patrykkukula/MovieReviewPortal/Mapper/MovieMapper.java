@@ -37,7 +37,6 @@ public class MovieMapper {
         return MovieDto.builder()
                 .id(movie.getMovieId())
                 .title(movie.getTitle())
-                .id(movie.getMovieId())
                 .build();
     }
     public static Movie mapToMovieUpdate(MovieUpdateDto movieUpdateDto, Movie movie){

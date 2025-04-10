@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+package pl.patrykkukula.MovieReviewPortal.Service;
 
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;

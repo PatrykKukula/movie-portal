@@ -14,7 +14,7 @@ import java.util.Map;
 @AllArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
-    private IAuthService registerService;
+    private final IAuthService registerService;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserEntityDto userDto) {

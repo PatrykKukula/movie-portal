@@ -3,6 +3,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -48,6 +49,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponseDto(path, STATUS_404, STATUS_404_MESSAGE, errorMessage, occurrenceTime));
     }
+    @ExceptionHandler(IllegalResourceModifyException.class)
+    private ResponseEntity<ErrorResponseDto> handleIllegalResourceModifyException(IllegalResourceModifyException ex, WebRequest request) {
+        String path = request.getDescription(false);
+        LocalDateTime occurrenceTime = now();
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDto(path, STATUS_400, STATUS_400_MESSAGE, errorMessage, occurrenceTime));
+    }
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
         String path = request.getDescription(false);
@@ -61,6 +70,13 @@ public class GlobalExceptionHandler {
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDto(path, STATUS_500, STATUS_500_MESSAGE, errorMessage, occurrenceTime));
+    }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingHandleRequestParameterException(MissingServletRequestParameterException ex, WebRequest request) {
+        String path = request.getDescription(false);
+        LocalDateTime occurrenceTime = now();
+        String errorMessage = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDto(path, STATUS_400, STATUS_400_MESSAGE, errorMessage, occurrenceTime));
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     private ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {

@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+package pl.patrykkukula.MovieReviewPortal.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.EnableScheduling;

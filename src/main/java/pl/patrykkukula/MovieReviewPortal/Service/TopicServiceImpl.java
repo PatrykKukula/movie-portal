@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+package pl.patrykkukula.MovieReviewPortal.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.TopicUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.TopicMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
@@ -35,6 +36,7 @@ public class TopicServiceImpl implements ITopicService {
         UserEntity user = getUserEntity();
         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie","Movie id", String.valueOf(movieId)));
         Topic topic = TopicMapper.mapToTopic(topicWithComment.getTopic(), movie);
+        topic.setUser(user);
         Comment comment = Comment.builder()
                 .commentIdInPost(1L)
                 .text(topicWithComment.getComment().getText())
@@ -48,7 +50,9 @@ public class TopicServiceImpl implements ITopicService {
     @Override
     public void deleteTopic(Long topicId) {
         validateId(topicId);
-        topicRepository.findById(topicId).orElseThrow(()-> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
+        UserEntity userEntity = getUserEntity();
+        Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
+        if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topicRepository.deleteById(topicId);
     }
     @Override
@@ -90,8 +94,9 @@ public class TopicServiceImpl implements ITopicService {
     @Transactional
     public void updateTopic(Long topicId, TopicUpdateDto topicUpdateDto) {
         validateId(topicId);
-        Topic topic = topicRepository.findById(topicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
+        UserEntity userEntity = getUserEntity();
+        Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
+        if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topic.setTitle(topicUpdateDto.getTitle());
         topicRepository.save(topic);
     }

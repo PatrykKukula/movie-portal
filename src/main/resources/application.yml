@@ -2,13 +2,13 @@ server:
   port: 8081
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/MoviePortal
+    url: jdbc:postgresql://db:5432/MoviePortal
     driver-class-name: org.postgresql.Driver
-    password: Patryk
+    password: postgres
     username: postgres
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     defer-datasource-initialization: true
   sql:
     init:

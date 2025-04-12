@@ -3,7 +3,7 @@ services:
     image: bitnami/postgresql
     container_name: Database
     ports:
-      - "5432:5432"
+      - "5433:5432"
     deploy:
       resources:
         limits:

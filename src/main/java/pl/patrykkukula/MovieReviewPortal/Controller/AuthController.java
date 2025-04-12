@@ -2,6 +2,8 @@ package pl.patrykkukula.MovieReviewPortal.Controller;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.PasswordResetDto;
@@ -15,10 +17,14 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
     private final IAuthService registerService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserEntityDto userDto) {
-        return ResponseEntity.ok(registerService.register(userDto));
+        logger.info("AuthController - received POST /auth/register request");
+        String register = registerService.register(userDto);
+        logger.info(register);
+        return ResponseEntity.ok(register);
     }
     @PostMapping("/register/confirm")
     public ResponseEntity<String> verifyAccount(@RequestBody Map<String,String> request) {

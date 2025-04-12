@@ -1,6 +1,9 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.PasswordResetDto;
@@ -12,14 +15,16 @@ import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Model.VerificationToken;
 import pl.patrykkukula.MovieReviewPortal.Repository.PasswordResetRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.RoleRepository;
-import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
-import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
+import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import static java.lang.System.*;
+
+import static java.lang.System.in;
+import static java.lang.System.lineSeparator;
 
 @Service
 @RequiredArgsConstructor
@@ -29,14 +34,18 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordResetRepository pwdRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
     @Transactional
     public String register(UserEntityDto userDto) {
+        logger.info("Registering user: {}", userDto);
         Optional<UserEntity> existingUser = userRepository.findUserByUsernameOrEmail(userDto.getUsername(), userDto.getEmail());
+        logger.info("Existing user: {}", existingUser.isPresent());
         if (existingUser.isPresent()) throw new IllegalStateException("Username or email already exists");
 
         String hashedPassword = encoder.encode(userDto.getPassword());
+        logger.info("Hashed password: {}", hashedPassword);
         Role role = roleRepository.findRoleByRoleName("USER").orElseThrow(() -> new RuntimeException("Role USER not found. Please contact technical support"));
 
        UserEntity user = UserEntity.builder()
@@ -45,9 +54,11 @@ public class AuthServiceImpl implements IAuthService {
                         .email(userDto.getEmail())
                         .roles(List.of(role))
                         .build();
-        userRepository.save(user);
+       logger.info("Registering user: {}", user);
+       UserEntity registerUser = userRepository.save(user);
+       logger.info("Registered user: {}", registerUser);
 
-       return generateVerificationToken(user);
+        return generateVerificationToken(user);
     }
     @Override
     @Transactional
@@ -67,7 +78,7 @@ public class AuthServiceImpl implements IAuthService {
     public String resendVerificationToken(String email) {
         if (email == null || email.isEmpty()) throw new IllegalArgumentException("email cannot be null or empty");
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Account", "email", email));
-        return generateVerificationToken(user);
+        return resendVerificationToken(user);
     }
     @Override
     @Transactional
@@ -113,10 +124,18 @@ public class AuthServiceImpl implements IAuthService {
 
     private String generateVerificationToken(UserEntity user){
         if (user.isEnabled()) throw new IllegalStateException("Account is verified");
+
+        return verificationTokenBase(user);
+    }
+    private String resendVerificationToken(UserEntity user){
+        if (user.isEnabled()) throw new IllegalStateException("Account is verified");
         user.setVerificationToken(null);
         userRepository.save(user);
         pwdRepository.flush();
 
+     return verificationTokenBase(user);
+    }
+    private String verificationTokenBase(UserEntity user){
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = VerificationToken
                 .builder()
@@ -124,6 +143,7 @@ public class AuthServiceImpl implements IAuthService {
                 .expiryDate(LocalDateTime.now().plusHours(12))
                 .user(user)
                 .build();
+        logger.info("Verification token:{}", verificationToken.getToken());
         verificationRepository.save(verificationToken);
         return  "Verification token has been created and will be valid for 12 hours: " + lineSeparator() +
                 "To activate your account, send a POST request to the following URL: " +

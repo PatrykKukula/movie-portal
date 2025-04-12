@@ -20,7 +20,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.securityContext(scc -> scc.requireExplicitSave(false));
@@ -29,7 +28,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request ->
             request.requestMatchers("/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
-                    .requestMatchers("/movies/{movieId}/rate", "movies/rate").authenticated()
+                    .requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
                     .requestMatchers("/actors/**").hasRole("ADMIN")
                     .requestMatchers("/directors/**").hasRole("ADMIN")
                     .requestMatchers("/movies/**").hasRole("ADMIN")

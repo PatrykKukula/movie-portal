@@ -1,0 +1,44 @@
+services:
+  db:
+    image: bitnami/postgresql
+    container_name: Database
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 800m
+    networks:
+      - movie-portal
+    environment:
+      POSTGRES_DB: MoviePortal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+
+  movie_portal:
+    image: asteez/movieportalrestapi:v1.1
+    container_name: MoviePortal
+    ports:
+      - "8082:8081"
+    deploy:
+      resources:
+        limits:
+          memory: 800m
+    networks:
+      - movie-portal
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/MoviePortal
+        SPRING_DATASOURCE_USERNAME: postgres
+        SPRING_DATASOURCE_PASSWORD: postgres
+
+networks:
+  movie-portal:
+    driver: "bridge"

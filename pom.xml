@@ -97,7 +97,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<name>asteez/movieportalrestapi:v1</name>
+						<name>asteez/movieportalrestapi:v1.1</name>
 						<env>
 							<BP_SPRING_PROFILES_ACTIVE>test</BP_SPRING_PROFILES_ACTIVE>
 						</env>

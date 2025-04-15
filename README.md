@@ -6,40 +6,49 @@ Welcome to Movie Review Portal. This is REST API to store movies data alongside 
 * User registration with account verification and password reset
 * Create/update/delete movie with its details
 * Create/update/delete actors and directors with their details
-* Rating any movie
+* Fetch movies/actors/directors data with their details
+* Rating any movie and update the score
 * Discussion section
 
 ## Technologies
 - Java 23
 - Spring Boot
-   - Spring data JPA and Hibernate
+   - Spring data JPA with Hibernate
    - Spring Security
    - Spring Validation
 - Lombok
+- JUnit5
+- Mockito
 - PostgreSQL for service
 - H2 database for testing
 - Docker
 
 ## How to run service
-**1.** **Download docker-compose.yml or clone repository**
+**1. Download docker-compose.yml or clone repository**
 ```bash
 git clone https://github.com/PatrykKukula/movie-review-portal.git
 ```
 
-**Run the container**
 
-**2**. Navigate to the folder containing **docker-compose.yml** file , for example
+
+**2.  Run the container**
+Navigate to the folder containing **docker-compose.yml** file , for example
 ```bash
 cd F:
 cd moviereviewportal
 ```
-And run the container:
+And then:
 ```bash
 docker compose up -d
 ```
-**Send requests using Postman**
 
-Import to Postman collection from this repository -  ***MovieReviewPortal.postman_collection.json***
+**3. Send requests using Postman**
+
+Download postman here https://www.postman.com/downloads/ if you haven't already.
+
+Download Postman collection from this repository -  ***MovieReviewPortal.postman_collection.json***
+
+And then import it to the Postman to easily navigate through enpoints.
 
 Click on the import button in Postman, and paste the file url or drop the file to the window:
 
@@ -53,7 +62,7 @@ List of endpoints below.
 
 > **Note**
 > 
->**Any GET Request** does not need authentication.
+>**Any GET Request** does not need authentication. Anyone can fetch movies, actors and directors data.
 > 
 >**User** can set rate for any movie, create topic under each movie topic section and add comment in any topic.
 > 
@@ -139,7 +148,7 @@ Endpoints to menage comments.
 - **GET** */comments/topic/{topicId}* - fetch all comments data for topic, define sorting
 - **GET** */comments/user/{username}* - fetch all comments data for user
 
-Every request has a prepared body. You just need to insert data you want.
+Every request has prepared body. You just need to insert data you want and send request.
 
 ![body](https://github.com/user-attachments/assets/770f6c04-b690-427d-a649-836686f6666b)
 

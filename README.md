@@ -1,6 +1,8 @@
 # Movie Review Portal
 
-Welcome to Movie Review Portal. This is REST API to store movies data alongside actors and directors, and a place you can rate movies and have discussions about each movie.
+Movie Review Portal is a monolithic REST API built with Spring Boot that serves as a platform for managing movie-related data, including actors and directors. It allows users to register, rate movies, and participate in discussions about each title.
+The API supports full CRUD operations on movies, actors, and directors (admin only), while enabling users to create discussion topics on movies. The system implements role-based access control, email verification, and HTTP basic authentication to secure user interactions.
+
 
 ## Features
 * User registration with account verification and password reset

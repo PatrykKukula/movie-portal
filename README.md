@@ -44,13 +44,13 @@ docker compose up -d
 
 **3. Send requests using Postman**
 
-Download postman here https://www.postman.com/downloads/ if you haven't already.
+Download postman here https://www.postman.com/downloads/ if you haven't already, create account and log in.
 
 Download Postman collection from this repository -  ***MovieReviewPortal.postman_collection.json***
 
 And then import it to the Postman to easily navigate through enpoints.
 
-Click on the import button in Postman, and paste the file url or drop the file to the window:
+Click on the import button in Postman, and paste the file url, raw text or drop the file to the window:
 
 ![import](https://github.com/user-attachments/assets/59c73cd6-8200-45e0-a42e-5f0a50602361)
 

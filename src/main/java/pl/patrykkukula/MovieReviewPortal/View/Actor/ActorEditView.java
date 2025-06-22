@@ -1,0 +1,111 @@
+package pl.patrykkukula.MovieReviewPortal.View.Actor;
+
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomDatePicker;
+import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
+import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
+
+import java.util.List;
+
+@Route("actors/add")
+@PageTitle("Edit actor")
+public class ActorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
+
+    private final ActorServiceImpl actorService;
+    private final BeanValidationBinder<ActorUpdateDto> binder = new BeanValidationBinder<>(ActorUpdateDto.class);
+    private final Notification successNotification = CommonComponents.successNotification("Actor updated successfully");
+    private Dialog validationDialog;
+
+    public ActorEditView(ActorServiceImpl actorService) {
+        this.actorService = actorService;
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, Long actorId) {
+        CustomDatePicker customDatePicker = new CustomDatePicker();
+
+        FormLayout layout = getContent();
+        layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
+        layout.setMaxWidth("25%");
+        ActorDtoWithMovies actor = actorService.fetchActorByIdWithMovies(actorId);
+
+        ActorUpdateDto dto = ActorUpdateDto.builder()
+                .firstName(actor.getFirstName())
+                .lastName(actor.getLastName())
+                .country(actor.getCountry())
+                .biography(actor.getBiography())
+                .dateOfBirth(actor.getDateOfBirth())
+                .build();
+
+        var firstNameField = FormFields.textField("First name");
+        binder.bind(firstNameField, "firstName");
+
+        var lastNameField = FormFields.textField("Last name");
+        binder.bind(lastNameField, "lastName");
+
+        var countryField = FormFields.textField("Country");
+        binder.bind(countryField, "country");
+
+        TextArea biographyField = FormFields.textAreaField("Biography");
+        binder.bind(biographyField, "biography");
+
+        FormLayout datePickerLayout = customDatePicker.generateDatePickerLayout("Date of birth");
+
+        customDatePicker.setPresentationValue(actor.getDateOfBirth());
+        binder.bind(customDatePicker, "dateOfBirth");
+
+        binder.setBean(dto);
+//        binder.setChangeDetectionEnabled(true);
+        Button saveButton = saveButton(binder, actorId);
+        Button cancelButton = Buttons.cancelButton(ActorDetailsView.class, actorId);
+//        binder.addValueChangeListener(e -> {
+//            saveButton.setEnabled(binder.hasChanges());
+//        });
+
+
+        layout.add(firstNameField, lastNameField, countryField, datePickerLayout, biographyField, saveButton, cancelButton);
+    }
+
+    private Button saveButton(Binder<ActorUpdateDto> binder, Long actorId) {
+        Button saveButton = new Button("Save");
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveButton.addClickListener(e -> {
+            if (binder.validate().isOk()) {
+                ActorUpdateDto actorUpdateDto = binder.getBean();
+                actorService.updateActor(actorUpdateDto, actorId);
+                successNotification.open();
+                UI.getCurrent().navigate(ActorDetailsView.class, actorId);
+            }
+            else {
+                BinderValidationStatus<ActorUpdateDto> validate = binder.validate();
+                List<ValidationResult> validationResults = validate.getValidationErrors();
+
+                validationDialog = new Dialog("Cannot save changes - invalid or empty fields");
+                validationDialog = CommonComponents.validationErrorsDialog(validationResults);
+                validationDialog.open();
+            }
+        });
+        return saveButton;
+    }
+}
+

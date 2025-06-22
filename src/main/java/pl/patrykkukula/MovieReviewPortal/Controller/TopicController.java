@@ -4,8 +4,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.TopicUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoWithCommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.ITopicService;
 import java.net.URI;
 import java.util.List;
@@ -14,7 +17,7 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/topics")
+@RequestMapping("/api/topics")
 public class TopicController {
     private final ITopicService topicService;
 

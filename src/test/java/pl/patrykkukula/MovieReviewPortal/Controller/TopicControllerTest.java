@@ -13,11 +13,15 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.patrykkukula.MovieReviewPortal.Dto.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.TopicUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoWithCommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
-import pl.patrykkukula.MovieReviewPortal.Service.TopicServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
 
 import java.util.Collections;
 import java.util.List;

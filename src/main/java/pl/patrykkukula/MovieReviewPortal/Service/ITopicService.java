@@ -1,7 +1,9 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
 
-import pl.patrykkukula.MovieReviewPortal.Dto.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.TopicUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoWithCommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicUpdateDto;
 
 import java.util.List;
 

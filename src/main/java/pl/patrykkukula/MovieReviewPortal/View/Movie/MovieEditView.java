@@ -1,0 +1,153 @@
+package pl.patrykkukula.MovieReviewPortal.View.Movie;
+
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import lombok.extern.slf4j.Slf4j;
+import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorSummaryDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorSummaryDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDto;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
+@Route("actors/edit")
+@PageTitle("Edit movie")
+@CssImport("./styles/common-styles.css")
+public class MovieEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
+
+    private final MovieServiceImpl movieService;
+    private final DirectorServiceImpl directorService;
+    private final ActorServiceImpl actorService;
+    private final VerticalLayout pickedActors = new VerticalLayout();
+    private final Notification successNotification = CommonComponents.successNotification("Movie updated successfully");
+    private Dialog validationDialog;
+
+    public MovieEditView(MovieServiceImpl movieService, DirectorServiceImpl directorService, ActorServiceImpl actorService) {
+        this.movieService = movieService;
+        this.directorService = directorService;
+        this.actorService = actorService;
+    }
+
+    @Override
+    public void setParameter(BeforeEvent event, Long movieId) {
+        FormLayout layout = getContent();
+        layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1));
+        layout.setMaxWidth("25%");
+
+        MovieDto dto = movieService.fetchMovieById(movieId);
+
+        BeanValidationBinder<MovieDto> binder = new BeanValidationBinder<>(MovieDto.class);
+
+        var titleField = FormFields.textField("Title");
+        binder.bind(titleField, "title");
+
+        var descriptionField = FormFields.textAreaField("Description");
+        binder.bind(descriptionField, "description");
+
+        CustomDatePicker customDatePicker = new CustomDatePicker();
+        FormLayout datePickerLayout = customDatePicker.generateDatePickerLayout("Release date");
+
+        customDatePicker.setPresentationValue(LocalDate.now());
+        binder.bind(customDatePicker, "releaseDate");
+
+        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox();
+        binder.bind(categoryField, "category");
+
+        EntitySelector entitySelector = new EntitySelector(directorService);
+        ComboBox<DirectorSummaryDto> directorField = entitySelector.directorComboBox();
+        binder.bind(directorField, "director");
+
+        List<ActorSummaryDto> actors = new ArrayList<>(dto.getActors());
+        setCurrentActors(actors);
+
+        ComboBox<ActorSummaryDto> actorComboBox = MovieViewCommon.actorComboBox(actorService);
+        setActorComboBox(actorComboBox, actors);
+
+        binder.setBean(dto);
+
+        Button saveButton = saveButton(binder, actors, movieId);
+        Button cancelButton = Buttons.cancelButton(MovieView.class);
+
+        layout.add(titleField, descriptionField, datePickerLayout, categoryField, directorField,
+                actorComboBox, pickedActors, saveButton, cancelButton);
+    }
+
+    private Button saveButton(Binder<MovieDto> binder, List<ActorSummaryDto> actors, Long movieId) {
+        Button saveButton = new Button("Save");
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        saveButton.addClickListener(e -> {
+            if (binder.validate().isOk()) {
+                MovieDto movieDto = binder.getBean();
+                List<Long> actorIds = actors.stream()
+                        .map(ActorSummaryDto::getId)
+                        .toList();
+                movieService.updateMovie(movieId, movieDto, actorIds);
+                successNotification.open();
+                UI.getCurrent().navigate(MovieDetailsView.class, movieId);
+            } else {
+                BinderValidationStatus<MovieDto> validate = binder.validate();
+                List<ValidationResult> validationResults = validate.getValidationErrors();
+
+                validationDialog = CommonComponents.validationErrorsDialog(validationResults);
+                validationDialog.open();
+            }
+        });
+        return saveButton;
+    }
+
+    private void setActorComboBox(ComboBox<ActorSummaryDto> actorComboBox, List<ActorSummaryDto> actors) {
+        actorComboBox.addValueChangeListener(e -> {
+            ActorSummaryDto pickedActor = e.getValue();
+            if (pickedActor != null) {
+                boolean isPresent = actors.stream().anyMatch(actor -> actor.getId().equals(pickedActor.getId()));
+                if (!isPresent) {
+                    actors.add(pickedActor);
+
+                    Div addedActor = MovieViewCommon.addedActor(pickedActor.getFullName());
+
+                    Icon closeIcon = MovieViewCommon.closeIcon(pickedActor, addedActor, actors, pickedActors);
+                    addedActor.add(closeIcon);
+
+                    pickedActors.add(addedActor);
+                }
+            }
+            actorComboBox.clear();
+        });
+    }
+
+    private void setCurrentActors(List<ActorSummaryDto> actors) {
+        actors.forEach(actor -> {
+            Div currentActor = MovieViewCommon.addedActor(actor.getFullName());
+
+            Icon closeIcon = MovieViewCommon.closeIcon(actor, currentActor, actors, pickedActors);
+            currentActor.add(closeIcon);
+            pickedActors.add(currentActor);
+        });
+
+    }
+}

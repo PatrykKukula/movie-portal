@@ -1,8 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 import org.junit.jupiter.api.Test;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;

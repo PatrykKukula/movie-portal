@@ -1,0 +1,10 @@
+vaadin-grid::part(row):hover {
+    background: var(--lumo-contrast-10pct) !important;
+}
+vaadin-grid::part(body-cell) {
+    background-color: unset !important;
+    cursor: pointer;
+}
+vaadin-button {
+    cursor: pointer;
+}

@@ -1,6 +1,8 @@
 server:
   port: 8081
 spring:
+  profiles:
+    active: default
   datasource:
     url: jdbc:postgresql://db:5432/MoviePortal
     driver-class-name: org.postgresql.Driver
@@ -13,6 +15,8 @@ spring:
   sql:
     init:
       mode: always
+  application:
+    name: "Movie Review Portal"
 logging:
   pattern:
     console: "%green(%d{HH:mm:ss}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"

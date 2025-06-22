@@ -1,0 +1,25 @@
+.title {
+    font-size: 2.2rem;
+    color: white;
+    font-family: cursive;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.title:hover {
+    font-weight: bold;
+}
+.tab {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.tab:hover {
+    font-weight: bold;
+    color: white;
+}
+.container {
+    background-color: #339cff;
+    padding: 10px;
+    flex-wrap: nowrap;
+    width: 100%;
+    align-items: center;
+}

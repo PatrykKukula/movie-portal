@@ -8,8 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.patrykkukula.MovieReviewPortal.Dto.PasswordResetDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.UserEntityDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Model.PasswordResetToken;
 import pl.patrykkukula.MovieReviewPortal.Model.Role;
@@ -19,6 +19,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.PasswordResetRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.RoleRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.AuthServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,6 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 import org.junit.jupiter.api.Test;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
 import pl.patrykkukula.MovieReviewPortal.Model.Topic;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter @ToString
+@Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Director extends BaseEntity{
@@ -19,7 +19,10 @@ public class Director extends BaseEntity{
     private String lastName;
     @Column(nullable = false)
     private LocalDate dateOfBirth;
+    @Column(nullable = false)
     private String country;
+    @Column(length = 1000)
+    private String biography;
 
     @OneToMany(mappedBy = "director", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Movie> movies = new ArrayList<>();

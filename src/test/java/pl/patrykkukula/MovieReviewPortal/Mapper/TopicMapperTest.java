@@ -1,8 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 import org.junit.jupiter.api.Test;
-import pl.patrykkukula.MovieReviewPortal.Dto.TopicDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.TopicDtoBasic;
-import pl.patrykkukula.MovieReviewPortal.Dto.TopicDtoToDisplay;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
 import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 import pl.patrykkukula.MovieReviewPortal.Model.Topic;

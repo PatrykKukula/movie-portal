@@ -12,10 +12,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
-import pl.patrykkukula.MovieReviewPortal.Service.DirectorServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 
 import java.time.LocalDate;
 import java.util.Collections;

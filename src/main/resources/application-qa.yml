@@ -1,0 +1,26 @@
+server:
+  port: 8081
+spring:
+  config:
+    activate:
+      on-profile: qa
+  datasource:
+    url: jdbc:postgresql://localhost:5432/MoviePortal
+    driver-class-name: org.postgresql.Driver
+    password: ${DATASOURCE_PASSWORD}
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  application:
+    name: "Movie Review Portal - QA profile"
+logging:
+  pattern:
+    console: "%green(%d{HH:mm:ss}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
+  level:
+    org.springframework.security: TRACE
+    pl.patrykkukula: DEBUG

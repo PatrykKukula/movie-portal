@@ -17,4 +17,7 @@ public interface MovieRateRepository extends JpaRepository<MovieRate, Long> {
     @Modifying
     @Query("DELETE FROM MovieRate mr WHERE mr.movie.movieId = :movieId AND mr.user.userId = :userId")
     int deleteByMovieIdAndUserId(@Param("movieId") Long movieId, @Param("userId") Long userId);
+    @Query("SELECT COALESCE(AVG(mr.rate),0) FROM Movie m LEFT JOIN m.movieRates mr WHERE m.movieId = :movieId")
+    double getAverageMovieRate(@Param(value = "movieId") Long movieId);
+
 }

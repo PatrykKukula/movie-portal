@@ -1,5 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
 
 public class CommentMapper {

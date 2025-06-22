@@ -5,9 +5,9 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
-import pl.patrykkukula.MovieReviewPortal.Dto.ResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
 import pl.patrykkukula.MovieReviewPortal.Service.ICommentService;
 import java.net.URI;
 import java.util.List;
@@ -16,7 +16,7 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/comments")
+@RequestMapping("/api/comments")
 public class CommentController {
 
     private final ICommentService commentService;

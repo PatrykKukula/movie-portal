@@ -21,7 +21,10 @@ public class Actor extends BaseEntity {
     private String lastName;
     @Column(nullable = false)
     private LocalDate dateOfBirth;
+    @Column(nullable = false)
     private String country;
+    @Column(length = 1000)
+    private String biography;
 
     @ManyToMany(mappedBy = "actors", fetch = FetchType.LAZY)
     private List<Movie> movies = new ArrayList<>();

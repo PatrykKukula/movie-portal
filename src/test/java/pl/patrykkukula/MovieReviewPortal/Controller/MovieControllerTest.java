@@ -12,14 +12,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieDtoBasic;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieDtoWithDetails;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieRateDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.MovieUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
+import pl.patrykkukula.MovieReviewPortal.Dto.MovieRate.MovieRateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
-import pl.patrykkukula.MovieReviewPortal.Service.MovieServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -192,7 +192,7 @@ public class MovieControllerTest {
     }
     @Test
     public void shouldFetchMovieByIdCorrectly() throws Exception {
-        when(movieService.fetchMovieById(anyLong())).thenReturn(movieDtoWithDetails);
+        when(movieService.fetchMovieDetailsById(anyLong())).thenReturn(movieDtoWithDetails);
 
         mockMvc.perform(get("/movies/{id}", 1L))
                 .andExpectAll(
@@ -206,7 +206,7 @@ public class MovieControllerTest {
     @Test
     public void shouldRespond404WhenFetchMovieByIdAndMovieDoesntExist() throws Exception {
         doThrow(new ResourceNotFoundException("Movie", "movie id", "999"))
-                .when(movieService).fetchMovieById(anyLong());
+                .when(movieService).fetchMovieDetailsById(anyLong());
 
         mockMvc.perform(get("/movies/{id}", 999L))
                 .andExpectAll(

@@ -1,7 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Utils;
 
 import org.junit.jupiter.api.Test;
-import pl.patrykkukula.MovieReviewPortal.Dto.ActorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 

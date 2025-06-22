@@ -14,11 +14,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
-import pl.patrykkukula.MovieReviewPortal.Service.CommentServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.CommentServiceImpl;
 
 import java.util.List;
 

@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 public class BaseEntity {
     @Column(updatable = false, nullable = false)
     @CreatedBy
-    private String createdBy;
+    private String createdBy = "ADMIN";
     @Column(updatable = false, nullable = false)
     @CreatedDate
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
     @Column(insertable = false)
     @LastModifiedBy
     private String updatedBy;

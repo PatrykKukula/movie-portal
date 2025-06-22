@@ -14,14 +14,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
 import pl.patrykkukula.MovieReviewPortal.Repository.CommentRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.CommentServiceImpl;
 
 import java.util.Collections;
 import java.util.List;

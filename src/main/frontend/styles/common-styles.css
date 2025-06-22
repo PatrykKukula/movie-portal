@@ -1,0 +1,40 @@
+.actor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.close-icon {
+    color: red;
+    cursor: pointer;
+}
+.added-label {
+    color: red;
+    font-size: 0.8rem;
+}
+
+.buttons-layout {
+    position: absolute;
+    bottom: 10px;
+}
+.details-layout {
+    padding: 0;
+    width: 30% !important;
+    height: 100%;
+    border-right: 2px solid black;
+    box-sizing: border-box;
+}
+.movies {
+    white-space: pre-line;
+}
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+.details {
+    white-space: pre-line;
+    line-height: 2;
+    display: block;
+}

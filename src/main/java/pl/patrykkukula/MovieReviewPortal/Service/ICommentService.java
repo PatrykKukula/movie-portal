@@ -1,6 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import java.util.List;
 
 public interface ICommentService {

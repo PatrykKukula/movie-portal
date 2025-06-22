@@ -6,10 +6,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.ActorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.ActorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.ResponseDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.ActorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IActorService;
 
 import java.net.URI;
@@ -19,7 +19,7 @@ import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
 @RestController
-@RequestMapping(value = "/actors", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/actors", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class ActorController {
 
@@ -40,15 +40,15 @@ public class ActorController {
     public ResponseEntity<ActorDtoWithMovies> getActorByIdWithMovies(@PathVariable Long id) {
         return ResponseEntity.ok(actorService.fetchActorByIdWithMovies(id));
     }
-    @GetMapping
-    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false) String sorted,
-                                                        @RequestParam(name = "findBy", required = false) String findBy) {
-
-        if (findBy == null || findBy.isEmpty()) {
-            return ResponseEntity.ok(actorService.fetchAllActors(sorted));
-        }
-        return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sorted));
-    }
+//    @GetMapping
+//    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false) String sorted,
+//                                                        @RequestParam(name = "findBy", required = false) String findBy) {
+//
+//        if (findBy == null || findBy.isEmpty()) {
+//            return ResponseEntity.ok(actorService.fetchAllActors(sorted));
+//        }
+//        return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sorted));
+//    }
     @PatchMapping("/{id}")
     public ResponseEntity<ResponseDto> updateActor(@PathVariable Long id, @Valid @RequestBody ActorUpdateDto actorUpdateDto) {
         actorService.updateActor(actorUpdateDto, id);

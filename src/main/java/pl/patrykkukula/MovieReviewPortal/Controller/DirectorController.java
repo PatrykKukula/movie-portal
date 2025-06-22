@@ -6,10 +6,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.ResponseDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
 
 import java.net.URI;
@@ -19,7 +19,7 @@ import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
 @RestController
-@RequestMapping(value = "/directors", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/directors", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class DirectorController {
 
@@ -48,7 +48,7 @@ public class DirectorController {
         }
         return ResponseEntity.ok().body(directorService.fetchAllDirectorsByNameOrLastName(findBy, sorted));
     }
-    @PatchMapping("{id}")
+    @PatchMapping("/edit/{id}")
     public ResponseEntity<ResponseDto> updateDirector(@PathVariable Long id, @Valid @RequestBody DirectorUpdateDto directorDto) {
         directorService.updateDirector(directorDto,id);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));

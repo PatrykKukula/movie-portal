@@ -11,9 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.patrykkukula.MovieReviewPortal.Dto.PasswordResetDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.UserEntityDto;
-import pl.patrykkukula.MovieReviewPortal.Service.AuthServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.AuthServiceImpl;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -6,13 +6,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRepository;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 
 import java.time.LocalDate;
 import java.util.Collections;

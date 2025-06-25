@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -37,7 +38,7 @@ public class MovieServiceImpl implements IMovieService {
     private final MovieRateRepository movieRateRepository;
 
     @Override
-    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public Long addMovie(MovieDto movieDto, List<Long> ids) {
         Movie movie = mapToMovie(movieDto);
         movie.setCategory(findCategory(movieDto.getCategory()));
@@ -47,6 +48,7 @@ public class MovieServiceImpl implements IMovieService {
         return savedMovie.getMovieId();
     }
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteMovie(Long movieId) {
         validateId(movieId);
         movieRepository.findById(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie", "Movie id", String.valueOf(movieId)));
@@ -54,6 +56,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean addActorToMovie(Long movieId, Long actorId) {
         validateId(movieId);
         validateId(actorId);
@@ -68,6 +71,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public boolean removeActorFromMovie(Long movieId, Long actorId) {
         validateId(movieId);
         validateId(actorId);
@@ -108,6 +112,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateMovie(Long movieId, MovieDto movieDto, List<Long> ids) {
         validateId(movieId);
         Movie movie = movieRepository.findById(movieId)
@@ -129,6 +134,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole()")
     public Long addRateToMovie(MovieRateDto movieRateDto) {
         validateId(movieRateDto.getMovieId());
         UserEntity user = getUserEntity();
@@ -152,6 +158,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole()")
     public boolean removeRate(Long movieId) {
         validateId(movieId);
         UserEntity user = getUserEntity();

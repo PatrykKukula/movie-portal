@@ -20,6 +20,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorSummaryDto;
@@ -38,6 +40,7 @@ import java.util.List;
 @Route("actors/edit")
 @PageTitle("Edit movie")
 @CssImport("./styles/common-styles.css")
+@RolesAllowed("ADMIN")
 public class MovieEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final MovieServiceImpl movieService;

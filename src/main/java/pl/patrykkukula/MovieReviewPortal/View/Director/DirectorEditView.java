@@ -17,6 +17,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
@@ -30,8 +32,9 @@ import java.util.List;
 
 
 @Slf4j
-@Route("director/edit")
+@Route("directors/edit")
 @PageTitle("Edit director")
+@RolesAllowed("ADMIN")
 public class DirectorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final DirectorServiceImpl directorService;

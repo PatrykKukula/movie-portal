@@ -9,34 +9,39 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
 
 import java.util.List;
 
 @Route("actors")
 @PageTitle("Actors")
+@AnonymousAllowed
 public class ActorView extends VerticalLayout {
     private final ActorServiceImpl actorService;
     private final Grid<ActorDto> grid = new Grid<>(ActorDto.class);
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public ActorView(ActorServiceImpl actorService) {
+    public ActorView(ActorServiceImpl actorService, UserDetailsServiceImpl userDetailsService) {
         this.actorService = actorService;
+        this.userDetailsService = userDetailsService;
+        configureGrid();
 
         H1 title = new H1("Actors");
         title.getStyle().set("font-size","36px").set("font-family", "cursive");
 
-        configureGrid();
-
-        Button addActor = new Button("Add actor");
-        addActor.setPrefixComponent(VaadinIcon.PLUS.create());
-        addActor.addClickListener(e -> UI.getCurrent().navigate(AddActorView.class));
-
+        Button addActor = Buttons.addButton(AddActorView.class, "Add actor");
         TextField searchField = FormFields.searchField("Search by name or last name","Enter name or last name...");
         searchField.addValueChangeListener(e -> updateGridData(e.getValue()));
 
-        add(title, addActor, searchField, grid);
+        add(title, searchField, grid);
+        if (userDetailsService.getAuthenticatedUser() != null) {
+            addComponentAtIndex(1, addActor);
+        }
         updateGridData("");
     }
 

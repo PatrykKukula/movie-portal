@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
@@ -23,6 +24,7 @@ import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 @Slf4j
 @Route("movies")
 @CssImport("./styles/common-styles.css")
+@AnonymousAllowed
 public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final MovieServiceImpl movieService;

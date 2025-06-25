@@ -3,6 +3,7 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -34,9 +35,9 @@ public class CommentServiceImpl implements ICommentService {
     private final TopicRepository topicRepository;
     private final UserEntityRepository userRepository;
 
-
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole()")
     public Long addComment(CommentDto commentDto) {
         Long topicId = commentDto.getTopicId();
         Tuple topicWithMaxCommentId = topicRepository
@@ -54,6 +55,7 @@ public class CommentServiceImpl implements ICommentService {
         return savedComment.getCommentId();
     }
     @Override
+    @PreAuthorize("hasAnyRole()")
     public void removeComment(Long commentId){
         validateId(commentId);
         Comment comment = commentRepository
@@ -84,6 +86,7 @@ public class CommentServiceImpl implements ICommentService {
         return mapToCommentsDtoWithUser(comments);
     }
     @Override
+    @PreAuthorize("hasAnyRole()")
     public void updateComment(Long commentId, CommentDto commentDto){
         validateId(commentId);
         Comment comment = commentRepository

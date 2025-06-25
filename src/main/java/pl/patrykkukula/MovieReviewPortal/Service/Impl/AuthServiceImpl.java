@@ -1,15 +1,16 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
@@ -23,7 +24,6 @@ import pl.patrykkukula.MovieReviewPortal.Repository.PasswordResetRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.RoleRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
-import pl.patrykkukula.MovieReviewPortal.Security.JWTUtils;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
 
 import java.time.LocalDateTime;
@@ -42,7 +42,7 @@ public class AuthServiceImpl implements IAuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final AuthenticationManager authenticationManager;
-    private final JWTUtils jwtUtils;
+    private static final String LOGOUT_SUCCESS_URL = "/movies";
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
@@ -137,17 +137,34 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public String login(String email, String password) {
-        UserEntity user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
-
-//        boolean isPasswordValid = encoder.matches(password, user.getPassword());
-//        if (!isPasswordValid) throw new BadCredentialsException("Invalid password");
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password,
-                user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).toList()));
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
-
-        return jwtUtils.generateJwtToken(authenticate);
+    public void logout() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+            logoutHandler.logout(
+                    VaadinServletRequest.getCurrent(),
+                    null,
+                    auth
+            );
+        }
+        UI.getCurrent().getPage().setLocation(LOGOUT_SUCCESS_URL);
     }
+//
+//    @Override
+//    public boolean login(String email, String password) {
+//        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
+//        if (optionalUser.isEmpty()) {
+//            return false;
+//        }
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        boolean isPasswordCorrect = encoder.matches(password, optionalUser.get().getPassword());
+//        if (isPasswordCorrect) {
+//            authenticationManager.authenticate(auth);
+//            return true;
+//        }
+//        else return false;
+//    }
+
 
     private String generateVerificationToken(UserEntity user){
         if (user.isEnabled()) throw new IllegalStateException("Account is verified");

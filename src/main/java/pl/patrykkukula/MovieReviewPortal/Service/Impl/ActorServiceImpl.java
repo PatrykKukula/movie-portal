@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
@@ -31,16 +32,19 @@ public class ActorServiceImpl implements IActorService {
 
     private final ActorRepository actorRepository;
 
-    @Transactional
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Long addActor(ActorDto actorDto) {
         Actor actor = actorRepository.save(mapToActor(actorDto));
         return actor.getActorId();
     }
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void removeActor(Long actorId) {
         validateId(actorId);
-        if (actorRepository.findById(actorId).isEmpty()) throw new ResourceNotFoundException("Actor", "id", valueOf(actorId));
+        Actor actor = actorRepository.findByIdWithMovies(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));
+        actor.getMovies().forEach(movie -> movie.getActors().remove(actor));
         actorRepository.deleteById(actorId);
     }
     @Override
@@ -57,7 +61,6 @@ public class ActorServiceImpl implements IActorService {
              actorRepository.findAllSortedByNameAsc().stream().map(ActorMapper::mapToActorDto).toList() :
                 actorRepository.findAllSortedByNameDesc().stream().map(ActorMapper::mapToActorDto).toList();
     }
-
     @Override
     public List<ActorSummaryDto> fetchAllActorsSummary() {
         return actorRepository.findAll().stream()
@@ -71,8 +74,8 @@ public class ActorServiceImpl implements IActorService {
                actorRepository.findAllByFirstOrLastNameAsc(name).stream().map(ActorMapper::mapToActorDto).toList() :
                actorRepository.findAllByFirstOrLastNameDesc(name).stream().map(ActorMapper::mapToActorDto).toList();
     }
-    @Transactional
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateActor(ActorUpdateDto actorDto, Long actorId) {
         validateId(actorId);
         Actor actor = actorRepository.findById(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));

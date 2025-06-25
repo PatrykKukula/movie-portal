@@ -19,6 +19,8 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorSummaryDto;
@@ -37,6 +39,7 @@ import java.util.List;
 @Route("movies/add")
 @PageTitle("Add movie")
 @CssImport("./styles/common-styles.css")
+@RolesAllowed("ADMIN")
 public class AddMovieView extends Composite<FormLayout> {
 
     private final MovieServiceImpl movieServiceImpl;

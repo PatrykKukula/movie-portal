@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -33,6 +34,7 @@ public class TopicServiceImpl implements ITopicService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasAnyRole()")
     public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long movieId) {
         validateId(movieId);
         UserEntity user = getUserEntity();
@@ -50,6 +52,7 @@ public class TopicServiceImpl implements ITopicService {
         return savedTopic.getTopicId();
     }
     @Override
+    @PreAuthorize("hasAnyRole()")
     public void deleteTopic(Long topicId) {
         validateId(topicId);
         UserEntity userEntity = getUserEntity();

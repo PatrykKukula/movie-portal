@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
@@ -26,6 +27,7 @@ public class DirectorServiceImpl implements IDirectorService {
     private final MovieRepository movieRepository;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public Long addDirector(DirectorDto directorDto) {
         Director director = mapToDirector(directorDto);
         director.setCreatedBy("ADMIN"); //zmienione na potrzeby vaadin bez logowania
@@ -33,6 +35,8 @@ public class DirectorServiceImpl implements IDirectorService {
         return savedDirector.getDirectorId();
     }
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void removeDirector(Long directorId) {
         validateId(directorId);
           Director director = directorRepository.findByIdWithMovies(directorId)
@@ -72,7 +76,7 @@ public class DirectorServiceImpl implements IDirectorService {
                 directorRepository.findAllByFirstOrLastNameSortedDesc(name).stream().map(DirectorMapper::mapToDirectorDto).toList();
     }
     @Override
-    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateDirector(DirectorUpdateDto directorDto, Long directorId) {
         validateId(directorId);
         Director director = directorRepository.findById(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "id", String.valueOf(directorId)));

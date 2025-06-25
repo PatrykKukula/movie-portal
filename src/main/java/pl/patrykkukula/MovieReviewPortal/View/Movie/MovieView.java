@@ -9,35 +9,41 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Actor.AddActorView;
+import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
 
 import java.util.List;
 
 @Route("movies")
 @PageTitle("Movies")
+@AnonymousAllowed
 public class MovieView extends VerticalLayout {
 
     private final MovieServiceImpl movieService;
     private final Grid<MovieDtoBasic> grid = new Grid<>(MovieDtoBasic.class);
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public MovieView(MovieServiceImpl movieService) {
+    public MovieView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService) {
         this.movieService = movieService;
+        this.userDetailsService = userDetailsService;
+        configureGrid();
 
         H1 title = new H1("Movies");
         title.getStyle().set("font-size","36px").set("font-family", "cursive");
 
-        configureGrid();
-
-        Button addMovie = new Button("Add Movie");
-        addMovie.setPrefixComponent(VaadinIcon.PLUS.create());
-        addMovie.addClickListener(e -> UI.getCurrent().navigate(AddMovieView.class));
-
+        Button addMovie = Buttons.addButton(AddMovieView.class, "Add movie");
         TextField searchField = FormFields.searchField("Search by title", "Enter title...");
         searchField.addValueChangeListener(event -> updateGridData(event.getValue()));
 
-        add(title, addMovie, searchField, grid);
+        add(title, searchField, grid);
+        if (userDetailsService.getAuthenticatedUser() != null) {
+            addComponentAtIndex(1, addMovie);
+        }
         updateGridData("");
     }
 

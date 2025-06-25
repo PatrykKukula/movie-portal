@@ -3,10 +3,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.RouteParam;
-import com.vaadin.flow.router.RouteParameters;
-import lombok.NoArgsConstructor;
 
 public class Buttons {
 
@@ -36,6 +34,12 @@ public class Buttons {
         Button cancelButton = new Button(label);
         cancelButton.addClickListener(e -> UI.getCurrent().navigate(navigationTarget));
         return cancelButton;
+    }
+    public static <C extends Component> Button addButton(Class<? extends C> navigationTarget, String label) {
+        Button addButton = new Button(label);
+        addButton.addClickListener(e -> UI.getCurrent().navigate(navigationTarget));
+        addButton.setPrefixComponent(VaadinIcon.PLUS.create());
+        return addButton;
     }
 
 }

@@ -50,11 +50,4 @@ public class AuthController {
     public ResponseEntity<String> sendPwdResetToken(@RequestParam(value = "email") String email) {
         return ResponseEntity.ok(registerService.generatePasswordResetToken(email));
     }
-    @PostMapping("/login")
-    public ResponseEntity<String> getUserDetailsAfterLogin(@Valid @RequestBody LoginDto loginDto, HttpServletResponse response) {
-        String jwt = authServiceImpl.login(loginDto.getEmail(), loginDto.getPassword());
-        response.setHeader(SecurityConstants.JWT_HEADER, SecurityConstants.BEARER_PREFIX + jwt);
-
-        return ResponseEntity.ok().body("JWT Token: " + jwt);
-    }
 }

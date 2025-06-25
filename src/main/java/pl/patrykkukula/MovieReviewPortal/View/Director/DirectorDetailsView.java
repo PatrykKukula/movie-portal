@@ -12,6 +12,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
@@ -22,9 +23,10 @@ import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 
 import java.util.List;
 
-@Route("director")
+@Route("directors")
 @PageTitle("Director details")
 @CssImport("./styles/common-styles.css")
+@AnonymousAllowed
 public class DirectorDetailsView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final DirectorServiceImpl directorService;

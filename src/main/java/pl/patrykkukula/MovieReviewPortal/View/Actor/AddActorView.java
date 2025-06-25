@@ -11,6 +11,8 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
@@ -23,6 +25,7 @@ import java.util.List;
 
 @Route("actors/add")
 @PageTitle("Add actor")
+@RolesAllowed("ADMIN")
 public class AddActorView extends Composite<FormLayout> {
     private final ActorServiceImpl actorService;
     private final BeanValidationBinder<ActorDto> binder = new BeanValidationBinder<>(ActorDto.class);

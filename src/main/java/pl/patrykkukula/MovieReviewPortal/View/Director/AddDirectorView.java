@@ -13,6 +13,8 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
@@ -25,8 +27,9 @@ import java.util.List;
 
 
 
-@Route("director/add")
+@Route("directors/add")
 @PageTitle("Add director")
+@RolesAllowed("ADMIN")
 public class AddDirectorView extends Composite<FormLayout> {
 
     private final DirectorServiceImpl directorService;

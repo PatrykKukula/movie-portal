@@ -2,6 +2,8 @@ package pl.patrykkukula.MovieReviewPortal.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

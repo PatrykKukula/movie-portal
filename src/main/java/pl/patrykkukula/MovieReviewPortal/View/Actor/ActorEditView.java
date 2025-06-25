@@ -16,6 +16,8 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.RolesAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
@@ -29,6 +31,7 @@ import java.util.List;
 
 @Route("actors/add")
 @PageTitle("Edit actor")
+@RolesAllowed("ADMIN")
 public class ActorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final ActorServiceImpl actorService;

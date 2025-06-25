@@ -1,12 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.Utils;
-
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
-
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import static java.util.Optional.*;
+import static java.util.Optional.ofNullable;
 
 public class ServiceUtils {
 

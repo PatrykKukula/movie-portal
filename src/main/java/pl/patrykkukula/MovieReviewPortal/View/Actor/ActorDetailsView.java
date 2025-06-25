@@ -12,10 +12,12 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
@@ -25,12 +27,15 @@ import java.util.List;
 @Route("actors")
 @PageTitle("Actor")
 @CssImport("./styles/common-styles.css")
+@AnonymousAllowed
 public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final ActorServiceImpl actorService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public ActorDetailsView(ActorServiceImpl actorService) {
+    public ActorDetailsView(ActorServiceImpl actorService, UserDetailsServiceImpl userDetailsService) {
         this.actorService = actorService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -76,7 +81,11 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
 
             VerticalLayout buttonsLayout = new VerticalLayout();
             buttonsLayout.addClassName("buttons-layout");
-            buttonsLayout.add(editButton,deleteButton,backButton);
+
+            if (userDetailsService.getAuthenticatedUser() != null) {
+                buttonsLayout.add(editButton, deleteButton);
+            }
+            buttonsLayout.add(backButton);
 
             detailsLayout.setClassName("details-layout");
             detailsLayout.add(header, actorDetails, actorMovies, buttonsLayout);

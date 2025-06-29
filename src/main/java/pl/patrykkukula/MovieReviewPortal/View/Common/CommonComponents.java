@@ -15,7 +15,7 @@ public class CommonComponents {
 
     private CommonComponents() {}
 
-    public static Dialog validationErrorsDialog(List<ValidationResult> validationResults) {
+    public static Dialog  validationErrorsDialog(List<ValidationResult> validationResults) {
         Icon closeIcon = VaadinIcon.CLOSE.create();
         closeIcon.getStyle().set("color", "red").set("margin-left", "3rem");
         closeIcon.setSize("0.9rem");

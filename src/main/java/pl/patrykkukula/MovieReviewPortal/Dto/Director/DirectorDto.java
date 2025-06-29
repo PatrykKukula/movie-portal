@@ -23,7 +23,7 @@ public class DirectorDto {
     @NotNull(message = "Date of birth is required")
     @PastOrPresent(message = "Date of birth cannot be in the future")
     private LocalDate dateOfBirth;
-    @NotEmpty(message = "Director country cannot be empty")
+    @NotEmpty(message = "Country cannot be empty")
     private String country;
     @Size(max = 1000, message = "Biography must not exceed 1000 characters")
     private String biography;

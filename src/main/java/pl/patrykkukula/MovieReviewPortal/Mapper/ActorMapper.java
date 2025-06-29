@@ -66,5 +66,13 @@ public class ActorMapper {
                 .fullName(actor.getFirstName() + " " + actor.getLastName())
                 .build();
     }
+    public static Actor mapToActorUpdateVaadin(ActorDto actorDto, Actor actor) {
+        actor.setFirstName(actorDto.getFirstName());
+        actor.setLastName(actorDto.getLastName());
+        actor.setCountry(actorDto.getCountry());
+        actor.setDateOfBirth(actorDto.getDateOfBirth());
+        actor.setBiography(actorDto.getBiography());
+        return actor;
+    }
 
 }

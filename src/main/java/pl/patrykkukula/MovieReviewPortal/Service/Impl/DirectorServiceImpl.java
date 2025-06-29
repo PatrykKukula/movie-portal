@@ -10,11 +10,16 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorSummaryDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
+import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
 import java.util.List;
+
+import static java.lang.String.valueOf;
+import static pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper.mapToActorDto;
+import static pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper.mapToActorUpdateVaadin;
 import static pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
@@ -22,10 +27,11 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorti
 @Service
 @RequiredArgsConstructor
 public class DirectorServiceImpl implements IDirectorService {
-
     private final DirectorRepository directorRepository;
     private final MovieRepository movieRepository;
-
+    /*
+        COMMON SECTION
+     */
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public Long addDirector(DirectorDto directorDto) {
@@ -62,24 +68,47 @@ public class DirectorServiceImpl implements IDirectorService {
                 directorRepository.findAllSortedDesc().stream().map(DirectorMapper::mapToDirectorDto).toList();
     }
     @Override
-    public List<DirectorSummaryDto> fetchAllDirectorsSummary() {
-        return directorRepository.findAll().stream()
-                .map(DirectorMapper::mapToDirectorSummary)
-                .toList();
-    }
-
-    @Override
     public List<DirectorDto> fetchAllDirectorsByNameOrLastName(String name, String sorted) {
         String validatedSorted = validateSorting(sorted);
         return validatedSorted.equals("ASC") ?
                 directorRepository.findAllByFirstOrLastNameSortedAsc(name).stream().map(DirectorMapper::mapToDirectorDto).toList() :
                 directorRepository.findAllByFirstOrLastNameSortedDesc(name).stream().map(DirectorMapper::mapToDirectorDto).toList();
     }
+    /*
+        REST API SECTION
+     */
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void updateDirector(DirectorUpdateDto directorDto, Long directorId) {
         validateId(directorId);
         Director director = directorRepository.findById(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "id", String.valueOf(directorId)));
         directorRepository.save(mapToDirectorUpdate(directorDto, director));
+    }
+    /*
+        VAADIN VIEW SECTION
+     */
+    @Override
+    public DirectorDto fetchDirectorById(Long directorId) {
+        validateId(directorId);
+        Director director = directorRepository.findById(directorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", valueOf(directorId)));
+        return mapToDirectorDto(director);
+    }
+    @Override
+    public DirectorSummaryDto fetchDirectorSummaryById(Long id) {
+        Director director = directorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Director", "id", String.valueOf(id)));
+        return DirectorMapper.mapToDirectorSummary(director);
+    }
+    @Override
+    public List<DirectorSummaryDto> fetchAllDirectorsSummary() {
+        return directorRepository.findAll().stream()
+                .map(DirectorMapper::mapToDirectorSummary)
+                .toList();
+    }
+    @Override
+    public void updateDirectorVaadin(Long directorId, DirectorDto directorDto) {
+        validateId(directorId);
+        Director director = directorRepository.findById(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "id", valueOf(directorId)));
+        directorRepository.save(mapToDirectorUpdateVaadin(directorDto, director));
     }
 }

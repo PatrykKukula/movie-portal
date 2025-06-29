@@ -22,7 +22,6 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 @RequestMapping(value = "/api/directors", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class DirectorController {
-
     private final IDirectorService directorService;
 
     @PostMapping

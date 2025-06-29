@@ -2,9 +2,9 @@ package pl.patrykkukula.MovieReviewPortal.View.Actor;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -21,6 +21,7 @@ import java.util.List;
 @Route("actors")
 @PageTitle("Actors")
 @AnonymousAllowed
+@CssImport("./styles/common-styles.css")
 public class ActorView extends VerticalLayout {
     private final ActorServiceImpl actorService;
     private final Grid<ActorDto> grid = new Grid<>(ActorDto.class);
@@ -32,14 +33,14 @@ public class ActorView extends VerticalLayout {
         configureGrid();
 
         H1 title = new H1("Actors");
-        title.getStyle().set("font-size","36px").set("font-family", "cursive");
+        title.addClassName("view-title");
 
         Button addActor = Buttons.addButton(AddActorView.class, "Add actor");
         TextField searchField = FormFields.searchField("Search by name or last name","Enter name or last name...");
         searchField.addValueChangeListener(e -> updateGridData(e.getValue()));
 
         add(title, searchField, grid);
-        if (userDetailsService.getAuthenticatedUser() != null) {
+        if (userDetailsService.isAdmin()) {
             addComponentAtIndex(1, addActor);
         }
         updateGridData("");

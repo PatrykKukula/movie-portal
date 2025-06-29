@@ -41,7 +41,7 @@
 //    public void shouldMapMovieUpdateDtoToMovieDtoCorrectly(){
 //        MovieUpdateDto movieUpdateDto = MovieUpdateDto.builder().title("Updated Title").build();
 //
-//        Movie movie = MovieMapper.mapToMovieUpdate(movieUpdateDto, createMovie());
+//        Movie movie = MovieMapper.mapMovieDtoToMovie(movieUpdateDto, createMovie());
 //
 //        assertEquals("Updated Title", movie.getTitle(), "should update title");
 //        assertEquals("Movie description", movie.getDescription(), "should not update description");

@@ -8,15 +8,14 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
@@ -28,9 +27,11 @@ import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final MovieServiceImpl movieService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public MovieDetailsView(MovieServiceImpl movieService) {
+    public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService) {
         this.movieService = movieService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -40,19 +41,24 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         mainLayout.addClassName("main-layout");
 
         VerticalLayout rightSideLayout = new VerticalLayout();
-        rightSideLayout.setWidth("70%");
+//        rightSideLayout.setWidth("20%");
         try {
             MovieDtoWithDetails movie = movieService.fetchMovieDetailsById(movieId);
 
             VerticalLayout detailsLayout = new VerticalLayout();
             H3 header = new H3(movie.getTitle());
 
-            var directorSpan = setDirector(movie);
+            Div directorDiv = setDirector(movie);
             Div category = new Div("Category: " + movie.getCategory());
             Div releaseDate = new Div("Release date: " + movie.getReleaseDate().toString());
             Div description = new Div("Description: " + movie.getDescription());
+            Div rating = new Div("Rating: " + movie.getRating());
+            Span rateNumber = new Span(String.valueOf(movie.getRateNumber()));
+            rateNumber.getElement().getThemeList().add("badge pill small contrast");
+            rateNumber.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
+            rating.add(rateNumber);
 
-            UI.getCurrent().getPage().setTitle("movie");
+            UI.getCurrent().getPage().setTitle("movie"); // DOES NOT WORK - FIGURE IT OUT
 
             Button editButton = new Button("Edit", e -> UI.getCurrent().navigate(MovieEditView.class, movieId));
             Button deleteButton = new Button("Delete", e -> {
@@ -63,14 +69,17 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
             Button backButton = new Button("Back to Movies", e -> UI.getCurrent().navigate(MovieView.class));
 
             VerticalLayout buttonsLayout = new VerticalLayout();
-            buttonsLayout.add(editButton,deleteButton,backButton);
+            if (userDetailsService.isAdmin()) {
+                buttonsLayout.add(editButton, deleteButton);
+            }
+            buttonsLayout.add(backButton);
             buttonsLayout.addClassName("buttons-layout");
 
             H5 actorsHeader = new H5("Actors");
             Div actors = getActors(movie);
 
             detailsLayout.setClassName("details-layout");
-            detailsLayout.add(header, category, releaseDate, description, directorSpan, actorsHeader, actors, buttonsLayout);
+            detailsLayout.add(header, category, releaseDate, description, rating, directorDiv, actorsHeader, actors, buttonsLayout);
 
             mainLayout.add(detailsLayout, rightSideLayout);
 
@@ -104,7 +113,7 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         directorDiv.add(directorHeader);
         if (movie.getDirector() != null && movie.getDirector().getFirstName() != null && movie.getDirector().getLastName() != null) {
             DirectorDto director = movie.getDirector();
-            Anchor directorAnchor = new Anchor("director/" + director.getId(), director.getFirstName() + " " + director.getLastName());
+            Anchor directorAnchor = new Anchor("directors/" + director.getId(), director.getFirstName() + " " + director.getLastName());
             directorDiv.add(directorAnchor);
         }
         return directorDiv;

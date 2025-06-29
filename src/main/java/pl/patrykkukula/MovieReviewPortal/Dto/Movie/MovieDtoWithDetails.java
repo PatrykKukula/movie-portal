@@ -19,6 +19,7 @@ public class MovieDtoWithDetails {
     private String title;
     private String description;
     private Double rating;
+    private Integer rateNumber;
     private LocalDate releaseDate;
     private String category;
     private DirectorDto director;

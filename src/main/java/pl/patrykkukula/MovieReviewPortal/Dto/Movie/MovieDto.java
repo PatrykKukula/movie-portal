@@ -32,6 +32,6 @@ public class MovieDto {
     private LocalDate releaseDate;
     @NotNull(message = "Category is required")
     private MovieCategory category;
-    private DirectorSummaryDto director;
-    private List<ActorSummaryDto> actors = new ArrayList<>();
+    private Long directorId;
+    private List<Long> actorIds = new ArrayList<>();
 }

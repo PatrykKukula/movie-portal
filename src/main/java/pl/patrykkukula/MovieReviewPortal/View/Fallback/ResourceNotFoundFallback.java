@@ -17,7 +17,6 @@ public class ResourceNotFoundFallback extends HorizontalLayout implements HasUrl
 
     @Override
     public void setParameter(BeforeEvent event, String parameter) {
-        removeAll();
         H3 errorMessage = new H3(parameter);
         add(errorMessage);
     }

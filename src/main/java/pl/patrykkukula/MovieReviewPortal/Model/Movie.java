@@ -2,14 +2,12 @@ package pl.patrykkukula.MovieReviewPortal.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter @Setter @ToString
@@ -43,4 +41,11 @@ public class Movie extends BaseEntity{
 
     @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MovieRate> movieRates = new ArrayList<>();
+
+    public Integer movieRatesNumber(){
+        return movieRates.size();
+    }
+    public Double averageMovieRate(){
+        return movieRates.stream().collect(Collectors.averagingDouble(MovieRate::getRate));
+    }
 }

@@ -44,11 +44,12 @@ public class FormFields {
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         return searchField;
     }
-    public static ComboBox<MovieCategory> categoryComboBox() {
+    public static ComboBox<MovieCategory> categoryComboBox(boolean required) {
         ComboBox<MovieCategory> categoryComboBox = new ComboBox<>("Category");
         List<MovieCategory> categoryItems = Arrays.stream(MovieCategory.values()).sorted().toList();
         categoryComboBox.setItems(categoryItems);
-        categoryComboBox.setRequiredIndicatorVisible(true);
+        categoryComboBox.setRequiredIndicatorVisible(required);
+        categoryComboBox.setValue(MovieCategory.NONE);
         return categoryComboBox;
     }
 }

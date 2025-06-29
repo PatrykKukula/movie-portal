@@ -44,7 +44,7 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.addClassName("main-layout");
         VerticalLayout rightSideLayout = new VerticalLayout();
-        rightSideLayout.setWidth("70%");
+        rightSideLayout.setWidth("35%");
         try {
             ActorDtoWithMovies actor = actorService.fetchActorByIdWithMovies(actorId);
 
@@ -82,7 +82,7 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
             VerticalLayout buttonsLayout = new VerticalLayout();
             buttonsLayout.addClassName("buttons-layout");
 
-            if (userDetailsService.getAuthenticatedUser() != null) {
+            if (userDetailsService.isAdmin()) {
                 buttonsLayout.add(editButton, deleteButton);
             }
             buttonsLayout.add(backButton);

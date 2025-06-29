@@ -28,8 +28,8 @@ public class MovieController {
     private final MovieServiceImpl movieService;
 
     @PostMapping
-    public ResponseEntity<ResponseDto> addMovie(@Valid @RequestBody MovieDto movieDto, List<Long> actorsIds, HttpServletRequest request) {
-        Long movieId = movieService.addMovie(movieDto, actorsIds);
+    public ResponseEntity<ResponseDto> addMovie(@Valid @RequestBody MovieDto movieDto, HttpServletRequest request) {
+        Long movieId = movieService.addMovie(movieDto);
         URI location = setUri(movieId, request.getRequestURI());
         return ResponseEntity.created(location).body(new ResponseDto(STATUS_201, STATUS_201_MESSAGE));
     }
@@ -67,26 +67,26 @@ public class MovieController {
     public ResponseEntity<List<MovieDtoBasic>> fetchAllMovies(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted) {
         return ResponseEntity.ok(movieService.fetchAllMovies(sorted));
     }
-//    @PatchMapping("/{movieId}")
-//    public ResponseEntity<ResponseDto> updateMovie(@PathVariable Long movieId, @Valid @RequestBody MovieUpdateDto movieDto) {
-//        movieService.updateMovie(movieId, movieDto);
-//        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
-//    }
-//    @PostMapping("/rate")
-//    public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody MovieRateDto movieRateDto){
-//        movieService.addRateToMovie(movieRateDto);
-//        return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
-//    }
-//    @DeleteMapping("/{movieId}/rate")
-//    public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
-//        boolean isRemoved = movieService.removeRate(movieId);
-//        return isRemoved ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
-//                ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDto(
-//                        request.getDescription(false),
-//                        STATUS_404,
-//                        STATUS_404_MESSAGE,
-//                        "You didn't set rate for this movie",
-//                        LocalDateTime.now()
-//                        ));
-//    }
+    @PatchMapping("/{movieId}")
+    public ResponseEntity<ResponseDto> updateMovie(@PathVariable Long movieId, @Valid @RequestBody MovieUpdateDto movieDto) {
+        movieService.updateMovie(movieId, movieDto);
+        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
+    }
+    @PostMapping("/rate")
+    public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody MovieRateDto movieRateDto){
+        movieService.addRateToMovie(movieRateDto);
+        return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
+    }
+    @DeleteMapping("/{movieId}/rate")
+    public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
+        boolean isRemoved = movieService.removeRate(movieId);
+        return isRemoved ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDto(
+                        request.getDescription(false),
+                        STATUS_404,
+                        STATUS_404_MESSAGE,
+                        "You didn't set rate for this movie",
+                        LocalDateTime.now()
+                        ));
+    }
 }

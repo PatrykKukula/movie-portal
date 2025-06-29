@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +34,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return null;
     }
+    public boolean isAdmin() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication().getPrincipal() instanceof UserDetails principal) {
+            return principal.getAuthorities().
+                    stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .anyMatch(authority -> authority.contains("ROLE_ADMIN"));
+        }
+        return false;
+}
     private List<SimpleGrantedAuthority> mapRoleToAuthorities(UserEntity userEntity) {
        return userEntity.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))

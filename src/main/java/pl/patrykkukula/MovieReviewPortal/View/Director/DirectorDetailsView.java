@@ -17,6 +17,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
@@ -30,9 +31,11 @@ import java.util.List;
 public class DirectorDetailsView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final DirectorServiceImpl directorService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public DirectorDetailsView(DirectorServiceImpl directorService) {
+    public DirectorDetailsView(DirectorServiceImpl directorService, UserDetailsServiceImpl userDetailsService) {
         this.directorService = directorService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class DirectorDetailsView extends VerticalLayout implements HasUrlParamet
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.addClassName("main-layout");
         VerticalLayout rightSideLayout = new VerticalLayout();
-        rightSideLayout.setWidth("70%");
+        rightSideLayout.setWidth("55%");
         try {
             DirectorDtoWithMovies director = directorService.fetchDirectorByIdWithMovies(directorId);
 
@@ -77,8 +80,11 @@ public class DirectorDetailsView extends VerticalLayout implements HasUrlParamet
             Button backButton = Buttons.backButton(DirectorView.class, "Back to directors");
 
             VerticalLayout buttonsLayout = new VerticalLayout();
+            if (userDetailsService.isAdmin()) {
+                buttonsLayout.add(editButton, deleteButton);
+            }
+            buttonsLayout.add(backButton);
             buttonsLayout.addClassName("buttons-layout");
-            buttonsLayout.add(editButton,deleteButton,backButton);
 
             detailsLayout.add(header, directorDetails, directorMovies, buttonsLayout);
             detailsLayout.setClassName("details-layout");

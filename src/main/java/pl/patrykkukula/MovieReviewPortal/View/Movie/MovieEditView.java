@@ -20,7 +20,6 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@Route("actors/edit")
+@Route("movies/edit")
 @PageTitle("Edit movie")
 @CssImport("./styles/common-styles.css")
 @RolesAllowed("ADMIN")
@@ -49,6 +48,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
     private final VerticalLayout pickedActors = new VerticalLayout();
     private final Notification successNotification = CommonComponents.successNotification("Movie updated successfully");
     private Dialog validationDialog;
+    private ComboBox<DirectorSummaryDto> directorField;
 
     public MovieEditView(MovieServiceImpl movieService, DirectorServiceImpl directorService, ActorServiceImpl actorService) {
         this.movieService = movieService;
@@ -62,7 +62,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1));
         layout.setMaxWidth("25%");
 
-        MovieDto dto = movieService.fetchMovieById(movieId);
+        MovieDto dto = movieService.fetchMovieByIdVaadin(movieId);
 
         BeanValidationBinder<MovieDto> binder = new BeanValidationBinder<>(MovieDto.class);
 
@@ -78,14 +78,15 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         customDatePicker.setPresentationValue(LocalDate.now());
         binder.bind(customDatePicker, "releaseDate");
 
-        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox();
+        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox(true);
         binder.bind(categoryField, "category");
 
-        EntitySelector entitySelector = new EntitySelector(directorService);
-        ComboBox<DirectorSummaryDto> directorField = entitySelector.directorComboBox();
-        binder.bind(directorField, "director");
+        directorField = MovieViewCommon.directorComboBox(directorService);
+        if (dto.getDirectorId() != null) {
+            directorField.setValue(setCurrentDirector(dto));
+        }
 
-        List<ActorSummaryDto> actors = new ArrayList<>(dto.getActors());
+        List<ActorSummaryDto> actors = new ArrayList<>(actorService.fetchAllActorsSummaryByIds(dto.getActorIds()));
         setCurrentActors(actors);
 
         ComboBox<ActorSummaryDto> actorComboBox = MovieViewCommon.actorComboBox(actorService);
@@ -106,10 +107,15 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         saveButton.addClickListener(e -> {
             if (binder.validate().isOk()) {
                 MovieDto movieDto = binder.getBean();
+                Long directorId = directorField.getValue().getId();
+                if(directorId != null) {
+                    movieDto.setDirectorId(directorField.getValue().getId());
+                }
                 List<Long> actorIds = actors.stream()
                         .map(ActorSummaryDto::getId)
                         .toList();
-                movieService.updateMovie(movieId, movieDto, actorIds);
+                movieDto.setActorIds(actorIds);
+                movieService.updateMovieVaadin(movieId, movieDto);
                 successNotification.open();
                 UI.getCurrent().navigate(MovieDetailsView.class, movieId);
             } else {
@@ -122,7 +128,9 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         });
         return saveButton;
     }
-
+    private DirectorSummaryDto setCurrentDirector(MovieDto dto){
+        return directorService.fetchDirectorSummaryById(dto.getDirectorId());
+    }
     private void setActorComboBox(ComboBox<ActorSummaryDto> actorComboBox, List<ActorSummaryDto> actors) {
         actorComboBox.addValueChangeListener(e -> {
             ActorSummaryDto pickedActor = e.getValue();
@@ -142,7 +150,6 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
             actorComboBox.clear();
         });
     }
-
     private void setCurrentActors(List<ActorSummaryDto> actors) {
         actors.forEach(actor -> {
             Div currentActor = MovieViewCommon.addedActor(actor.getFullName());

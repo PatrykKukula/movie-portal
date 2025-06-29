@@ -6,7 +6,9 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorSummaryDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorSummaryDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 
 import java.util.List;
 
@@ -40,5 +42,16 @@ public class MovieViewCommon {
         actorComboBox.setHelperText("You can add multiple actors");
 
         return actorComboBox;
+    }
+    public static ComboBox<DirectorSummaryDto> directorComboBox(DirectorServiceImpl directorService) {
+        ComboBox<DirectorSummaryDto> directorList = new ComboBox<>("Director");
+        List<DirectorSummaryDto> directors = directorService.fetchAllDirectorsSummary();
+
+        directorList.setItems(directors);
+        directorList.setItemLabelGenerator(item -> item.getFullName() != null ? item.getFullName() : " - ");
+
+        directorList.setRequiredIndicatorVisible(false);
+
+        return directorList;
     }
 }

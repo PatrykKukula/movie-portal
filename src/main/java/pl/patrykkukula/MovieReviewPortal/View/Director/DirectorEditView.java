@@ -17,10 +17,9 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
@@ -38,7 +37,7 @@ import java.util.List;
 public class DirectorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final DirectorServiceImpl directorService;
-    private final BeanValidationBinder<DirectorUpdateDto> binder = new BeanValidationBinder<>(DirectorUpdateDto.class);
+    private final BeanValidationBinder<DirectorDto> binder = new BeanValidationBinder<>(DirectorDto.class);
     private final Notification successNotification = CommonComponents.successNotification("Director updated successfully");
     private final ConfirmDialog confirmDialog = new ConfirmDialog();
     private Dialog validationDialog;
@@ -54,31 +53,20 @@ public class DirectorEditView extends Composite<FormLayout> implements HasUrlPar
         FormLayout layout = getContent();
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         layout.setMaxWidth("25%");
-        DirectorDtoWithMovies director = directorService.fetchDirectorByIdWithMovies(directorId);
-
-        DirectorUpdateDto dto = DirectorUpdateDto.builder()
-                .firstName(director.getFirstName())
-                .lastName(director.getLastName())
-                .country(director.getCountry())
-                .biography(director.getBiography())
-                .dateOfBirth(director.getDateOfBirth())
-                .build();
+        DirectorDto dto = directorService.fetchDirectorById(directorId);
 
         var firstNameField = FormFields.textField("First name");
         binder.bind(firstNameField, "firstName");
-
         var lastNameField = FormFields.textField("Last name");
         binder.bind(lastNameField, "lastName");
-
         var countryField = FormFields.textField("Country");
         binder.bind(countryField, "country");
-
         TextArea biographyField = FormFields.textAreaField("Biography");
         binder.bind(biographyField, "biography");
 
         FormLayout datePickerLayout = customDatePicker.generateDatePickerLayout("Date of birth");
 
-        customDatePicker.setPresentationValue(director.getDateOfBirth());
+        customDatePicker.setPresentationValue(dto.getDateOfBirth());
         binder.bind(customDatePicker, "dateOfBirth");
 
         binder.setBean(dto);
@@ -92,18 +80,18 @@ public class DirectorEditView extends Composite<FormLayout> implements HasUrlPar
         layout.add(firstNameField, lastNameField, countryField, biographyField, datePickerLayout, saveButton, cancelButton);
     }
 
-    private Button saveButton(Binder<DirectorUpdateDto> binder, Long parameter) {
+    private Button saveButton(Binder<DirectorDto> binder, Long directorId) {
         Button saveButton = new Button("Save");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(e -> {
             if (binder.validate().isOk()) {
-                DirectorUpdateDto directorUpdateDto = binder.getBean();
-                directorService.updateDirector(directorUpdateDto, parameter);
+                DirectorDto directorDto = binder.getBean();
+                directorService.updateDirectorVaadin(directorId,directorDto);
                 successNotification.open();
-                UI.getCurrent().navigate(DirectorDetailsView.class, parameter);
+                UI.getCurrent().navigate(DirectorDetailsView.class, directorId);
             }
             else {
-                BinderValidationStatus<DirectorUpdateDto> validate = binder.validate();
+                BinderValidationStatus<DirectorDto> validate = binder.validate();
                 List<ValidationResult> validationResults = validate.getValidationErrors();
 
                 validationDialog = CommonComponents.validationErrorsDialog(validationResults);

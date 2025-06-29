@@ -40,15 +40,14 @@ public class ActorController {
     public ResponseEntity<ActorDtoWithMovies> getActorByIdWithMovies(@PathVariable Long id) {
         return ResponseEntity.ok(actorService.fetchActorByIdWithMovies(id));
     }
-//    @GetMapping
-//    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false) String sorted,
-//                                                        @RequestParam(name = "findBy", required = false) String findBy) {
-//
-//        if (findBy == null || findBy.isEmpty()) {
-//            return ResponseEntity.ok(actorService.fetchAllActors(sorted));
-//        }
-//        return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sorted));
-//    }
+    @GetMapping
+    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false) String sorted,
+                                                        @RequestParam(name = "findBy", required = false) String findBy) {
+        if (findBy == null || findBy.isEmpty()) {
+            return ResponseEntity.ok(actorService.fetchAllActors(sorted));
+        }
+        return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sorted));
+    }
     @PatchMapping("/{id}")
     public ResponseEntity<ResponseDto> updateActor(@PathVariable Long id, @Valid @RequestBody ActorUpdateDto actorUpdateDto) {
         actorService.updateActor(actorUpdateDto, id);

@@ -3,11 +3,7 @@ import { injectGlobalCss } from 'Frontend/generated/jar-resources/theme-util.js'
 import { webcomponentGlobalCssInjector } from 'Frontend/generated/jar-resources/theme-util.js';
 import './theme-global-theme.components.generated.js';
 let needsReloadOnChanges = false;
-import { typography } from '@vaadin/vaadin-lumo-styles/typography.js';
-import { color } from '@vaadin/vaadin-lumo-styles/color.js';
-import { spacing } from '@vaadin/vaadin-lumo-styles/spacing.js';
 import { badge } from '@vaadin/vaadin-lumo-styles/badge.js';
-import { utility } from '@vaadin/vaadin-lumo-styles/utility.js';
 
   let themeRemovers = new WeakMap();
   let targets = [];
@@ -15,11 +11,7 @@ import { utility } from '@vaadin/vaadin-lumo-styles/utility.js';
   export const applyTheme = (target) => {
     const removers = [];
     if (target !== document) {
-      removers.push(injectGlobalCss(typography.cssText, '', target, true));
-removers.push(injectGlobalCss(color.cssText, '', target, true));
-removers.push(injectGlobalCss(spacing.cssText, '', target, true));
-removers.push(injectGlobalCss(badge.cssText, '', target, true));
-removers.push(injectGlobalCss(utility.cssText, '', target, true));
+      removers.push(injectGlobalCss(badge.cssText, '', target, true));
 
       
     }

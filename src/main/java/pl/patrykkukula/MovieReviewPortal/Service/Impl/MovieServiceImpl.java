@@ -9,11 +9,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
-import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
-import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.MovieRate.MovieRateDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
@@ -37,13 +34,44 @@ public class MovieServiceImpl implements IMovieService {
     private final UserEntityRepository userEntityRepository;
     private final MovieRateRepository movieRateRepository;
 
+    /*
+        COMMON SECTION
+     */
+    @Override
+    public MovieDtoWithDetails fetchMovieDetailsById(Long movieId) {
+        validateId(movieId);
+        Movie movie = movieRepository.findByIdWithDetails(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
+        Double rate = movieRateRepository.getAverageMovieRate(movieId);
+        Integer rateNumber = movieRepository.countMovieRates(movieId);
+        return mapToMovieDtoWithDetails(movie, rate, rateNumber);
+    }
+
+    @Override
+    public void updateMovie(Long movieId, MovieUpdateDto movieDto) {
+        validateId(movieId);
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie", String.valueOf(movieId)));
+        Long directorId = movieDto.getDirectorId();
+        if (directorId != null) {
+            validateId(directorId);
+            Director director = findDirector(directorId);
+            movie.setDirector(director);
+        }
+        MovieCategory category = movieDto.getCategory();
+        if (category != null) {
+            movie.setCategory(findCategory(category));
+        }
+        movieRepository.save(mapMovieUpdateDtoToMovieUpdate(movieDto, movie));
+    }
+
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public Long addMovie(MovieDto movieDto, List<Long> ids) {
+    public Long addMovie(MovieDto movieDto) {
         Movie movie = mapToMovie(movieDto);
         movie.setCategory(findCategory(movieDto.getCategory()));
-        movie.setDirector(findDirector(movieDto.getDirector().getId()));
-        movie.setActors(actorRepository.findAllById(ids));
+        movie.setDirector(findDirector(movieDto.getDirectorId()));
+        movie.setActors(actorRepository.findAllById(movieDto.getActorIds()));
         Movie savedMovie = movieRepository.save(movie);
         return savedMovie.getMovieId();
     }
@@ -54,6 +82,9 @@ public class MovieServiceImpl implements IMovieService {
         movieRepository.findById(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie", "Movie id", String.valueOf(movieId)));
         movieRepository.deleteById(movieId);
     }
+    /*
+        REST API SECTION
+     */
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
@@ -81,22 +112,6 @@ public class MovieServiceImpl implements IMovieService {
         return removed;
     }
     @Override
-    public MovieDtoWithDetails fetchMovieDetailsById(Long movieId) {
-        validateId(movieId);
-        Movie movie = movieRepository.findWithActorsAndDirectorsById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
-        Double rate = movieRateRepository.getAverageMovieRate(movieId);
-        return mapToMovieDtoWithDetails(movie, rate);
-    }
-    @Override
-    public MovieDto fetchMovieById(Long movieId) {
-        validateId(movieId);
-        Movie movie = movieRepository.findWithActorsAndDirectorsById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
-        return mapToMovieDto(movie);
-    }
-
-    @Override
     public List<MovieDtoBasic> fetchAllMoviesByTitle(String title, String sorted) {
         String validatedSorted = validateSorting(sorted);
         return validatedSorted.equals("ASC") ?
@@ -109,28 +124,6 @@ public class MovieServiceImpl implements IMovieService {
         return validatedSorted.equals("ASC") ?
                 movieRepository.findAllOrderByTitleAsc().stream().map(MovieMapper::mapToMovieDtoBasic).toList() :
                 movieRepository.findAllOrderByTitleDesc().stream().map(MovieMapper::mapToMovieDtoBasic).toList();
-    }
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void updateMovie(Long movieId, MovieDto movieDto, List<Long> ids) {
-        validateId(movieId);
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie", String.valueOf(movieId)));
-        Long directorId = movieDto.getDirector().getId();
-        if (directorId != null) {
-            validateId(directorId);
-            Director director = findDirector(directorId);
-            movie.setDirector(director);
-        }
-        MovieCategory category = movieDto.getCategory();
-        if (category != null) {
-            movie.setCategory(findCategory(category));
-
-        }
-        movie.setActors(actorRepository.findAllById(ids));
-
-        movieRepository.save(mapToMovieUpdate(movieDto, movie));
     }
     @Override
     @Transactional
@@ -166,12 +159,56 @@ public class MovieServiceImpl implements IMovieService {
 
         return deleted > 0;
     }
+
+    /*
+       VAADIN VIEW SECTION
+   */
+    @Override
+    public List<MovieViewDto> fetchAllMoviesForView(String title) {
+        return title.isEmpty() ? movieRepository.findAllWithMovieRates().stream().map(
+                movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList() :
+                movieRepository.findAllWithMovieRatesByTitle(title).stream().map(
+                        movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList();
+    }
+    @Override
+    public List<MovieViewDto> fetchAllMoviesForViewByCategory(MovieCategory category, String title) {
+        return title.isEmpty() ? movieRepository.findAllWithMovieRatesByCategory(category).stream().map(
+                movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList() :
+                movieRepository.findAllWithMovieRatesByCategoryByTitle(category,title).stream().map(
+                        movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList();
+    }
+    @Override
+    public MovieDto fetchMovieByIdVaadin(Long movieId) {
+        validateId(movieId);
+        Movie movie = movieRepository.findByIdWithDetails(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
+        return mapToMovieDto(movie);
+    }
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void updateMovieVaadin(Long movieId, MovieDto movieDto) {
+        validateId(movieId);
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie", String.valueOf(movieId)));
+        Long directorId = movieDto.getDirectorId();
+        if (directorId != null) {
+            validateId(directorId);
+            Director director = findDirector(directorId);
+            movie.setDirector(director);
+        }
+        MovieCategory category = movieDto.getCategory();
+        if (category != null) {
+            movie.setCategory(findCategory(category));
+
+        }
+        movie.setActors(actorRepository.findAllById(movieDto.getActorIds()));
+
+        movieRepository.save(mapMovieDtoToMovie(movieDto, movie));
+    }
+
     private MovieCategory findCategory(MovieCategory category) {
         return MovieCategory.valueOf(category.name());
-//        return Arrays.stream(MovieCategory.values())
-//                .filter(cat -> cat.name().equalsIgnoreCase(category))
-//                .findFirst()
-//                .orElseThrow(() -> new ResourceNotFoundException("Category", "category", category));
     }
     private Director findDirector(Long directorId) {
         return directorRepository.findById(directorId)

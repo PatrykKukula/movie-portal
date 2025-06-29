@@ -18,6 +18,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
@@ -29,13 +30,13 @@ import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
 
 import java.util.List;
 
-@Route("actors/add")
+@Route("actors/edit")
 @PageTitle("Edit actor")
 @RolesAllowed("ADMIN")
 public class ActorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final ActorServiceImpl actorService;
-    private final BeanValidationBinder<ActorUpdateDto> binder = new BeanValidationBinder<>(ActorUpdateDto.class);
+    private final BeanValidationBinder<ActorDto> binder = new BeanValidationBinder<>(ActorDto.class);
     private final Notification successNotification = CommonComponents.successNotification("Actor updated successfully");
     private Dialog validationDialog;
 
@@ -50,31 +51,20 @@ public class ActorEditView extends Composite<FormLayout> implements HasUrlParame
         FormLayout layout = getContent();
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         layout.setMaxWidth("25%");
-        ActorDtoWithMovies actor = actorService.fetchActorByIdWithMovies(actorId);
-
-        ActorUpdateDto dto = ActorUpdateDto.builder()
-                .firstName(actor.getFirstName())
-                .lastName(actor.getLastName())
-                .country(actor.getCountry())
-                .biography(actor.getBiography())
-                .dateOfBirth(actor.getDateOfBirth())
-                .build();
+        ActorDto dto = actorService.fetchActorById(actorId);
 
         var firstNameField = FormFields.textField("First name");
         binder.bind(firstNameField, "firstName");
-
         var lastNameField = FormFields.textField("Last name");
         binder.bind(lastNameField, "lastName");
-
         var countryField = FormFields.textField("Country");
         binder.bind(countryField, "country");
-
         TextArea biographyField = FormFields.textAreaField("Biography");
         binder.bind(biographyField, "biography");
 
         FormLayout datePickerLayout = customDatePicker.generateDatePickerLayout("Date of birth");
 
-        customDatePicker.setPresentationValue(actor.getDateOfBirth());
+        customDatePicker.setPresentationValue(dto.getDateOfBirth());
         binder.bind(customDatePicker, "dateOfBirth");
 
         binder.setBean(dto);
@@ -84,23 +74,21 @@ public class ActorEditView extends Composite<FormLayout> implements HasUrlParame
 //        binder.addValueChangeListener(e -> {
 //            saveButton.setEnabled(binder.hasChanges());
 //        });
-
-
         layout.add(firstNameField, lastNameField, countryField, datePickerLayout, biographyField, saveButton, cancelButton);
     }
 
-    private Button saveButton(Binder<ActorUpdateDto> binder, Long actorId) {
+    private Button saveButton(Binder<ActorDto> binder, Long actorId) {
         Button saveButton = new Button("Save");
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         saveButton.addClickListener(e -> {
             if (binder.validate().isOk()) {
-                ActorUpdateDto actorUpdateDto = binder.getBean();
-                actorService.updateActor(actorUpdateDto, actorId);
+                ActorDto actorDto = binder.getBean();
+                actorService.updateActorVaadin(actorId, actorDto);
                 successNotification.open();
                 UI.getCurrent().navigate(ActorDetailsView.class, actorId);
             }
             else {
-                BinderValidationStatus<ActorUpdateDto> validate = binder.validate();
+                BinderValidationStatus<ActorDto> validate = binder.validate();
                 List<ValidationResult> validationResults = validate.getValidationErrors();
 
                 validationDialog = new Dialog("Cannot save changes - invalid or empty fields");

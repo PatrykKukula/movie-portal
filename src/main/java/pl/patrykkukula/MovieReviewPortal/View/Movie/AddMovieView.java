@@ -9,7 +9,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,7 +18,6 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
@@ -48,7 +46,8 @@ public class AddMovieView extends Composite<FormLayout> {
     private final ActorServiceImpl actorService;
     private final VerticalLayout pickedActors = new VerticalLayout();
     private final Notification successNotification = CommonComponents.successNotification("Movie added successfully");
-    
+    private ComboBox<DirectorSummaryDto> directorField;
+
     public AddMovieView(MovieServiceImpl movieServiceImpl, DirectorServiceImpl directorService, ActorServiceImpl actorService) {
         this.movieServiceImpl = movieServiceImpl;
         this.directorService = directorService;
@@ -72,13 +71,10 @@ public class AddMovieView extends Composite<FormLayout> {
         customDatePicker.setPresentationValue(LocalDate.now());
         binder.bind(customDatePicker, "releaseDate");
 
-        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox();
+        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox( true);
         binder.bind(categoryField, "category");
 
-        EntitySelector entitySelector = new EntitySelector(directorService);
-        ComboBox<DirectorSummaryDto> directorField = entitySelector.directorComboBox();
-        binder.bind(directorField, "director");
-
+        directorField = MovieViewCommon.directorComboBox(directorService);
         List<ActorSummaryDto> actors = new ArrayList<>();
 
         ComboBox<ActorSummaryDto> actorComboBox = MovieViewCommon.actorComboBox(actorService);
@@ -101,10 +97,12 @@ public class AddMovieView extends Composite<FormLayout> {
         saveButton.addClickListener(e -> {
             if (binder.validate().isOk()) {
                 MovieDto movieDto = binder.getBean();
+                movieDto.setDirectorId(directorField.getValue().getId());
                 List<Long> actorIds = actors.stream()
                         .map(ActorSummaryDto::getId)
                         .toList();
-                Long parameter = movieServiceImpl.addMovie(movieDto,actorIds);
+                movieDto.setActorIds(actorIds);
+                Long parameter = movieServiceImpl.addMovie(movieDto);
                 successNotification.open();
                 UI.getCurrent().navigate(MovieDetailsView.class, parameter);
             }

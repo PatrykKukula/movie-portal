@@ -27,7 +27,6 @@ public class DirectorMapper {
                 .dateOfBirth(directorDto.getDateOfBirth())
                 .build();
     }
-
     public static DirectorDto mapToDirectorDto(Director director) {
         return DirectorDto.builder()
                 .id(director.getDirectorId())
@@ -38,7 +37,6 @@ public class DirectorMapper {
                 .dateOfBirth(director.getDateOfBirth())
                 .build();
     }
-
     public static DirectorDtoWithMovies mapToDirectorDtoWithMovies(Director director) {
         List<MovieDtoBasic> moviesDto = Optional.ofNullable(director.getMovies())
                 .orElse(Collections.emptyList())
@@ -56,7 +54,6 @@ public class DirectorMapper {
                 .movies(moviesDto)
                 .build();
     }
-
     public static Director mapToDirectorUpdate(DirectorUpdateDto directorDto, Director director) {
         updateField(directorDto::getFirstName, director::setFirstName);
         updateField(directorDto::getLastName, director::setLastName);
@@ -65,7 +62,14 @@ public class DirectorMapper {
         updateDateField(directorDto::getDateOfBirth, director::setDateOfBirth);
         return director;
     }
-
+    public static Director mapToDirectorUpdateVaadin(DirectorDto directorDto, Director director) {
+        director.setFirstName(directorDto.getFirstName());
+        director.setLastName(directorDto.getLastName());
+        director.setCountry(directorDto.getCountry());
+        director.setBiography(directorDto.getBiography());
+        director.setDateOfBirth(directorDto.getDateOfBirth());
+        return director;
+    }
     public static DirectorSummaryDto mapToDirectorSummary(Director director) {
         if (director != null) {
             return DirectorSummaryDto.builder()

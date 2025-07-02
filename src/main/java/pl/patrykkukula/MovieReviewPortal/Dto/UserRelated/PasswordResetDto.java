@@ -16,8 +16,6 @@ public class PasswordResetDto {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-+=?.><]).{8,}$",
             message = "Password must contain small and capital letter, number, special character and be at lest 8 character long")
     private String newPassword;
-    @NotEmpty(message = "Email cannot be empty")
-    private String email;
     @NotEmpty(message = "Token cannot be empty")
     private String pwdResetToken;
 }

@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.lang.System.lineSeparator;
-
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
@@ -48,13 +46,10 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @Transactional
     public String register(UserEntityDto userDto) {
-        logger.info("Registering user: {}", userDto);
         Optional<UserEntity> existingUser = userRepository.findUserByUsernameOrEmail(userDto.getUsername(), userDto.getEmail());
-        logger.info("Existing user: {}", existingUser.isPresent());
         if (existingUser.isPresent()) throw new IllegalStateException("Username or email already exists");
 
         String hashedPassword = encoder.encode(userDto.getPassword());
-        logger.info("Hashed password: {}", hashedPassword);
         Role role = roleRepository.findRoleByRoleName("USER").orElseThrow(() -> new RuntimeException("Role USER not found. Please contact technical support"));
 
        UserEntity user = UserEntity.builder()
@@ -63,9 +58,7 @@ public class AuthServiceImpl implements IAuthService {
                         .email(userDto.getEmail())
                         .roles(List.of(role))
                         .build();
-       logger.info("Registering user: {}", user);
-       UserEntity registerUser = userRepository.save(user);
-       logger.info("Registered user: {}", registerUser);
+       userRepository.save(user);
 
         return generateVerificationToken(user);
     }
@@ -95,8 +88,7 @@ public class AuthServiceImpl implements IAuthService {
         PasswordResetToken token = pwdRepository.findByToken(passwordResetDto.getPwdResetToken())
                 .orElseThrow(() -> new IllegalStateException("Invalid token"));
         if (token.getExpiryDate().isBefore(LocalDateTime.now())) throw new IllegalStateException("Token expired");
-        UserEntity user = userRepository.findByEmail(passwordResetDto.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Account", "email", passwordResetDto.getEmail()));
+        UserEntity user = token.getUser();
 
         if (encoder.matches(passwordResetDto.getNewPassword(), user.getPassword())) throw new IllegalStateException("New password cannot be same as old password");
         String hashedNewPassword = encoder.encode(passwordResetDto.getNewPassword());
@@ -116,7 +108,6 @@ public class AuthServiceImpl implements IAuthService {
             pwdRepository.delete(token);
             pwdRepository.flush();
         });
-
         String token = UUID.randomUUID().toString();
         PasswordResetToken pwdToken = PasswordResetToken.builder()
                 .token(token)
@@ -124,18 +115,18 @@ public class AuthServiceImpl implements IAuthService {
                 .user(user)
                 .build();
         pwdRepository.save(pwdToken);
-        return "Password reset token has been created and will be valid for 12 hours: " + token + lineSeparator() +
-                "To reset your password, send a POST request to the following URL: " +
-                "http://localhost:8081/auth/reset with the following JSON body: " +
-                "{\"password\":" + "your new password" + lineSeparator() +
-                "\"token\": \"" + token + "\"" + "}";
+        return token;
+//        return "Password reset token has been created and will be valid for 12 hours: " + token + lineSeparator() +
+//                "To reset your password, send a POST request to the following URL: " +
+//                "http://localhost:8081/auth/reset with the following JSON body: " +
+//                "{\"password\":" + "your new password" + lineSeparator() +
+//                "\"token\": \"" + token + "\"" + "}";
     }
     @Override
     public UserEntityDto getUserByEmail(Authentication authentication) {
         UserEntity user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User", "email", authentication.getName()));
         return UserEntityMapper.mapUserEntityToUserEntityDto(user);
     }
-
     @Override
     public void logout() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -164,8 +155,6 @@ public class AuthServiceImpl implements IAuthService {
 //        }
 //        else return false;
 //    }
-
-
     private String generateVerificationToken(UserEntity user){
         if (user.isEnabled()) throw new IllegalStateException("Account is verified");
 
@@ -189,9 +178,10 @@ public class AuthServiceImpl implements IAuthService {
                 .build();
         logger.info("Verification token:{}", verificationToken.getToken());
         verificationRepository.save(verificationToken);
-        return  "Verification token has been created and will be valid for 12 hours: " + lineSeparator() +
-                "To activate your account, send a POST request to the following URL: " +
-                "http://localhost:8081/auth/register/confirm with the following JSON body: " +
-                "{ \"token\": \"" + token + "\" }";
+        return token;
+//        return  "Verification token has been created and will be valid for 12 hours: " + lineSeparator() +
+//                "To activate your account, send a POST request to the following URL: " +
+//                "http://localhost:8081/auth/register/confirm with the following JSON body: " +
+//                "{ \"token\": \"" + token + "\" }";
     }
 }

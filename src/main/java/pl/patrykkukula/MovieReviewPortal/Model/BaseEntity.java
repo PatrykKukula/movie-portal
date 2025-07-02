@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class BaseEntity {
     @Column(updatable = false, nullable = false)
     @CreatedBy
-    private String createdBy = "ADMIN";
+    private String createdBy;
     @Column(updatable = false, nullable = false)
     @CreatedDate
     private LocalDateTime createdAt = LocalDateTime.now();

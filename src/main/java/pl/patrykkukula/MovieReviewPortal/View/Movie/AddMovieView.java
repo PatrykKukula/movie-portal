@@ -107,9 +107,7 @@ public class AddMovieView extends Composite<FormLayout> {
                 UI.getCurrent().navigate(MovieDetailsView.class, parameter);
             }
             else {
-                BinderValidationStatus<MovieDto> validate = binder.validate();
-                List<ValidationResult> validationResults = validate.getValidationErrors();
-
+                List<ValidationResult> validationResults = binder.validate().getValidationErrors();
                 validationDialog = CommonComponents.validationErrorsDialog(validationResults);
                 validationDialog.open();
             }

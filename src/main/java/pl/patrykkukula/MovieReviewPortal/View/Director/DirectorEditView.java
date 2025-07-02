@@ -91,8 +91,7 @@ public class DirectorEditView extends Composite<FormLayout> implements HasUrlPar
                 UI.getCurrent().navigate(DirectorDetailsView.class, directorId);
             }
             else {
-                BinderValidationStatus<DirectorDto> validate = binder.validate();
-                List<ValidationResult> validationResults = validate.getValidationErrors();
+                List<ValidationResult> validationResults = binder.validate().getValidationErrors();
 
                 validationDialog = CommonComponents.validationErrorsDialog(validationResults);
                 validationDialog.open();

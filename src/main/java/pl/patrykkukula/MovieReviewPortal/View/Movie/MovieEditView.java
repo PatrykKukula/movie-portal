@@ -119,8 +119,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
                 successNotification.open();
                 UI.getCurrent().navigate(MovieDetailsView.class, movieId);
             } else {
-                BinderValidationStatus<MovieDto> validate = binder.validate();
-                List<ValidationResult> validationResults = validate.getValidationErrors();
+                List<ValidationResult> validationResults = binder.validate().getValidationErrors();
 
                 validationDialog = CommonComponents.validationErrorsDialog(validationResults);
                 validationDialog.open();

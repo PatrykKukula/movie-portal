@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.View.Common;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -51,5 +52,10 @@ public class FormFields {
         categoryComboBox.setRequiredIndicatorVisible(required);
         categoryComboBox.setValue(MovieCategory.NONE);
         return categoryComboBox;
+    }
+    public static PasswordField passwordField() {
+        PasswordField passwordField = new PasswordField("Password");
+        passwordField.setValueChangeMode(ValueChangeMode.EAGER);
+        return passwordField;
     }
 }

@@ -88,8 +88,7 @@ public class ActorEditView extends Composite<FormLayout> implements HasUrlParame
                 UI.getCurrent().navigate(ActorDetailsView.class, actorId);
             }
             else {
-                BinderValidationStatus<ActorDto> validate = binder.validate();
-                List<ValidationResult> validationResults = validate.getValidationErrors();
+                List<ValidationResult> validationResults = binder.validate().getValidationErrors();
 
                 validationDialog = new Dialog("Cannot save changes - invalid or empty fields");
                 validationDialog = CommonComponents.validationErrorsDialog(validationResults);

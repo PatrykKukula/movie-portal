@@ -99,7 +99,7 @@ public class MainLayout extends AppLayout {
         HorizontalLayout rightTabs = new HorizontalLayout();
         rightTabs.getStyle().set("margin-left", "auto").set("padding-right", "1rem");
 
-        if (userDetailsService.isAdmin()) {
+        if (userDetailsService.getAuthenticatedUser()!=null) {
             rightTabs.add(account);
         }
         else {

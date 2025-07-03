@@ -13,7 +13,7 @@ public class Comment extends BaseEntity{
     private Long commentId;
     @Column(nullable = false)
     private String text;
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private Long commentIdInPost;
 
     @ManyToOne(fetch = FetchType.LAZY)

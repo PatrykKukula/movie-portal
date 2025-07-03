@@ -3,6 +3,7 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,8 +52,13 @@ public class CommentServiceImpl implements ICommentService {
                         .commentIdInPost(currentMaxCommentId+1)
                         .user(getUserEntity())
                         .build();
-        Comment savedComment = commentRepository.save(comment);
-        return savedComment.getCommentId();
+        try {
+            Comment savedComment = commentRepository.save(comment);
+            return savedComment.getCommentId();
+        }
+        catch (DataIntegrityViolationException ex) {
+            throw new IllegalStateException("Comment could not be added due to concurrency conflict");
+        }
     }
     @Override
     @PreAuthorize("hasAnyRole()")

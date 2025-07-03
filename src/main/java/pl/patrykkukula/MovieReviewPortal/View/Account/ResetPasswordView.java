@@ -2,28 +2,32 @@ package pl.patrykkukula.MovieReviewPortal.View.Account;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.AuthServiceImpl;
-import com.vaadin.flow.component.button.Button;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.MainView;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.PASSWORD_RESET_FAILED;
+import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.PASSWORD_RESET_SUCCESS;
 
+@Slf4j
 @Route("reset")
 @PageTitle("Reset password")
 @AnonymousAllowed
@@ -45,6 +49,7 @@ public class ResetPasswordView extends Composite<FormLayout> implements BeforeEn
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         layout.getStyle().set("margin", "auto").set("width","20%").set("align-items", "center");
         PasswordField password = new PasswordField("Enter new password");
+        password.setValueChangeMode(ValueChangeMode.EAGER);
         password.getStyle().set("margin-bottom", "10px");
         binder.bind(password, "newPassword");
 
@@ -59,24 +64,32 @@ public class ResetPasswordView extends Composite<FormLayout> implements BeforeEn
         Button button = new Button("Change password");
         button.getStyle().set("margin-bottom", "10px");
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        PasswordResetDto resetDto = binder.getBean();
         button.addClickListener(e -> {
-            try {
-                resetDialog.removeAll();
-                PasswordResetDto resetDto = binder.getBean();
-                resetDto.setPwdResetToken(token);
-                authService.resetPassword(resetDto);
-                Div success = new Div(PASSWORD_RESET_SUCCESS);
-                resetDialog.add(success);
-                resetDialog.open();
-                UI.getCurrent().navigate(MainView.class);
+            resetDialog.removeAll();
+            if (binder.writeBeanIfValid(resetDto)) {
+                try {
+                    resetDto.setPwdResetToken(token);
+                    authService.resetPassword(resetDto);
+                    resetDialog.add(PASSWORD_RESET_SUCCESS);
+                    resetDialog.open();
+                    UI.getCurrent().navigate(MainView.class);
+                } catch (ResourceNotFoundException | IllegalStateException ex) {
+                    Span failure = new Span(PASSWORD_RESET_FAILED);
+                    failure.getStyle().set("font-weight", "bold").set("font-weight", "bold");;
+                    Span errorMessage = new Span(ex.getMessage());
+                    Div error = new Div();
+                    error.getStyle().set("white-space", "pre-line").set("text-align", "center");
+                    error.add(failure, errorMessage);
+                    resetDialog.add(error);
+                    resetDialog.open();
+                }
             }
-            catch (ResourceNotFoundException | IllegalStateException ex) {
-                Span failure = new Span(PASSWORD_RESET_FAILED);
-                failure.getStyle().set("font-weight", "bold");
-                Span errorMessage = new Span(ex.getMessage());
-                Div error = new Div();
-                error.getStyle().set("white-space", "pre-line").set("align-items", "center");
-                error.add(failure, errorMessage);
+            else {
+                Div error = new Div(binder.validate().getValidationErrors()
+                        .stream().map(ValidationResult::getErrorMessage)
+                        .collect(Collectors.joining("\n")));
                 resetDialog.add(error);
                 resetDialog.open();
             }

@@ -1,16 +1,12 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.server.VaadinServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
@@ -39,8 +35,6 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordResetRepository pwdRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
-    private final AuthenticationManager authenticationManager;
-    private static final String LOGOUT_SUCCESS_URL = "/movies";
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
@@ -53,13 +47,17 @@ public class AuthServiceImpl implements IAuthService {
         Role role = roleRepository.findRoleByRoleName("USER").orElseThrow(() -> new RuntimeException("Role USER not found. Please contact technical support"));
 
        UserEntity user = UserEntity.builder()
-                        .username(userDto.getUsername())
+                        .username(userDto.getUsername().toLowerCase())
                         .password(hashedPassword)
-                        .email(userDto.getEmail())
+                        .email(userDto.getEmail().toLowerCase())
                         .roles(List.of(role))
                         .build();
-       userRepository.save(user);
-
+       try {
+           userRepository.save(user);
+       }
+       catch (DataIntegrityViolationException ex){
+           throw new IllegalStateException("Username or email already exists");
+       }
         return generateVerificationToken(user);
     }
     @Override
@@ -94,10 +92,11 @@ public class AuthServiceImpl implements IAuthService {
         String hashedNewPassword = encoder.encode(passwordResetDto.getNewPassword());
         user.setPassword(hashedNewPassword);
         user.setPasswordResetToken(null);
+        pwdRepository.delete(token);
         userRepository.save(user);
     }
     @Override
-    @Transactional
+    @Transactional(rollbackOn = IllegalStateException.class)
     public String generatePasswordResetToken(String email){
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
@@ -126,19 +125,6 @@ public class AuthServiceImpl implements IAuthService {
     public UserEntityDto getUserByEmail(Authentication authentication) {
         UserEntity user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User", "email", authentication.getName()));
         return UserEntityMapper.mapUserEntityToUserEntityDto(user);
-    }
-    @Override
-    public void logout() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-            logoutHandler.logout(
-                    VaadinServletRequest.getCurrent(),
-                    null,
-                    auth
-            );
-        }
-        UI.getCurrent().getPage().setLocation(LOGOUT_SUCCESS_URL);
     }
 //
 //    @Override

@@ -15,8 +15,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
@@ -90,6 +88,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
         sendToken.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         sendToken.addClickListener(e ->{
             try {
+                resetDialog.removeAll();
                 String token = authService.generatePasswordResetToken(emailField.getValue());
                 String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
                 String url = "/reset?token=" + encodedToken;
@@ -118,6 +117,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
     private Div resetDialogLayout(Anchor resetLink){
         Div div = new Div();
         Div resetText = new Div(RESET_LINK_TEXT);
+        resetText.getStyle().set("font-weight", "bold");
         div.add(resetText, resetLink);
         div.getStyle().set("text-align", "center");
         return div;
@@ -127,11 +127,15 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
         public void onComponentEvent(AbstractLogin.ForgotPasswordEvent event) {
             formDialog.removeAll();
             Div text = new Div(RESET_PASSWORD_TEXT);
+            text.getStyle().set("font-weight", "bold");
+
             TextField emailField = FormFields.textField("Email");
             emailField.setWidthFull();
+
             VerticalLayout layout = new VerticalLayout();
             layout.add(text, emailField, sendTokenButton(emailField));
             layout.setAlignItems(Alignment.CENTER);
+
             formDialog.add(layout);
             formDialog.open();
         }

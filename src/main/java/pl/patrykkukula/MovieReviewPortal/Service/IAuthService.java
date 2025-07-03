@@ -11,6 +11,5 @@ public interface IAuthService {
     void resetPassword(PasswordResetDto passwordResetDto);
     String generatePasswordResetToken(String email);
     UserEntityDto getUserByEmail(Authentication authentication);
-    void logout();
 //    boolean login(String email, String password);
 }

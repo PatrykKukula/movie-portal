@@ -1,5 +1,4 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -21,7 +20,6 @@ import pl.patrykkukula.MovieReviewPortal.Repository.RoleRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

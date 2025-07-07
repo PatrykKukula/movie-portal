@@ -38,7 +38,7 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole()")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public Long addComment(CommentDto commentDto) {
         Long topicId = commentDto.getTopicId();
         Tuple topicWithMaxCommentId = topicRepository
@@ -61,7 +61,7 @@ public class CommentServiceImpl implements ICommentService {
         }
     }
     @Override
-    @PreAuthorize("hasAnyRole()")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public void removeComment(Long commentId){
         validateId(commentId);
         Comment comment = commentRepository
@@ -92,7 +92,7 @@ public class CommentServiceImpl implements ICommentService {
         return mapToCommentsDtoWithUser(comments);
     }
     @Override
-    @PreAuthorize("hasAnyRole()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void updateComment(Long commentId, CommentDto commentDto){
         validateId(commentId);
         Comment comment = commentRepository

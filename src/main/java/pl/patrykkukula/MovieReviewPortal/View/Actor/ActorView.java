@@ -11,6 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorViewDto;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
@@ -24,7 +25,7 @@ import java.util.List;
 @CssImport("./styles/common-styles.css")
 public class ActorView extends VerticalLayout {
     private final ActorServiceImpl actorService;
-    private final Grid<ActorDto> grid = new Grid<>(ActorDto.class);
+    private final Grid<ActorViewDto> grid = new Grid<>(ActorViewDto.class);
     private final UserDetailsServiceImpl userDetailsService;
 
     public ActorView(ActorServiceImpl actorService, UserDetailsServiceImpl userDetailsService) {
@@ -45,25 +46,19 @@ public class ActorView extends VerticalLayout {
         }
         updateGridData("");
     }
-
     private void configureGrid() {
         grid.setColumns("firstName", "lastName", "country", "dateOfBirth");
+        grid.addColumn(dto -> String.format("%.2f",dto.getRate())).setHeader("Rate").setWidth("20%");
         grid.asSingleSelect().addValueChangeListener(event -> {
-            ActorDto selectedActor = event.getValue();
+            ActorViewDto selectedActor = event.getValue();
             if (selectedActor != null) {
                 UI.getCurrent().navigate(ActorDetailsView.class, selectedActor.getId());
             }
         });
     }
-
     private void updateGridData(String searchText) {
-        List<ActorDto> actors;
-        if (searchText == null) {
-            actors = actorService.fetchAllActors("ASC");
-        }
-        else {
-            actors = actorService.fetchAllActorsByNameOrLastName(searchText, "ASC");
-        }
+        List<ActorViewDto> actors;
+        actors = actorService.fetchAllActorsView(searchText);
         grid.setItems(actors);
     }
 }

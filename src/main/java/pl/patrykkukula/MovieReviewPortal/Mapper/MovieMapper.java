@@ -26,7 +26,7 @@ public class MovieMapper {
         Director director = movie.getDirector();
         DirectorDto directorDto = new DirectorDto();
         if (director != null) {
-            directorDto = DirectorMapper.mapToDirectorDto(director);
+            directorDto = pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper.mapToDirectorDto(director);
         }
 
         return MovieDtoWithDetails.builder()
@@ -68,7 +68,7 @@ public class MovieMapper {
                 .category(movie.getCategory())
                 .releaseDate(movie.getReleaseDate())
                 .rateNumber(rateNumber)
-                .rating(rating)
+                .averageRate(rating)
                 .build();
     }
     public static Movie mapMovieDtoToMovie(MovieDto movieDto, Movie movie){

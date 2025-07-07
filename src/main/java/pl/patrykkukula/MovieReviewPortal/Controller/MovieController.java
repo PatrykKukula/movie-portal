@@ -10,7 +10,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieUpdateDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieRate.MovieRateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Response.ErrorResponseDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
@@ -73,14 +73,14 @@ public class MovieController {
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
     @PostMapping("/rate")
-    public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody MovieRateDto movieRateDto){
+    public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody RateDto movieRateDto){
         movieService.addRateToMovie(movieRateDto);
         return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
     }
     @DeleteMapping("/{movieId}/rate")
     public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
-        boolean isRemoved = movieService.removeRate(movieId);
-        return isRemoved ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
+        Double newRate = movieService.removeRate(movieId);
+        return newRate !=null ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDto(
                         request.getDescription(false),
                         STATUS_404,

@@ -2,19 +2,18 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieRate.MovieRateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
 import pl.patrykkukula.MovieReviewPortal.Repository.*;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IMovieService;
 
 import java.util.List;
@@ -24,16 +23,15 @@ import static pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MovieServiceImpl implements IMovieService {
-
     private final MovieRepository movieRepository;
     private final DirectorRepository directorRepository;
     private final ActorRepository actorRepository;
-    private final UserEntityRepository userEntityRepository;
+    private final UserDetailsServiceImpl userDetailsService;
     private final MovieRateRepository movieRateRepository;
-
     /*
         COMMON SECTION
      */
@@ -46,7 +44,6 @@ public class MovieServiceImpl implements IMovieService {
         Integer rateNumber = movieRepository.countMovieRates(movieId);
         return mapToMovieDtoWithDetails(movie, rate, rateNumber);
     }
-
     @Override
     public void updateMovie(Long movieId, MovieUpdateDto movieDto) {
         validateId(movieId);
@@ -64,7 +61,6 @@ public class MovieServiceImpl implements IMovieService {
         }
         movieRepository.save(mapMovieUpdateDtoToMovieUpdate(movieDto, movie));
     }
-
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public Long addMovie(MovieDto movieDto) {
@@ -81,6 +77,42 @@ public class MovieServiceImpl implements IMovieService {
         validateId(movieId);
         movieRepository.findById(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie", "Movie id", String.valueOf(movieId)));
         movieRepository.deleteById(movieId);
+    }
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public RatingResult addRateToMovie(RateDto rateDto) {
+        validateId(rateDto.getEntityId());
+        UserEntity user = userDetailsService.getUserEntity();
+        Optional<MovieRate> optCurrentRate = movieRateRepository.findByMovieIdAndUserId(rateDto.getEntityId(), user.getUserId());
+        if (optCurrentRate.isPresent()) {
+            MovieRate currentRate = optCurrentRate.get();
+            currentRate.setRate(rateDto.getRate());
+            MovieRate updatedRate = movieRateRepository.save(currentRate);
+            return new RatingResult(updatedRate.getMovie().averageMovieRate(), true);
+
+        } else {
+            Movie movie = movieRepository.findByIdWithMovieRates(rateDto.getEntityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(rateDto.getEntityId())));
+            MovieRate movieRate = MovieRate.builder()
+                    .movie(movie)
+                    .user(user)
+                    .rate(rateDto.getRate())
+                    .build();
+            MovieRate addedRate = movieRateRepository.save(movieRate);
+            movie.getMovieRates().add(addedRate);
+            return new RatingResult(addedRate.getMovie().averageMovieRate(), false);
+        }
+    }
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public Double removeRate(Long movieId) {
+        validateId(movieId);
+        UserEntity user = userDetailsService.getUserEntity();
+        movieRateRepository.deleteByMovieIdAndUserId(movieId, user.getUserId());
+        Movie movie = movieRepository.findByIdWithMovieRates(movieId).orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(movieId)));
+        return movie.averageMovieRate();
     }
     /*
         REST API SECTION
@@ -125,56 +157,21 @@ public class MovieServiceImpl implements IMovieService {
                 movieRepository.findAllOrderByTitleAsc().stream().map(MovieMapper::mapToMovieDtoBasic).toList() :
                 movieRepository.findAllOrderByTitleDesc().stream().map(MovieMapper::mapToMovieDtoBasic).toList();
     }
-    @Override
-    @Transactional
-    @PreAuthorize("hasAnyRole()")
-    public Long addRateToMovie(MovieRateDto movieRateDto) {
-        validateId(movieRateDto.getMovieId());
-        UserEntity user = getUserEntity();
-        Movie movie = movieRepository.findByIdWithMovieRates(movieRateDto.getMovieId())
-                .orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(movieRateDto.getMovieId())));
-        Optional<MovieRate> optCurrentRate = movieRateRepository.findByMovieIdAndUserId(movieRateDto.getMovieId(), user.getUserId());
-        if (optCurrentRate.isPresent()) {
-            MovieRate currentRate = optCurrentRate.get();
-            currentRate.setRate(movieRateDto.getRate());
-            MovieRate updatedRate = movieRateRepository.save(currentRate);
-            return updatedRate.getMovieRateId();
-        } else {
-            MovieRate movieRate = MovieRate.builder()
-                    .movie(movie)
-                    .user(user)
-                    .rate(movieRateDto.getRate())
-                    .build();
-            MovieRate addedRate = movieRateRepository.save(movieRate);
-            return addedRate.getMovieRateId();
-        }
-    }
-    @Override
-    @Transactional
-    @PreAuthorize("hasAnyRole()")
-    public boolean removeRate(Long movieId) {
-        validateId(movieId);
-        UserEntity user = getUserEntity();
-        int deleted = movieRateRepository.deleteByMovieIdAndUserId(movieId, user.getUserId());
-
-        return deleted > 0;
-    }
-
     /*
        VAADIN VIEW SECTION
    */
     @Override
     public List<MovieViewDto> fetchAllMoviesForView(String title) {
-        return title.isEmpty() ? movieRepository.findAllWithMovieRates().stream().map(
+        return title.isEmpty() ? movieRepository.findAllWithRates().stream().map(
                 movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList() :
-                movieRepository.findAllWithMovieRatesByTitle(title).stream().map(
+                movieRepository.findAllWithRatesByTitle(title).stream().map(
                         movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList();
     }
     @Override
     public List<MovieViewDto> fetchAllMoviesForViewByCategory(MovieCategory category, String title) {
-        return title.isEmpty() ? movieRepository.findAllWithMovieRatesByCategory(category).stream().map(
+        return title.isEmpty() ? movieRepository.findAllWithRatesByCategory(category).stream().map(
                 movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList() :
-                movieRepository.findAllWithMovieRatesByCategoryByTitle(category,title).stream().map(
+                movieRepository.findAllWithRatesByCategoryByTitle(category,title).stream().map(
                         movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList();
     }
     @Override
@@ -206,6 +203,18 @@ public class MovieServiceImpl implements IMovieService {
 
         movieRepository.save(mapMovieDtoToMovie(movieDto, movie));
     }
+    @Override
+    public RateDto fetchMovieRateByMovieIdAndUserId(Long movieId, Long userId) {
+        Optional<MovieRate> optionalMovieRate = movieRateRepository.findByMovieIdAndUserId(movieId, userId);
+        if (optionalMovieRate.isPresent()) {
+            MovieRate movieRate = optionalMovieRate.get();
+            return RateDto.builder()
+                    .entityId(movieRate.getMovieRateId())
+                    .rate(movieRate.getRate())
+                    .build();
+        }
+        return null;
+    }
 
     private MovieCategory findCategory(MovieCategory category) {
         return MovieCategory.valueOf(category.name());
@@ -214,12 +223,12 @@ public class MovieServiceImpl implements IMovieService {
         return directorRepository.findById(directorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(directorId)));
     }
-    private UserEntity getUserEntity() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new UsernameNotFoundException("User is not logged in");
-        }
-        User user = (User) auth.getPrincipal();
-        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
-    }
+//    private UserEntity getUserEntity() {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+//            throw new UsernameNotFoundException("Log in to add rate");
+//        }
+//        User user = (User) auth.getPrincipal();
+//        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+//    }
 }

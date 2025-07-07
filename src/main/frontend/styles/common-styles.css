@@ -45,3 +45,8 @@
     cursor: auto;
     color: black;
 }
+.icon-star {
+    color: lightgray;
+    font-size: 14px;
+    cursor: pointer;
+}

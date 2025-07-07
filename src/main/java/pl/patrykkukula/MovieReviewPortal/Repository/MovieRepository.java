@@ -28,13 +28,13 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE m.movieId = :movieId")
     Optional<Movie> findByIdWithMovieRates(@Param(value = "movieId") Long movieId);
     @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates")
-    List<Movie> findAllWithMovieRates();
+    List<Movie> findAllWithRates();
     @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%'))")
-    List<Movie> findAllWithMovieRatesByTitle(@Value("title") String title);
+    List<Movie> findAllWithRatesByTitle(@Value("title") String title);
     @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE m.category = :category")
-    List<Movie> findAllWithMovieRatesByCategory(@Value("category")MovieCategory category);
+    List<Movie> findAllWithRatesByCategory(@Value("category")MovieCategory category);
     @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE m.category = :category AND LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%'))")
-    List<Movie> findAllWithMovieRatesByCategoryByTitle(@Value("category")MovieCategory category, @Value("title") String title);
+    List<Movie> findAllWithRatesByCategoryByTitle(@Value("category")MovieCategory category, @Value("title") String title);
     @Query("SELECT SIZE(m.movieRates) FROM Movie m WHERE m.movieId =:movieId")
     Integer countMovieRates(@Param(value = "movieId") Long movieId);
 }

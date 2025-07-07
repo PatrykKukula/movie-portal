@@ -56,10 +56,10 @@ public class MovieView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.setColumns("title", "category", "rating", "releaseDate");
+        grid.setColumns("title", "category", "releaseDate");
+        grid.addColumn(dto -> String.format("%.2f",dto.getAverageRate())).setHeader("Rate").setWidth("20%");
         grid.getColumnByKey("title").setWidth("30%");
         grid.getColumnByKey("category").setWidth("30%");
-        grid.getColumnByKey("rating").setWidth("20%");
         grid.getColumnByKey("releaseDate").setWidth("20%");
 
         grid.asSingleSelect().addValueChangeListener(event -> {

@@ -1,9 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 
-import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorSummaryDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 
@@ -35,7 +32,18 @@ public class ActorMapper {
                         .biography(actor.getBiography())
                         .build();
     }
-    public static ActorDtoWithMovies mapToActorDtoWithMovies(Actor actor){
+    public static ActorViewDto mapToActorViewDto(Actor actor, Double rate) {
+        return ActorViewDto.builder()
+                .id(actor.getActorId())
+                .firstName(actor.getFirstName())
+                .lastName(actor.getLastName())
+                .country(actor.getCountry())
+                .dateOfBirth(actor.getDateOfBirth())
+                .biography(actor.getBiography())
+                .rate(rate)
+                .build();
+    }
+    public static ActorDtoWithMovies mapToActorDtoWithMovies(Actor actor, Double rate, Integer rateNumber){
         List<MovieDtoBasic> moviesDto = Optional.ofNullable(actor.getMovies())
                     .orElse(Collections.emptyList())
                     .stream()
@@ -50,6 +58,8 @@ public class ActorMapper {
                 .dateOfBirth(actor.getDateOfBirth())
                 .biography(actor.getBiography())
                 .movies(moviesDto)
+                .rating(rate)
+                .rateNumber(rateNumber)
                 .build();
     }
     public static Actor mapToActorUpdate(ActorUpdateDto actorUpdateDto, Actor actor) {

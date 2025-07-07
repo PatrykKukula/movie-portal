@@ -34,7 +34,7 @@ public class TopicServiceImpl implements ITopicService {
 
     @Transactional
     @Override
-    @PreAuthorize("hasAnyRole()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long movieId) {
         validateId(movieId);
         UserEntity user = getUserEntity();
@@ -52,7 +52,7 @@ public class TopicServiceImpl implements ITopicService {
         return savedTopic.getTopicId();
     }
     @Override
-    @PreAuthorize("hasAnyRole()")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void deleteTopic(Long topicId) {
         validateId(topicId);
         UserEntity userEntity = getUserEntity();

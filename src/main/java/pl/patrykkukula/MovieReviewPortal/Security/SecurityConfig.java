@@ -31,11 +31,11 @@ public class SecurityConfig extends VaadinWebSecurity {
 
         http.authorizeHttpRequests(request ->
             request.requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
-                    .requestMatchers("/actors/add", "actors/edit").hasRole("ADMIN")
+                    .requestMatchers("/actors/add", "/actors/edit").hasRole("ADMIN")
                     .requestMatchers("/directors/add", "/directors/edit").hasRole("ADMIN")
-                    .requestMatchers("/movies/add", "movies/edit").hasRole("ADMIN")
-                    .requestMatchers("/topics/add", "topics/edit").authenticated()
-                    .requestMatchers("/comments/add", "comments/edit").authenticated()
+                    .requestMatchers("/movies/add", "/movies/edit").hasRole("ADMIN")
+                    .requestMatchers("/topics/add", "/topics/edit").authenticated()
+                    .requestMatchers("/comments/add", "/comments/edit").authenticated()
                     .requestMatchers("/login/**", "/logout/**", "/register", "/verify", "/reset").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
         );

@@ -1,25 +1,24 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorSummaryDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
-import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
+import pl.patrykkukula.MovieReviewPortal.Model.DirectorRate;
+import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
+import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
 import java.util.List;
-
+import java.util.Optional;
 import static java.lang.String.valueOf;
-import static pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper.mapToActorDto;
-import static pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper.mapToActorUpdateVaadin;
 import static pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
@@ -29,6 +28,8 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorti
 public class DirectorServiceImpl implements IDirectorService {
     private final DirectorRepository directorRepository;
     private final MovieRepository movieRepository;
+    private final DirectorRateRepository directorRateRepository;
+    private final UserDetailsServiceImpl userDetailsService;
     /*
         COMMON SECTION
      */
@@ -58,7 +59,9 @@ public class DirectorServiceImpl implements IDirectorService {
         validateId(directorId);
         Director director = directorRepository.findByIdWithMovies(directorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Director", "id", String.valueOf(directorId)));
-        return mapToDirectorDtoWithMovies(director);
+        Double rate = directorRateRepository.getAverageDirectorRate(directorId);
+        Integer rateNumber = directorRepository.countDirectorRates(directorId);
+        return mapToDirectorDtoWithMovies(director, rate, rateNumber);
     }
     @Override
     public List<DirectorDto> fetchAllDirectors(String sorted) {
@@ -73,6 +76,43 @@ public class DirectorServiceImpl implements IDirectorService {
         return validatedSorted.equals("ASC") ?
                 directorRepository.findAllByFirstOrLastNameSortedAsc(name).stream().map(DirectorMapper::mapToDirectorDto).toList() :
                 directorRepository.findAllByFirstOrLastNameSortedDesc(name).stream().map(DirectorMapper::mapToDirectorDto).toList();
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public RatingResult addRateToDirector(RateDto rateDto) {
+        validateId(rateDto.getEntityId());
+        UserEntity user = userDetailsService.getUserEntity();
+        Optional<DirectorRate> optCurrentRate = directorRateRepository.findByDirectorIdAndUserId(rateDto.getEntityId(), user.getUserId());
+        if (optCurrentRate.isPresent()) {
+            DirectorRate currentRate = optCurrentRate.get();
+            currentRate.setRate(rateDto.getRate());
+            DirectorRate updatedRate = directorRateRepository.save(currentRate);
+            return new RatingResult(updatedRate.getDirector().averageDirectorRate(), true);
+        }
+        else {
+            Director director = directorRepository.findByIdWithRates(rateDto.getEntityId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(rateDto.getEntityId())));
+            DirectorRate directorRate = DirectorRate.builder()
+                    .director(director)
+                    .user(user)
+                    .rate(rateDto.getRate())
+                    .build();
+            DirectorRate addedRate = directorRateRepository.save(directorRate);
+            director.getDirectorRates().add(addedRate);
+            return new RatingResult(addedRate.getDirector().averageDirectorRate(), false);
+        }
+    }
+    @Override
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public Double removeRate(Long directorId) {
+        validateId(directorId);
+        UserEntity user = userDetailsService.getUserEntity();
+        directorRateRepository.deleteByDirectorIdAndUserId(directorId, user.getUserId());
+        Director director = directorRepository.findByIdWithRates(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(directorId)));
+        return director.averageDirectorRate();
     }
     /*
         REST API SECTION
@@ -106,9 +146,33 @@ public class DirectorServiceImpl implements IDirectorService {
                 .toList();
     }
     @Override
+    public List<DirectorViewDto> fetchAllDirectorsView(String searchedText) {
+        return searchedText == null || searchedText.isEmpty() ?
+                directorRepository.findAllWithDirectorRates().stream().map(director -> {
+                    Double rate = director.averageDirectorRate();
+                    return mapToDirectorViewDto(director, rate);
+                }).toList() :
+                directorRepository.findAllWithRatesByNameOrLastName(searchedText).stream().map(director -> {
+                    Double rate = director.averageDirectorRate();
+                    return mapToDirectorViewDto(director, rate);
+                }).toList();
+    }
+    @Override
     public void updateDirectorVaadin(Long directorId, DirectorDto directorDto) {
         validateId(directorId);
         Director director = directorRepository.findById(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "id", valueOf(directorId)));
         directorRepository.save(mapToDirectorUpdateVaadin(directorDto, director));
+    }
+    @Override
+    public RateDto fetchRateByDirectorIdAndUserId(Long directorId, Long userId) {
+        Optional<DirectorRate> optionalDirectorRate = directorRateRepository.findByDirectorIdAndUserId(directorId, userId);
+        if (optionalDirectorRate.isPresent()) {
+            DirectorRate directorRate = optionalDirectorRate.get();
+            return RateDto.builder()
+                    .entityId(directorRate.getDirectorRateId())
+                    .rate(directorRate.getRate())
+                    .build();
+        }
+        return null;
     }
 }

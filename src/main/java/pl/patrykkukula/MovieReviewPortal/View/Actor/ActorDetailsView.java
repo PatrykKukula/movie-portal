@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.View.Actor;
 
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,11 +16,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
+import pl.patrykkukula.MovieReviewPortal.View.Common.RatingStars;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 
 import java.util.List;
@@ -65,6 +69,33 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
             actorMovies.setClassName("movies");
             actorMovies.add(new H5("Movies"));
 
+            Span avgSpan = new Span(String.format("%.2f", actor.getRating()));
+            Div rating = new Div(new Text("Rating: "),avgSpan);
+            rating.getStyle().set("display", "inline");
+
+            Span initRateNumber = new Span(String.valueOf(actor.getRateNumber()));
+            initRateNumber.getElement().getThemeList().add("badge pill small contrast");
+            initRateNumber.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
+
+            Long userId = userDetailsService.getAuthenticatedUserId();
+            RateDto rateDto = actorService.fetchRateByActorIdAndUserId(actorId, userId);
+            RatingStars ratingStars = new RatingStars(
+                    rateDto != null ? rateDto.getRate() : -1,
+                    userId == null,
+                    newRate -> {
+                        RatingResult newAvg = actorService.addRateToActor(new RateDto(newRate, actorId));
+                        avgSpan.setText(String.format("%.2f", newAvg.avgRate()));
+                        if (!newAvg.wasRated()) initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())+1));
+                    },
+                    () -> {
+                        Double newRate = actorService.removeRate(actorId);
+                        avgSpan.setText(String.format("%.2f", newRate));
+                        initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())-1));
+                        return newRate == null;
+                    }
+            );
+            rating.add(initRateNumber, ratingStars);
+
             for(MovieDtoBasic movie : movies) {
                 Anchor movieLink = new Anchor("movies/" + movie.getId(), "• " + movie.getTitle());
                 movieLink.addClassName("details");
@@ -88,7 +119,7 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
             buttonsLayout.add(backButton);
 
             detailsLayout.setClassName("details-layout");
-            detailsLayout.add(header, actorDetails, actorMovies, buttonsLayout);
+            detailsLayout.add(header, actorDetails, rating, actorMovies, buttonsLayout);
             mainLayout.add(detailsLayout, rightSideLayout);
 
             add(mainLayout);

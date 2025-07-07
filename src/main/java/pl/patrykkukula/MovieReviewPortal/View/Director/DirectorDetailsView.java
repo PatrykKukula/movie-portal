@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.View.Director;
 
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,11 +16,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
+import pl.patrykkukula.MovieReviewPortal.View.Common.RatingStars;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 
 import java.util.List;
@@ -55,15 +59,40 @@ public class DirectorDetailsView extends VerticalLayout implements HasUrlParamet
             Div country = new Div(director.getCountry());
             Div dateOfBirth = new Div(director.getDateOfBirth().toString());
             Div biography = new Div(director.getBiography());
-
             Div directorDetails = new Div();
             directorDetails.addClassName("details");
             directorDetails.setText("Country: " + country.getText() + "\nDate of birth: " + dateOfBirth.getText()
                     + "\nBiography: " + biography.getText());
-
             Div directorMovies = new Div();
             directorMovies.setClassName("movies");
             directorMovies.add(new H5("Movies"));
+
+            Span avgSpan = new Span(String.format("%.2f", director.getRating()));
+            Div rating = new Div(new Text("Rating: "),avgSpan);
+            rating.getStyle().set("display", "inline");
+
+            Span initRateNumber = new Span(String.valueOf(director.getRateNumber()));
+            initRateNumber.getElement().getThemeList().add("badge pill small contrast");
+            initRateNumber.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
+
+            Long userId = userDetailsService.getAuthenticatedUserId();
+            RateDto rateDto = directorService.fetchRateByDirectorIdAndUserId(directorId, userId);
+            RatingStars ratingStars = new RatingStars(
+                    rateDto != null ? rateDto.getRate() : -1,
+                    userId == null,
+                    newRate -> {
+                        RatingResult newAvg = directorService.addRateToDirector(new RateDto(newRate, directorId));
+                        avgSpan.setText(String.format("%.2f", newAvg.avgRate()));
+                        if (!newAvg.wasRated()) initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())+1));
+                    },
+                    () -> {
+                        Double newRate = directorService.removeRate(directorId);
+                        avgSpan.setText(String.format("%.2f", newRate));
+                        initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())-1));
+                        return newRate == null;
+                    }
+            );
+            rating.add(initRateNumber, ratingStars);
 
             for(MovieDtoBasic movie : movies) {
                 Anchor movieLink = new Anchor("movies/" + movie.getId(), "• " + movie.getTitle());
@@ -86,7 +115,7 @@ public class DirectorDetailsView extends VerticalLayout implements HasUrlParamet
             buttonsLayout.add(backButton);
             buttonsLayout.addClassName("buttons-layout");
 
-            detailsLayout.add(header, directorDetails, directorMovies, buttonsLayout);
+            detailsLayout.add(header, directorDetails, rating, directorMovies, buttonsLayout);
             detailsLayout.setClassName("details-layout");
 
             mainLayout.add(detailsLayout, rightSideLayout);

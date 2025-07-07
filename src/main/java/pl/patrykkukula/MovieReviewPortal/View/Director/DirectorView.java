@@ -11,6 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorViewDto;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
@@ -25,7 +26,7 @@ import java.util.List;
 @CssImport("./styles/common-styles.css")
 public class DirectorView extends VerticalLayout {
     private final DirectorServiceImpl directorService;
-    private final Grid<DirectorDto> grid = new Grid<>(DirectorDto.class);
+    private final Grid<DirectorViewDto> grid = new Grid<>(DirectorViewDto.class);
     private final UserDetailsServiceImpl userDetailsService;
 
     public DirectorView(DirectorServiceImpl directorService, UserDetailsServiceImpl userDetailsService) {
@@ -49,21 +50,17 @@ public class DirectorView extends VerticalLayout {
     }
     private void configureGrid() {
         grid.setColumns("firstName", "lastName", "country", "dateOfBirth");
+        grid.addColumn(dto -> String.format("%.2f",dto.getRate())).setHeader("Rate").setWidth("20%");
         grid.asSingleSelect().addValueChangeListener(event -> {
-            DirectorDto selectedDirector = event.getValue();
+            DirectorViewDto selectedDirector = event.getValue();
             if (selectedDirector != null) {
                 UI.getCurrent().navigate(DirectorDetailsView.class, selectedDirector.getId());
             }
         });
     }
-    private void updateGridData(String search) {
-        List<DirectorDto> directors;
-        if (search == null) {
-            directors = directorService.fetchAllDirectors("ASC");
-        }
-        else {
-            directors = directorService.fetchAllDirectorsByNameOrLastName(search, "ASC");
-        }
+    private void updateGridData(String searchText) {
+        List<DirectorViewDto> directors;
+        directors = directorService.fetchAllDirectorsView(searchText);
         grid.setItems(directors);
     }
 }

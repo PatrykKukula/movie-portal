@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class MovieViewDto {
     private Long id;
     private String title;
-    private Double rating;
+    private Double averageRate;
     private Integer rateNumber;
     private LocalDate releaseDate;
     private MovieCategory category;

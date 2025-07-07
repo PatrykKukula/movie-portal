@@ -1,4 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.Model;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -6,15 +7,15 @@ import lombok.*;
 @Getter @Setter @ToString
 @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class MovieRate {
+public class DirectorRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long movieRateId;
+    private Long directorRateId;
     @Column(nullable = false)
     private Integer rate;
     @ManyToOne
-    @JoinColumn(name = "movie_id", nullable = false)
-    private Movie movie;
+    @JoinColumn(name = "director_id", nullable = false)
+    private Director director;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;

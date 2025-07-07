@@ -1,11 +1,10 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 
 import lombok.extern.slf4j.Slf4j;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorSummaryDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorViewDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
-import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 
 import java.util.Collections;
@@ -37,7 +36,18 @@ public class DirectorMapper {
                 .dateOfBirth(director.getDateOfBirth())
                 .build();
     }
-    public static DirectorDtoWithMovies mapToDirectorDtoWithMovies(Director director) {
+    public static DirectorViewDto mapToDirectorViewDto(Director director, Double rate) {
+        return DirectorViewDto.builder()
+                .id(director.getDirectorId())
+                .firstName(director.getFirstName())
+                .lastName(director.getLastName())
+                .country(director.getCountry())
+                .dateOfBirth(director.getDateOfBirth())
+                .biography(director.getBiography())
+                .rate(rate)
+                .build();
+    }
+    public static DirectorDtoWithMovies mapToDirectorDtoWithMovies(Director director, Double rate, Integer rateNumber) {
         List<MovieDtoBasic> moviesDto = Optional.ofNullable(director.getMovies())
                 .orElse(Collections.emptyList())
                 .stream()
@@ -51,6 +61,8 @@ public class DirectorMapper {
                 .country(director.getCountry())
                 .biography(director.getBiography())
                 .dateOfBirth(director.getDateOfBirth())
+                .rating(rate)
+                .rateNumber(rateNumber)
                 .movies(moviesDto)
                 .build();
     }

@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.View.Movie;
 
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -8,16 +9,21 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
+import pl.patrykkukula.MovieReviewPortal.View.Common.RatingStars;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 
 @Slf4j
@@ -52,18 +58,38 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
             Div category = new Div("Category: " + movie.getCategory());
             Div releaseDate = new Div("Release date: " + movie.getReleaseDate().toString());
             Div description = new Div("Description: " + movie.getDescription());
-            Div rating = new Div("Rating: " + movie.getRating());
-            Span rateNumber = new Span(String.valueOf(movie.getRateNumber()));
-            rateNumber.getElement().getThemeList().add("badge pill small contrast");
-            rateNumber.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
-            rating.add(rateNumber);
+
+            Span avgSpan = new Span(String.format("%.2f", movie.getRating()));
+            Div rating = new Div(new Text("Rating: "),avgSpan);
+            rating.getStyle().set("display", "inline");
+
+            Span initRateNumber = new Span(String.valueOf(movie.getRateNumber()));
+            initRateNumber.getElement().getThemeList().add("badge pill small contrast");
+            initRateNumber.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
+
+            Long userId = userDetailsService.getAuthenticatedUserId();
+            RateDto movieRateDto = movieService.fetchMovieRateByMovieIdAndUserId(movieId, userId);
+            RatingStars ratingStars = new RatingStars(
+                    movieRateDto != null ? movieRateDto.getRate() : -1,
+                    userId == null,
+                    newRate -> {
+                        RatingResult newAvg = movieService.addRateToMovie(new RateDto(newRate, movieId));
+                        avgSpan.setText(String.format("%.2f", newAvg.avgRate()));
+                        if (!newAvg.wasRated()) initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())+1));
+                    },
+                    () -> {
+                        Double newRate = movieService.removeRate(movieId);
+                        avgSpan.setText(String.format("%.2f", newRate));
+                        initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())-1));
+                        return newRate == null;
+                    }
+            );
+            rating.add(initRateNumber, ratingStars);
 
             UI.getCurrent().getPage().setTitle("movie"); // DOES NOT WORK - FIGURE IT OUT
 
             Button editButton = new Button("Edit", e -> UI.getCurrent().navigate(MovieEditView.class, movieId));
-            Button deleteButton = new Button("Delete", e -> {
-                confirmDelete(movieId);
-            });
+            Button deleteButton = new Button("Delete", e -> confirmDelete(movieId));
             deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
             Button backButton = new Button("Back to Movies", e -> UI.getCurrent().navigate(MovieView.class));
@@ -118,7 +144,6 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         }
         return directorDiv;
     }
-
     private Div getActors(MovieDtoWithDetails movie) {
         Div actors = new Div();
         actors.getStyle().set("white-space", "pre-line");

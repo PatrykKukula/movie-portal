@@ -204,7 +204,7 @@ public class MovieServiceImpl implements IMovieService {
         movieRepository.save(mapMovieDtoToMovie(movieDto, movie));
     }
     @Override
-    public RateDto fetchMovieRateByMovieIdAndUserId(Long movieId, Long userId) {
+    public RateDto fetchRateByMovieIdAndUserId(Long movieId, Long userId) {
         Optional<MovieRate> optionalMovieRate = movieRateRepository.findByMovieIdAndUserId(movieId, userId);
         if (optionalMovieRate.isPresent()) {
             MovieRate movieRate = optionalMovieRate.get();

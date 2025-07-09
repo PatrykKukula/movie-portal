@@ -25,8 +25,8 @@ public class Buttons {
         cancelButton.addClickListener(e -> dialog.close());
         return cancelButton;
     }
-    public static <T, C extends Component & HasUrlParameter<T>> Button editButton(Class<? extends C> navigationTarget, T parameter) {
-        Button cancelButton = new Button("Edit");
+    public static <T, C extends Component & HasUrlParameter<T>> Button editButton(Class<? extends C> navigationTarget, String label, T parameter) {
+        Button cancelButton = new Button(label);
         cancelButton.addClickListener(e -> UI.getCurrent().navigate(navigationTarget, parameter));
         return cancelButton;
     }

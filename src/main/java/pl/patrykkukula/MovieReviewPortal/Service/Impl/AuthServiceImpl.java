@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -124,7 +126,22 @@ public class AuthServiceImpl implements IAuthService {
         UserEntity user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User", "email", authentication.getName()));
         return UserEntityMapper.mapUserEntityToUserEntityDto(user);
     }
-//
+
+    @Override
+    public boolean changePassword(UserEntity user, String newPassword) {
+        if (newPassword == null || newPassword.isBlank()) return false;
+        Pattern pattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-+=?.><]).{8,}$");
+        Matcher matcher = pattern.matcher(newPassword);
+        boolean matches = matcher.matches();
+        if (matches) {
+            user.setPassword(encoder.encode(newPassword));
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    //
 //    @Override
 //    public boolean login(String email, String password) {
 //        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);

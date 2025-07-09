@@ -1,6 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.View.Movie;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,13 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
-import pl.patrykkukula.MovieReviewPortal.View.Common.RatingStars;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
+import pl.patrykkukula.MovieReviewPortal.View.Common.RatingStarsLayout;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
 
 @Slf4j
@@ -47,52 +46,33 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         mainLayout.addClassName("main-layout");
 
         VerticalLayout rightSideLayout = new VerticalLayout();
-//        rightSideLayout.setWidth("20%");
         try {
             MovieDtoWithDetails movie = movieService.fetchMovieDetailsById(movieId);
 
-            VerticalLayout detailsLayout = new VerticalLayout();
+
             H3 header = new H3(movie.getTitle());
 
-            Div directorDiv = setDirector(movie);
-            Div category = new Div("Category: " + movie.getCategory());
-            Div releaseDate = new Div("Release date: " + movie.getReleaseDate().toString());
-            Div description = new Div("Description: " + movie.getDescription());
-
-            Span avgSpan = new Span(String.format("%.2f", movie.getRating()));
-            Div rating = new Div(new Text("Rating: "),avgSpan);
-            rating.getStyle().set("display", "inline");
-
-            Span initRateNumber = new Span(String.valueOf(movie.getRateNumber()));
-            initRateNumber.getElement().getThemeList().add("badge pill small contrast");
-            initRateNumber.getStyle().set("margin-inline-start", "var(--lumo-space-s)");
+            VerticalLayout detailsLayout = detailsLayout(movie);
 
             Long userId = userDetailsService.getAuthenticatedUserId();
-            RateDto movieRateDto = movieService.fetchMovieRateByMovieIdAndUserId(movieId, userId);
-            RatingStars ratingStars = new RatingStars(
-                    movieRateDto != null ? movieRateDto.getRate() : -1,
-                    userId == null,
-                    newRate -> {
-                        RatingResult newAvg = movieService.addRateToMovie(new RateDto(newRate, movieId));
-                        avgSpan.setText(String.format("%.2f", newAvg.avgRate()));
-                        if (!newAvg.wasRated()) initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())+1));
-                    },
-                    () -> {
-                        Double newRate = movieService.removeRate(movieId);
-                        avgSpan.setText(String.format("%.2f", newRate));
-                        initRateNumber.setText(String.valueOf(Integer.parseInt(initRateNumber.getText())-1));
-                        return newRate == null;
-                    }
+            RateDto rateDto = movieService.fetchRateByMovieIdAndUserId(movieId, userId);
+            RatingStarsLayout ratingStarsLayout = new RatingStarsLayout(
+                    movie.getRating(),
+                    movie.getRateNumber(),
+                    userDetailsService,
+                    movieId,
+                    rateDto,
+                    (newRate, entityId) -> movieService.addRateToMovie(new RateDto(newRate, entityId)),
+                    entityId -> movieService.removeRate(entityId)
             );
-            rating.add(initRateNumber, ratingStars);
 
             UI.getCurrent().getPage().setTitle("movie"); // DOES NOT WORK - FIGURE IT OUT
 
-            Button editButton = new Button("Edit", e -> UI.getCurrent().navigate(MovieEditView.class, movieId));
-            Button deleteButton = new Button("Delete", e -> confirmDelete(movieId));
+            Button editButton = new Button("Edit movie", e -> UI.getCurrent().navigate(MovieEditView.class, movieId));
+            Button deleteButton = new Button("Delete movie", e -> confirmDelete(movieId));
             deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
-            Button backButton = new Button("Back to Movies", e -> UI.getCurrent().navigate(MovieView.class));
+            Button backButton = new Button("Back to movies", e -> UI.getCurrent().navigate(MovieView.class));
 
             VerticalLayout buttonsLayout = new VerticalLayout();
             if (userDetailsService.isAdmin()) {
@@ -101,13 +81,15 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
             buttonsLayout.add(backButton);
             buttonsLayout.addClassName("buttons-layout");
 
-            H5 actorsHeader = new H5("Actors");
+            Span actorsLabel = new Span("Actors");
+            actorsLabel.getStyle().set("font-weight", "bold");
             Div actors = getActors(movie);
 
-            detailsLayout.setClassName("details-layout");
-            detailsLayout.add(header, category, releaseDate, description, rating, directorDiv, actorsHeader, actors, buttonsLayout);
+            VerticalLayout layout = new VerticalLayout();
+            layout.addClassName("details-layout");
+            layout.add(header, detailsLayout, ratingStarsLayout, actorsLabel, actors, buttonsLayout);
 
-            mainLayout.add(detailsLayout, rightSideLayout);
+            mainLayout.add(layout, rightSideLayout);
 
             add(mainLayout);
         }
@@ -119,7 +101,7 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         Dialog dialog = new Dialog();
         var text = new Span("Do you want to remove Movie? This action cannot be undone.");
 
-        Button confirmButton = new Button("Confirm", e -> {
+        Button confirmButton = new Button("Confirm delete", e -> {
             movieService.deleteMovie(movieId);
             dialog.close();
             UI.getCurrent().navigate(MovieView.class);
@@ -135,14 +117,32 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
     }
     private static Div setDirector(MovieDtoWithDetails movie) {
         Div directorDiv = new Div();
-        Span directorHeader = new Span("Director: ");
-        directorDiv.add(directorHeader);
+        Span directorLabel = CommonComponents.labelSpan("Director: ");
+        directorDiv.add(directorLabel);
         if (movie.getDirector() != null && movie.getDirector().getFirstName() != null && movie.getDirector().getLastName() != null) {
             DirectorDto director = movie.getDirector();
             Anchor directorAnchor = new Anchor("directors/" + director.getId(), director.getFirstName() + " " + director.getLastName());
             directorDiv.add(directorAnchor);
         }
         return directorDiv;
+    }
+    private VerticalLayout detailsLayout(MovieDtoWithDetails movie){
+        Div directorSpan = setDirector(movie);
+        Span categoryLabel = CommonComponents.labelSpan("Category: ");
+        Span categorySpan = new Span(categoryLabel);
+        categorySpan.add(movie.getCategory());
+        Span releaseDateLabel = CommonComponents.labelSpan("Release date: ");
+        Span releaseDateSpan = new Span(releaseDateLabel);
+        releaseDateSpan.add(movie.getReleaseDate().toString());
+        releaseDateLabel.add(movie.getReleaseDate().toString());
+        Span descriptionLabel = CommonComponents.labelSpan("Description: ");
+        Span descriptionDiv = new Span(descriptionLabel);
+        descriptionDiv.add(movie.getDescription());
+
+        VerticalLayout detailsLayout = new VerticalLayout();
+        detailsLayout.setPadding(false);
+        detailsLayout.add(directorSpan, categorySpan, releaseDateSpan, descriptionDiv);
+        return detailsLayout;
     }
     private Div getActors(MovieDtoWithDetails movie) {
         Div actors = new Div();

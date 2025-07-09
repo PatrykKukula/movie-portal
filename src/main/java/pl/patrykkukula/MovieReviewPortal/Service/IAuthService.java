@@ -3,6 +3,7 @@ package pl.patrykkukula.MovieReviewPortal.Service;
 import org.springframework.security.core.Authentication;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
+import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 
 public interface IAuthService {
     String register(UserEntityDto userDto);
@@ -11,5 +12,6 @@ public interface IAuthService {
     void resetPassword(PasswordResetDto passwordResetDto);
     String generatePasswordResetToken(String email);
     UserEntityDto getUserByEmail(Authentication authentication);
+    boolean changePassword(UserEntity user, String newPassword);
 //    boolean login(String email, String password);
 }

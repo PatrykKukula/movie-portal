@@ -30,10 +30,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 ).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
     }
     public UserDetails getAuthenticatedUser() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Object principal = context.getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return (UserDetails) principal;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserDetails userDetails) {
+            return userDetails;
         }
         return null;
     }

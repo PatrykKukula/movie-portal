@@ -32,5 +32,5 @@ public interface IMovieService {
     List<MovieViewDto> fetchAllMoviesForViewByCategory(MovieCategory category, String title);
     MovieDto fetchMovieByIdVaadin(Long movieId);
     void updateMovieVaadin(Long movieId, MovieDto movieDto);
-    RateDto fetchMovieRateByMovieIdAndUserId(Long movieId, Long userId);
+    RateDto fetchRateByMovieIdAndUserId(Long movieId, Long userId);
 }

@@ -133,8 +133,7 @@ public class MainLayout extends AppLayout {
         viewToTab.put(DirectorDetailsView.class, directors);
         viewToTab.put(DirectorEditView.class, directors);
         viewToTab.put(AddDirectorView.class, directors);
-        viewToTab.put(AccountView.class, account);
         viewToTab.put(LoginView.class, login);
-//        viewToTab.put(AccountDetails.view, details);
+        viewToTab.put(AccountView.class, details);
     }
 }

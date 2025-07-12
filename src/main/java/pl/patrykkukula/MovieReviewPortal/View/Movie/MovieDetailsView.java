@@ -38,7 +38,6 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         this.movieService = movieService;
         this.userDetailsService = userDetailsService;
     }
-
     @Override
     public void setParameter(BeforeEvent event, Long movieId) {
         setSizeFull();
@@ -48,8 +47,6 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         VerticalLayout rightSideLayout = new VerticalLayout();
         try {
             MovieDtoWithDetails movie = movieService.fetchMovieDetailsById(movieId);
-
-
             H3 header = new H3(movie.getTitle());
 
             VerticalLayout detailsLayout = detailsLayout(movie);
@@ -134,7 +131,6 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
         Span releaseDateLabel = CommonComponents.labelSpan("Release date: ");
         Span releaseDateSpan = new Span(releaseDateLabel);
         releaseDateSpan.add(movie.getReleaseDate().toString());
-        releaseDateLabel.add(movie.getReleaseDate().toString());
         Span descriptionLabel = CommonComponents.labelSpan("Description: ");
         Span descriptionDiv = new Span(descriptionLabel);
         descriptionDiv.add(movie.getDescription());

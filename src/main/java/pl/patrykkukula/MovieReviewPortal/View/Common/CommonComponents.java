@@ -1,9 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.View.Common;
 
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -12,7 +10,6 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationResult;
-import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,5 +65,10 @@ public class CommonComponents {
         Span span = new Span(label);
         span.addClassName("label-span");
         return span;
+    }
+    public static Icon closeIcon(){
+        Icon closeIcon = VaadinIcon.CLOSE.create();
+        closeIcon.getStyle().set("color", "red").set("font-size", "10px").set("cursor", "pointer");
+        return closeIcon;
     }
 }

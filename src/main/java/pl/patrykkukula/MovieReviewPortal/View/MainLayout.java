@@ -15,12 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.csrf.CsrfToken;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
+import pl.patrykkukula.MovieReviewPortal.Service.IAvatarService;
 import pl.patrykkukula.MovieReviewPortal.View.Account.AccountView;
 import pl.patrykkukula.MovieReviewPortal.View.Account.LoginView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorEditView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.AddActorView;
+import pl.patrykkukula.MovieReviewPortal.View.Common.AvatarImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Director.AddDirectorView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorEditView;
@@ -37,7 +39,9 @@ import java.util.Optional;
 @CssImport("./styles/main-layout.css")
 @AnonymousAllowed
 public class MainLayout extends AppLayout {
-
+    private final IAuthService authService;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final IAvatarService avatarService;
     private final Div movies = new Div("Movies");
     private final Div actors = new Div("Actors");
     private final Div directors = new Div("Directors");
@@ -47,12 +51,15 @@ public class MainLayout extends AppLayout {
     private final Div details = new Div("Details");
     private final Div detailsContainer = new Div();
     private final Map<Class<?>, Div> viewToTab = new HashMap<>();
-    private final IAuthService authService;
-    private final UserDetailsServiceImpl userDetailsService;
+    private static final String AVATAR_WIDTH = "50px";
+    private static final String AVATAR_HEIGHT = "50px";
 
-    public MainLayout(IAuthService authService, UserDetailsServiceImpl userDetailsService1) {
+
+    public MainLayout(IAuthService authService, UserDetailsServiceImpl userDetailsService1, IAvatarService avatarService) {
         this.authService = authService;
         this.userDetailsService = userDetailsService1;
+        this.avatarService = avatarService;
+
         Div title = new Div("Movie Portal");
         title.setClassName("title");
         title.addClickListener(e -> UI.getCurrent().navigate(MovieView.class));
@@ -92,6 +99,7 @@ public class MainLayout extends AppLayout {
         directors.addSingleClickListener(e -> UI.getCurrent().navigate(DirectorView.class));
         movies.addSingleClickListener(e -> UI.getCurrent().navigate(MovieView.class));
         login.addSingleClickListener(e -> UI.getCurrent().navigate(LoginView.class));
+        details.addSingleClickListener(e -> UI.getCurrent().navigate(AccountView.class));
 
         HorizontalLayout navBar = new HorizontalLayout(leftTabs);
         detailsContainer.add(logoutForm,details);
@@ -100,7 +108,8 @@ public class MainLayout extends AppLayout {
         rightTabs.getStyle().set("margin-left", "auto").set("padding-right", "1rem");
 
         if (userDetailsService.getAuthenticatedUser()!=null) {
-            rightTabs.add(account);
+            AvatarImpl avatar = new AvatarImpl(avatarService,userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT);
+            rightTabs.add(avatar, account);
         }
         else {
             rightTabs.add(login);

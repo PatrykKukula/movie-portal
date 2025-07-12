@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PasswordResetDto {
     @NotEmpty(message = "Password cannot be empty")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-+=?.><])[A-Za-z\\d!@#$%^&*()\\-\\+=?.><]{8,}$",
+    @Pattern(regexp = GlobalConstants.PASSWORD_REGEX,
             message = "Password must contain small and capital letter, number, special character and be at lest 8 character long")
     private String newPassword;
     @NotEmpty(message = "Token cannot be empty")

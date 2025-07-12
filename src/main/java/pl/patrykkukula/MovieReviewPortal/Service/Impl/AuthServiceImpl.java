@@ -1,16 +1,17 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
-import pl.patrykkukula.MovieReviewPortal.Mapper.UserEntityMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.PasswordResetToken;
 import pl.patrykkukula.MovieReviewPortal.Model.Role;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
@@ -20,6 +21,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.RoleRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -122,15 +124,10 @@ public class AuthServiceImpl implements IAuthService {
 //                "\"token\": \"" + token + "\"" + "}";
     }
     @Override
-    public UserEntityDto getUserByEmail(Authentication authentication) {
-        UserEntity user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new ResourceNotFoundException("User", "email", authentication.getName()));
-        return UserEntityMapper.mapUserEntityToUserEntityDto(user);
-    }
-
-    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public boolean changePassword(UserEntity user, String newPassword) {
         if (newPassword == null || newPassword.isBlank()) return false;
-        Pattern pattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-+=?.><]).{8,}$");
+        Pattern pattern = Pattern.compile(GlobalConstants.PASSWORD_REGEX);
         Matcher matcher = pattern.matcher(newPassword);
         boolean matches = matcher.matches();
         if (matches) {
@@ -140,7 +137,23 @@ public class AuthServiceImpl implements IAuthService {
         }
         return false;
     }
-
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public boolean changeEmail(UserEntity user, String newEmail) {
+        Pattern pattern = Pattern.compile(GlobalConstants.EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(newEmail);
+        if (matcher.matches()) {
+            try {
+                user.setEmail(newEmail);
+                userRepository.save(user);
+                return true;
+            }
+            catch (DataIntegrityViolationException ex){
+                throw new IllegalStateException("Email already exists");
+            }
+        }
+        return false;
+    }
     //
 //    @Override
 //    public boolean login(String email, String password) {

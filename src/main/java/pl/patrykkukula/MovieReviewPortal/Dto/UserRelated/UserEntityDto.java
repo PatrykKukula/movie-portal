@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
 
 @Data
 @AllArgsConstructor @NoArgsConstructor
@@ -18,7 +19,7 @@ public class UserEntityDto {
     @Email(message = "Invalid email format")
     private String email;
     @NotEmpty(message = "Password cannot be empty")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\\-+=?.><]).{8,}$",
+    @Pattern(regexp = GlobalConstants.PASSWORD_REGEX,
     message = "Password must contain small and capital letter, number, special character and be at lest 8 character long")
     private String password;
 }

@@ -63,12 +63,12 @@ public class CommonComponents {
     }
     public static Span labelSpan(String label){
         Span span = new Span(label);
-        span.addClassName("label-span");
+        span.addClassName("bold-component");
         return span;
     }
     public static Icon closeIcon(){
         Icon closeIcon = VaadinIcon.CLOSE.create();
-        closeIcon.getStyle().set("color", "red").set("font-size", "10px").set("cursor", "pointer");
+        closeIcon.addClassName("close-icon");
         return closeIcon;
     }
 }

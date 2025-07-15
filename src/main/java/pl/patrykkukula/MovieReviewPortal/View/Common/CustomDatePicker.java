@@ -24,6 +24,7 @@ public class CustomDatePicker extends AbstractCompositeField<VerticalLayout, Cus
 
     public CustomDatePicker() {
         super(null);
+
         setUpYear();
         setUpMonthField();
         day.setEnabled(false);
@@ -50,15 +51,16 @@ public class CustomDatePicker extends AbstractCompositeField<VerticalLayout, Cus
         FormLayout formLayout = new FormLayout();
         formLayout.addFormItem(layout, label);
         formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px",1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
+        formLayout.setWidth("24%");
+        formLayout.getStyle().set("padding-right", "10px");
 
         return formLayout;
     }
-
     private void setUpYear(){
         List<Integer> years = IntStream.range(1900, Year.now().getValue()+1).boxed()
                 .toList();
         year.setItems(years);
-        year.setWidth("25%");
+        year.setWidth("20%");
         year.addValueChangeListener(e -> updateMonthField());
         year.setRequiredIndicatorVisible(true);
     }
@@ -79,6 +81,9 @@ public class CustomDatePicker extends AbstractCompositeField<VerticalLayout, Cus
     }
     private void updateMonthField(){
         month.setEnabled(year.getValue() != null);
+        month.setValue(null);
+        day.setValue(null);
+        day.setEnabled(false);
     }
     private void updateDayField(){
         if (year.getValue() != null && month.getValue() != null){

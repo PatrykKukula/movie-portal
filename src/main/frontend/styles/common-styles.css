@@ -7,12 +7,12 @@
 .close-icon {
     color: red;
     cursor: pointer;
+    font-size: 10px;
 }
 .added-label {
     color: red;
     font-size: 0.8rem;
 }
-
 .buttons-layout {
     position: absolute;
     bottom: 10px;
@@ -61,8 +61,7 @@
 .icon {
     cursor: pointer;
     font-size: 12px;
-    margin-inline: 10px;
 }
-.label-span {
+.bold-component {
     font-weight: bold;
 }

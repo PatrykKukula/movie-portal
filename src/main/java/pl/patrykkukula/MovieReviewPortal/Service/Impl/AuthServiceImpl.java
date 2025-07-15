@@ -9,9 +9,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
+import pl.patrykkukula.MovieReviewPortal.Constants.UserSex;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
+import pl.patrykkukula.MovieReviewPortal.Mapper.UserEntityMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.PasswordResetToken;
 import pl.patrykkukula.MovieReviewPortal.Model.Role;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
@@ -22,12 +24,16 @@ import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.ONLY_LETTER_REGEX;
+import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.USERNAME_REGEX;
 
 @Service
 @RequiredArgsConstructor
@@ -48,18 +54,16 @@ public class AuthServiceImpl implements IAuthService {
         String hashedPassword = encoder.encode(userDto.getPassword());
         Role role = roleRepository.findRoleByRoleName("USER").orElseThrow(() -> new RuntimeException("Role USER not found. Please contact technical support"));
 
-       UserEntity user = UserEntity.builder()
-                        .username(userDto.getUsername().toLowerCase())
-                        .password(hashedPassword)
-                        .email(userDto.getEmail().toLowerCase())
-                        .roles(List.of(role))
-                        .build();
-       try {
+        UserEntity user = UserEntityMapper.mapToUserEntity(userDto);
+        user.setPassword(hashedPassword);
+        user.setRoles(List.of(role));
+
+        try {
            userRepository.save(user);
-       }
-       catch (DataIntegrityViolationException ex){
+        }
+        catch (DataIntegrityViolationException ex){
            throw new IllegalStateException("Username or email already exists");
-       }
+        }
         return generateVerificationToken(user);
     }
     @Override
@@ -151,6 +155,48 @@ public class AuthServiceImpl implements IAuthService {
             catch (DataIntegrityViolationException ex){
                 throw new IllegalStateException("Email already exists");
             }
+        }
+        return false;
+    }
+    @Override
+    public boolean changeSex(UserEntity user, UserSex sex) {
+        try {
+            user.setUserSex(sex);
+            userRepository.save(user);
+            return true;
+        }
+        catch (Exception ex){
+            return false;
+        }
+    }
+    @Override
+    public boolean changeFirstName(UserEntity user, String newFirstName) {
+        Pattern pattern = Pattern.compile(ONLY_LETTER_REGEX);
+        Matcher matcher = pattern.matcher(newFirstName);
+        if (matcher.matches()) {
+            user.setFirstName(newFirstName);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public boolean changeLastName(UserEntity user, String newLastName) {
+        Pattern pattern = Pattern.compile(ONLY_LETTER_REGEX);
+        Matcher matcher = pattern.matcher(newLastName);
+        if (matcher.matches()) {
+            user.setLastName(newLastName);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public boolean changeDateOfBirth(UserEntity user, LocalDate newDateOfBirth) {
+        if (newDateOfBirth != null && newDateOfBirth.isBefore(LocalDate.now())){
+            user.setDateOfBirth(newDateOfBirth);
+            userRepository.save(user);
+            return true;
         }
         return false;
     }

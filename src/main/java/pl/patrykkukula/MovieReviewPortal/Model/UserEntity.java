@@ -2,7 +2,9 @@ package pl.patrykkukula.MovieReviewPortal.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import pl.patrykkukula.MovieReviewPortal.Constants.UserSex;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,11 @@ public class UserEntity {
     private String email;
     @Column(nullable=false)
     private String password;
+    private LocalDate dateOfBirth;
+    @Enumerated(EnumType.STRING)
+    private UserSex userSex;
+    private String firstName;
+    private String lastName;
     private boolean isEnabled = false;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.csrf.CsrfToken;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
-import pl.patrykkukula.MovieReviewPortal.Service.IAvatarService;
+import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.View.Account.AccountView;
 import pl.patrykkukula.MovieReviewPortal.View.Account.LoginView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorDetailsView;
@@ -30,9 +30,12 @@ import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorView;
 import pl.patrykkukula.MovieReviewPortal.View.Movie.MovieDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Movie.MovieView;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
 
 @Slf4j
 @Layout
@@ -41,7 +44,7 @@ import java.util.Optional;
 public class MainLayout extends AppLayout {
     private final IAuthService authService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final IAvatarService avatarService;
+    private final IImageService avatarService;
     private final Div movies = new Div("Movies");
     private final Div actors = new Div("Actors");
     private final Div directors = new Div("Directors");
@@ -55,7 +58,7 @@ public class MainLayout extends AppLayout {
     private static final String AVATAR_HEIGHT = "50px";
 
 
-    public MainLayout(IAuthService authService, UserDetailsServiceImpl userDetailsService1, IAvatarService avatarService) {
+    public MainLayout(IAuthService authService, UserDetailsServiceImpl userDetailsService1, IImageService avatarService) throws IOException {
         this.authService = authService;
         this.userDetailsService = userDetailsService1;
         this.avatarService = avatarService;
@@ -92,7 +95,7 @@ public class MainLayout extends AppLayout {
         detailsContainer.setClassName("tabs-container");
 
     }
-    private HorizontalLayout navBarLayout(){
+    private HorizontalLayout navBarLayout() throws IOException {
         HorizontalLayout leftTabs = new HorizontalLayout(movies, actors, directors);
         leftTabs.setSpacing(true);
         actors.addSingleClickListener(e -> UI.getCurrent().navigate(ActorView.class));
@@ -108,7 +111,7 @@ public class MainLayout extends AppLayout {
         rightTabs.getStyle().set("margin-left", "auto").set("padding-right", "1rem");
 
         if (userDetailsService.getAuthenticatedUser()!=null) {
-            AvatarImpl avatar = new AvatarImpl(avatarService,userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT);
+            AvatarImpl avatar = new AvatarImpl(avatarService,userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIRECTORY);
             rightTabs.add(avatar, account);
         }
         else {

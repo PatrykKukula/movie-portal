@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common;
+package pl.patrykkukula.MovieReviewPortal.View.Movie;
 
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;

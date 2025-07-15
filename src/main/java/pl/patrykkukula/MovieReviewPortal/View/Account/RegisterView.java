@@ -3,11 +3,11 @@ package pl.patrykkukula.MovieReviewPortal.View.Account;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -17,11 +17,13 @@ import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import pl.patrykkukula.MovieReviewPortal.Constants.UserSex;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.AuthServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
+import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UserSexComboBox;
 import pl.patrykkukula.MovieReviewPortal.View.Movie.MovieView;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -51,12 +53,14 @@ public class RegisterView extends Composite<FormLayout> implements BeforeLeaveOb
         binder.bind(emailField, "email");
         PasswordField passwordField = FormFields.passwordField();
         binder.bind(passwordField, "password");
+        ComboBox<UserSex> userSexComboBox = new UserSexComboBox();
+        binder.bind(userSexComboBox, "userSex");
 
         binder.setBean(userDto);
         Button registerButton = registerButton(binder);
         Button cancelButton = Buttons.cancelButton(MovieView.class);
 
-        layout.add(usernameField, emailField, passwordField, registerButton, cancelButton);
+        layout.add(usernameField, emailField, passwordField, userSexComboBox, registerButton, cancelButton);
     }
     private Button registerButton(BeanValidationBinder<UserEntityDto> binder) {
         Button registerButton = new Button("Register");

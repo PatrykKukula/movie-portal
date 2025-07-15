@@ -6,8 +6,13 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.UploadI18N;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
@@ -19,11 +24,18 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.InvalidIdException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
+import pl.patrykkukula.MovieReviewPortal.View.Common.Poster;
 import pl.patrykkukula.MovieReviewPortal.View.Common.RatingStarsLayout;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
+
+import java.io.IOException;
+
+import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.AVATAR_SIZE_PX;
 
 @Slf4j
 @Route("movies")
@@ -33,10 +45,12 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
 
     private final MovieServiceImpl movieService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final IImageService avatarService;
 
-    public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService) {
+    public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, IImageService avatarService) {
         this.movieService = movieService;
         this.userDetailsService = userDetailsService;
+        this.avatarService = avatarService;
     }
     @Override
     public void setParameter(BeforeEvent event, Long movieId) {
@@ -83,14 +97,16 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
             Div actors = getActors(movie);
 
             VerticalLayout layout = new VerticalLayout();
+            Upload upload = getUpload(movie);
             layout.addClassName("details-layout");
-            layout.add(header, detailsLayout, ratingStarsLayout, actorsLabel, actors, buttonsLayout);
+            Poster poster = new Poster(avatarService, movieId, "MoviePoster");
+            layout.add(header, poster, detailsLayout, ratingStarsLayout, actorsLabel, actors, upload, buttonsLayout);
 
             mainLayout.add(layout, rightSideLayout);
 
             add(mainLayout);
         }
-        catch (ResourceNotFoundException | InvalidIdException ex) {
+        catch (ResourceNotFoundException | InvalidIdException | IOException ex) {
             event.forwardTo(ResourceNotFoundFallback.class, ex.getMessage());
         }
     }
@@ -150,5 +166,37 @@ public class MovieDetailsView extends VerticalLayout implements HasUrlParameter<
                 }
                 );
         return actors;
+    }
+    private Upload getUpload(MovieDtoWithDetails movie) {
+        MemoryBuffer buffer = new MemoryBuffer();
+        Upload upload = new Upload(buffer);
+
+        UploadI18N I18N = new UploadI18N();
+        UploadI18N.Error error = new UploadI18N.Error();
+        error.setFileIsTooBig("File cannot exceed 10MB");
+        error.setIncorrectFileType("Allowed file types: " + ALLOWED_FORMAT);
+        I18N.setError(error);
+
+        upload.setI18n(I18N);
+        upload.setAcceptedFileTypes(ALLOWED_TYPES);
+        upload.setMaxFileSize(MAX_SIZE_BYTES);
+        upload.addSucceededListener(e ->{
+            String id = String.valueOf(movie.getId());
+            try {
+                avatarService.saveImage(id, MAX_SIZE_BYTES, e.getMIMEType().substring(6), "MoviePoster", AVATAR_SIZE_PX, buffer.getInputStream());
+            } catch (IOException ex) {
+                String errorMessage = ex.getMessage();
+                Notification notification = Notification.show(errorMessage, 2500,
+                        Notification.Position.MIDDLE);
+                notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        });
+        upload.addFileRejectedListener(e ->{
+            String errorMessage = e.getErrorMessage();
+            Notification notification = Notification.show(errorMessage, 2500,
+                    Notification.Position.MIDDLE);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        });
+        return upload;
     }
 }

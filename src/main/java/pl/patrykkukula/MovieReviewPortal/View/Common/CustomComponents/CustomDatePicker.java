@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
 import com.vaadin.flow.component.AbstractCompositeField;
 import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.component.combobox.ComboBox;

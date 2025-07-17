@@ -31,10 +31,10 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.View.Account.Components.EditFieldForm;
-import pl.patrykkukula.MovieReviewPortal.View.Common.AvatarImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.AvatarImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UserSexComboBox;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomDatePicker;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.CustomDatePicker;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -86,7 +86,7 @@ public class AccountView extends VerticalLayout {
             }
             UserEntity user = optionalUser.get();
 
-            AvatarImpl avatar = new AvatarImpl(avatarService, userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIRECTORY);
+            AvatarImpl avatar = new AvatarImpl(avatarService, userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH);
             Span username = usernameSpan(user);
             Div password = passwordDiv();
             sexSpan(user);
@@ -302,7 +302,7 @@ public class AccountView extends VerticalLayout {
         upload.addSucceededListener(e ->{
             String userId = String.valueOf(userDetailsService.getAuthenticatedUserId());
             try {
-                avatarService.saveImage(userId, MAX_SIZE_BYTES, e.getMIMEType().substring(6), DIRECTORY, AVATAR_SIZE_PX, buffer.getInputStream());
+                avatarService.saveImage(userId, MAX_SIZE_BYTES, e.getMIMEType().substring(6), DIR, buffer.getInputStream());
             } catch (IOException ex) {
                 String errorMessage = ex.getMessage();
                 Notification notification = Notification.show(errorMessage, 2500,

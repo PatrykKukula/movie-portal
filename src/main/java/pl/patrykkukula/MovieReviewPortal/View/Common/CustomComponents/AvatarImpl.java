@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
 
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.Div;
@@ -13,10 +13,10 @@ public class AvatarImpl extends Div {
 
     private final Avatar avatar = new Avatar();
 
-    public AvatarImpl(IImageService avatarService, UserDetailsServiceImpl userDetails, String width, String height, String dir) throws IOException {
+    public AvatarImpl(IImageService avatarService, UserDetailsServiceImpl userDetails, String width, String height, String dir, String placeholderDir) throws IOException {
         Long userId = userDetails.getAuthenticatedUserId();
         if (userId != null) {
-            StreamResource streamResource = avatarService.loadImage(userId, dir)
+            StreamResource streamResource = avatarService.loadImage(userId, dir, placeholderDir)
                     .map(data -> new StreamResource(userId + ".png", () -> new ByteArrayInputStream(data)))
                     .orElse(null);
             avatar.setHeight(width);

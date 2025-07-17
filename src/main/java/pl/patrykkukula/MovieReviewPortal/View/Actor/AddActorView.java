@@ -7,17 +7,15 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomDatePicker;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.CustomDatePicker;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
 
 import java.time.LocalDate;

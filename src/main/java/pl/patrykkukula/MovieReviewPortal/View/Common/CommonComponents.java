@@ -1,5 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.View.Common;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -8,10 +11,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationResult;
+import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorView;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CommonComponents {
@@ -70,5 +76,23 @@ public class CommonComponents {
         Icon closeIcon = VaadinIcon.CLOSE.create();
         closeIcon.addClassName("close-icon");
         return closeIcon;
+    }
+    public static void confirmDelete(Long id, String entity, Consumer<Long> removeEntity, Class<? extends VerticalLayout> clazz) {
+        Dialog dialog = new Dialog();
+        var text = new Span("Do you want to remove %s? This action cannot be undone.".formatted(entity));
+
+        Button confirmButton = new Button("Confirm delete", e -> {
+            removeEntity.accept(id);
+            dialog.close();
+            UI.getCurrent().navigate(clazz);
+        });
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        Button cancelButton = Buttons.cancelButton(dialog);
+
+        HorizontalLayout buttons = new HorizontalLayout(confirmButton, cancelButton);
+        buttons.getStyle().set("padding-top", "25px");
+
+        dialog.add(text, buttons);
+        dialog.open();
     }
 }

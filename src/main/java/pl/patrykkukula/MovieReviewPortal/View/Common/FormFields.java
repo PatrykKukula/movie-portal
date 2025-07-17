@@ -15,8 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FormFields {
-
-
     private FormFields() {
     }
 

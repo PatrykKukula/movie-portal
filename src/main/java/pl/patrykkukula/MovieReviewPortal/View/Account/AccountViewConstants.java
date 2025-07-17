@@ -17,6 +17,6 @@ public class AccountViewConstants {
     public static final String ALLOWED_FORMAT = ".png, .jpg, .jpeg";
     public static final String AVATAR_WIDTH = "100px";
     public static final String AVATAR_HEIGHT = "100px";
-    public static final int AVATAR_SIZE_PX = 128;
-    public static final String DIRECTORY =  "avatars";
+    public static final String DIR =  "avatars";
+    public static final String DIR_PH = "avatars/placeholder.png";
 }

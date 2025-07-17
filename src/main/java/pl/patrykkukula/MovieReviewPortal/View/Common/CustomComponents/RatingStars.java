@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;

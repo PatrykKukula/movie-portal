@@ -10,23 +10,18 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import jakarta.annotation.security.RolesAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
-import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomDatePicker;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.CustomDatePicker;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
-import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
 
 import java.util.List;
 

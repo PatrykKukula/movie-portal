@@ -22,7 +22,7 @@ import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorEditView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.AddActorView;
-import pl.patrykkukula.MovieReviewPortal.View.Common.AvatarImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.AvatarImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Director.AddDirectorView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorEditView;
@@ -111,7 +111,7 @@ public class MainLayout extends AppLayout {
         rightTabs.getStyle().set("margin-left", "auto").set("padding-right", "1rem");
 
         if (userDetailsService.getAuthenticatedUser()!=null) {
-            AvatarImpl avatar = new AvatarImpl(avatarService,userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIRECTORY);
+            AvatarImpl avatar = new AvatarImpl(avatarService,userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH);
             rightTabs.add(avatar, account);
         }
         else {

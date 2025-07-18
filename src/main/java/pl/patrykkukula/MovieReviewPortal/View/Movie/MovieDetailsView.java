@@ -25,13 +25,11 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UploadComponent;
-import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Poster;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.RatingStarsLayout;
 import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
-
 import java.io.IOException;
-
 import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
 
     @Slf4j
@@ -60,7 +58,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
 
                 Long userId = userDetailsService.getAuthenticatedUserId();
                 RateDto rateDto = movieService.fetchRateByMovieIdAndUserId(movieId, userId);
-                Buttons.RatingStarsLayout ratingStarsLayout = new Buttons.RatingStarsLayout(
+                RatingStarsLayout ratingStarsLayout = new RatingStarsLayout(
                         movie.getRating(),
                         movie.getRateNumber(),
                         userDetailsService,
@@ -94,7 +92,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
                 movieDataLayout.addClassName("details-layout");
 
                 Upload upload = new UploadComponent(
-                  MAX_SIZE, MAX_SIZE_BYTES, ALLOWED_FORMAT, ALLOWED_TYPES, movieId, ACT_DIR, imageService
+                  MAX_SIZE, MAX_SIZE_BYTES, ALLOWED_FORMAT, ALLOWED_TYPES, movieId, MOV_DIR, imageService
                 );
                 Poster poster = new Poster(imageService, movieId, MOV_DIR, MOV_DIR_PH);
 

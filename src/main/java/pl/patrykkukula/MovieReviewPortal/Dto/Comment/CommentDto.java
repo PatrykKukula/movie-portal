@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CommentDto {
     @NotEmpty(message = "Text cannot be empty")
-    @Size(max = 255, message = "Title must not exceed 2048 characters")
+    @Size(max = 1000, message = "Title must not exceed 1000 characters")
     private String text;
     @Positive(message = "Topic ID must be greater than 0")
     private Long topicId;

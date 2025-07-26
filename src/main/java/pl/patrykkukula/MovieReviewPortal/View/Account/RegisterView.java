@@ -29,7 +29,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
 @Route("register")
 @PageTitle("Register")

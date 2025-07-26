@@ -17,7 +17,9 @@ import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 
     public class EditFieldForm extends FormLayout {
-
+        /*
+            Form layout to edit account related data
+         */
         public EditFieldForm (UserEntity user, UserEntityRepository userRepository, UserDetailsServiceImpl userDetailsService,
                             String regex, String errorMessage, String fieldLabel, String buttonLabel,
                             Span dialogText, String dialogTextValue, Dialog dialog, Span fieldValue,
@@ -25,7 +27,7 @@ import java.util.function.Supplier;
             setVisible(false);
             setResponsiveSteps(new ResponsiveStep("0px", 1));
             addClassName("form-layout");
-            TextField field = new AccountTextFieldComponent(regex,errorMessage, fieldLabel);
+            TextField field = new AccountTextFieldComponent(regex, errorMessage, fieldLabel);
             if (getField.get() != null) {
                 field.setValue(getField.get());
             }

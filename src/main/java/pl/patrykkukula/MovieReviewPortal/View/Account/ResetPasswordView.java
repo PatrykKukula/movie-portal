@@ -24,8 +24,8 @@ import pl.patrykkukula.MovieReviewPortal.View.MainView;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.PASSWORD_RESET_FAILED;
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.PASSWORD_RESET_SUCCESS;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.PASSWORD_RESET_FAILED;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.PASSWORD_RESET_SUCCESS;
 
 @Slf4j
 @Route("reset")

@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
@@ -23,7 +24,7 @@ public class TopicController {
 
     @PostMapping
     public ResponseEntity<ResponseDto> createTopic(@Valid @RequestBody TopicDtoWithCommentDto topicWithComment, HttpServletRequest request) {
-        Long topicId = topicService.createTopic(topicWithComment, topicWithComment.getTopic().getMovieId());
+        Long topicId = topicService.createTopic(topicWithComment, topicWithComment.getTopic().getEntityId(), topicWithComment.getTopic().getEntityType());
         URI location = setUri(topicId, request.getRequestURI());
         return ResponseEntity.created(location).body(new ResponseDto(STATUS_201, STATUS_201_MESSAGE));
     }
@@ -37,8 +38,8 @@ public class TopicController {
         return ResponseEntity.ok(topicService.findTopicById(topicId));
     }
     @GetMapping
-    public ResponseEntity<List<TopicDtoBasic>> findAllTopics(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted) {
-        return ResponseEntity.ok().body(topicService.findAllTopics(sorted));
+    public ResponseEntity<Page<TopicDtoBasic>> findAllTopics(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted) {
+        return ResponseEntity.ok().body(topicService.findAllTopics(0, 10, sorted, "ACTOR", 1L));
     }
     @GetMapping("/search")
     public ResponseEntity<List<TopicDtoBasic>> findTopicsByTitle(@RequestParam(name = "title") String title,

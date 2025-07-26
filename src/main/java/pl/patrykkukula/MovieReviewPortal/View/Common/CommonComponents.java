@@ -26,8 +26,10 @@ public class CommonComponents {
 
     public static Dialog  validationErrorsDialog(List<ValidationResult> validationResults) {
         Icon closeIcon = VaadinIcon.CLOSE.create();
-        closeIcon.getStyle().set("color", "red").set("margin-left", "3rem");
-        closeIcon.setSize("1rem");
+        closeIcon.addClassName("close-icon");
+        closeIcon.getStyle().set("margin-left", "2rem");
+//        closeIcon.getStyle().set("color", "red").set("margin-left", "3rem");
+//        closeIcon.setSize("1rem");
 
         Dialog dialog = new Dialog("Cannot save changes - invalid or empty fields");
         dialog.getHeader().addComponentAtIndex(0, closeIcon);
@@ -40,8 +42,7 @@ public class CommonComponents {
         closeText.getStyle().set("font-size","0.7rem");
 
         dialogLayout.add(errorMessage, closeText);
-        dialogLayout.setAlignSelf(FlexComponent.Alignment.CENTER, errorMessage);
-        dialogLayout.setAlignSelf(FlexComponent.Alignment.CENTER, closeText);
+        dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         dialogLayout.getStyle().set("padding", "0rem 0.8rem");
 
         dialog.add(dialogLayout);
@@ -56,16 +57,6 @@ public class CommonComponents {
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         notification.setPosition(Notification.Position.BOTTOM_CENTER);
         return notification;
-    }
-    private static Div validationErrorsMessage(List<ValidationResult> validationResults){
-        String joinedErrors = validationResults.stream()
-                .map(validationError -> validationError.getErrorMessage())
-                .collect(Collectors.joining(System.lineSeparator()));
-
-        Div errorMessage = new Div(joinedErrors);
-        errorMessage.getStyle().set("white-space", "pre-line");
-
-        return errorMessage;
     }
     public static Span labelSpan(String label){
         Span span = new Span(label);
@@ -94,5 +85,15 @@ public class CommonComponents {
 
         dialog.add(text, buttons);
         dialog.open();
+    }
+    private static Div validationErrorsMessage(List<ValidationResult> validationResults){
+        String joinedErrors = validationResults.stream()
+                .map(validationError -> validationError.getErrorMessage())
+                .collect(Collectors.joining(System.lineSeparator()));
+
+        Div errorMessage = new Div(joinedErrors);
+        errorMessage.getStyle().set("white-space", "pre-line");
+
+        return errorMessage;
     }
 }

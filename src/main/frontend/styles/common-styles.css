@@ -8,34 +8,13 @@
 .main-layout {
     display: flex;
     flex-direction: column;
-    width: 80%;
+    margin: 0 auto !important;
     height: 100%;
 }
 .buttons-layout {
     position: relative;
     bottom: 10px;
     width: 100%;
-}
-.actor {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-.added-label {
-    color: red;
-    font-size: 0.8rem;
-}
-.movies {
-    white-space: pre-line;
-}
-.movies a {
-    display: block;
-    padding-bottom: 4px;
-    text-decoration: none;
-}
-.movies a:hover {
-    text-decoration: underline;
 }
 .details {
     white-space: pre-line;
@@ -69,4 +48,31 @@
 .header {
     font-weight: bold;
     font-size: 36px;
+}
+.title {
+    font-size: 22px
+}
+.actor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.added-label {
+    color: red;
+    font-size: 0.8rem;
+}
+.movies {
+    white-space: pre-line;
+}
+.movies a {
+    display: block;
+    padding-bottom: 4px;
+    text-decoration: none;
+}
+.movies a:hover {
+    text-decoration: underline;
+}
+.post-detail {
+    font-size: 12px;
 }

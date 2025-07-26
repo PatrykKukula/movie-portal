@@ -62,7 +62,7 @@ public class AddMovieView extends Composite<FormLayout> {
         var titleField = FormFields.textField("Title");
         binder.bind(titleField, "title");
 
-        var descriptionField = FormFields.textAreaField("Description");
+        var descriptionField = FormFields.textAreaField("Description", 1000);
         binder.bind(descriptionField, "description");
 
         CustomDatePicker customDatePicker = new CustomDatePicker();

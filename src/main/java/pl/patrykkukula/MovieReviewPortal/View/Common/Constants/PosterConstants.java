@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common;
+package pl.patrykkukula.MovieReviewPortal.View.Common.Constants;
 
 public class PosterConstants {
     public static final String MOV_DIR = "MoviePoster";

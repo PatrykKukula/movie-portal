@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Account;
+package pl.patrykkukula.MovieReviewPortal.View.Common.Constants;
 
 public class AccountViewConstants {
     private AccountViewConstants() {}

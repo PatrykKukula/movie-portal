@@ -11,11 +11,12 @@ import java.io.IOException;
 
 public class UploadComponent extends Upload {
     MemoryBuffer buffer = new MemoryBuffer();
-    private final IImageService imageService;
 
+    /*
+        Custom upload component to add image files
+     */
     public UploadComponent(String maxSizeMb, int maxSizeBytes, String allowedFormat,
                            String[] allowedTypes, Long entityId, String dir, IImageService imageService) {
-        this.imageService = imageService;
         UploadI18N I18N = new UploadI18N();
         UploadI18N.Error error = new UploadI18N.Error();
         error.setFileIsTooBig(maxSizeMb);

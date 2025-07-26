@@ -24,15 +24,21 @@ import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UploadComponent;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.TopicSectionLayout;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Poster;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.RatingStarsLayout;
-import pl.patrykkukula.MovieReviewPortal.View.Fallback.ResourceNotFoundFallback;
-import java.io.IOException;
-import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
 
-    @Slf4j
+import java.io.IOException;
+
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableConstants.INITIAL_PAGE;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableConstants.PAGE_SIZE;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParametersConstants.TYPE_MOVIE;
+
+@Slf4j
     @Route("movies")
     @CssImport("./styles/common-styles.css")
     @AnonymousAllowed
@@ -41,11 +47,13 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
         private final MovieServiceImpl movieService;
         private final UserDetailsServiceImpl userDetailsService;
         private final IImageService imageService;
+        private final TopicServiceImpl topicService;
 
-        public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, IImageService imageService) {
+        public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, IImageService imageService, TopicServiceImpl topicService) {
             this.movieService = movieService;
             this.userDetailsService = userDetailsService;
             this.imageService = imageService;
+            this.topicService = topicService;
         }
         @Override
         public void setParameter(BeforeEvent event, Long movieId) {
@@ -68,11 +76,9 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
                         entityId -> movieService.removeRate(entityId)
                 );
 
-                UI.getCurrent().getPage().setTitle("movie"); // DOES NOT WORK - FIGURE IT OUT
-
                 Button editButton = new Button("Edit movie", e -> UI.getCurrent().navigate(MovieEditView.class, movieId));
                 Button deleteButton = new Button("Delete movie", e -> CommonComponents.confirmDelete(
-                        movieId, "DMovier", y -> movieService.deleteMovie(y), MovieView.class));
+                        movieId, "Movie", y -> movieService.deleteMovie(y), MovieView.class));
                 deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
                 Button backButton = new Button("Back to movies", e -> UI.getCurrent().navigate(MovieView.class));
                 HorizontalLayout buttonsLayout = new HorizontalLayout();
@@ -97,7 +103,6 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
                 Poster poster = new Poster(imageService, movieId, MOV_DIR, MOV_DIR_PH);
 
                 HorizontalLayout posterDetailsLayout = new HorizontalLayout(poster, detailsLayout);
-                buttonsLayout.getStyle().set("border","1px solid red");
 
                 Div descriptionDiv = descriptionDiv(movie);
 
@@ -106,16 +111,21 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
                     movieDataLayout.add(upload);
                 }
                 movieDataLayout.add(descriptionDiv, actors, buttonsLayout);
-                movieDataLayout.getStyle().set("border","1px solid green");
 
-                HorizontalLayout commentsLayout = new HorizontalLayout();
-                H3 secondSecHeader = new H3("Comments");
-                commentsLayout.add(secondSecHeader);
+                TopicSectionLayout topicSectionLayout = new TopicSectionLayout(
+                        topicService, userDetailsService, movieId, INITIAL_PAGE, PAGE_SIZE, "ASC", TYPE_MOVIE
+                );
 
-                add(movieDataLayout, commentsLayout);
+                add(movieDataLayout, topicSectionLayout);
             }
-            catch (ResourceNotFoundException | InvalidIdException | IOException ex) {
-                event.forwardTo(ResourceNotFoundFallback.class, ex.getMessage());
+            catch (ResourceNotFoundException ex) {
+                event.rerouteToError(ResourceNotFoundException.class, ex.getMessage());
+            }
+            catch (InvalidIdException ex){
+                event.rerouteToError(InvalidIdException.class, ex.getMessage());
+            }
+            catch (IOException ex) {
+                event.rerouteToError(IOException.class, ex.getMessage());
             }
         }
         private static Div setDirector(MovieDtoWithDetails movie) {

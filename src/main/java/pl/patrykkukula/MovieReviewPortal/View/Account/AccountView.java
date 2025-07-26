@@ -41,7 +41,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.*;
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
 @Slf4j
 @Route("account")

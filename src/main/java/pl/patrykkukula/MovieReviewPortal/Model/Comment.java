@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.userdetails.User;
 
+import java.util.List;
+
 @Entity
 @Getter @Setter @ToString
 @NoArgsConstructor @AllArgsConstructor
@@ -13,12 +15,13 @@ public class Comment extends BaseEntity{
     private Long commentId;
     @Column(nullable = false)
     private String text;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private Long commentIdInPost;
+    @Column(nullable = false)
+    private boolean isReply;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Topic topic;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;

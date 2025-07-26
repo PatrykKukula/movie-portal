@@ -36,9 +36,6 @@ public class Movie extends BaseEntity{
     )
     private List<Actor> actors = new ArrayList<>();
 
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Topic> topics = new ArrayList<>();
-
     @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY, orphanRemoval = true)
     private List<MovieRate> movieRates = new ArrayList<>();
 

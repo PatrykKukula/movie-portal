@@ -10,10 +10,11 @@ import java.util.List;
 
 public class TopicMapper {
 
-    public static Topic mapToTopic(TopicDto topicDto, Movie movie) {
+    public static Topic mapToTopic(TopicDto topicDto) {
         return Topic.builder()
                 .title(topicDto.getTitle())
-                .movie(movie)
+                .entityId(topicDto.getEntityId())
+                .entityType(topicDto.getEntityType())
                 .build();
     }
     public static TopicDtoToDisplay mapToTopicDtoToDisplay(Topic topic, List<Comment> comments){
@@ -24,16 +25,16 @@ public class TopicMapper {
         return TopicDtoToDisplay.builder()
                 .topicId(topic.getTopicId())
                 .title(topic.getTitle())
-                .movieTitle(topic.getMovie().getTitle())
                 .comments(commentsDto)
                 .author(topic.getCreatedBy())
                 .build();
     }
     public static TopicDtoBasic mapToTopicDtoBasic(Topic topic){
         return TopicDtoBasic.builder()
+                .id(topic.getTopicId())
                 .title(topic.getTitle())
-                .movieTitle(topic.getMovie().getTitle())
-                .author(topic.getCreatedBy())
+                .createdBy(topic.getCreatedBy())
+                .createdAt(topic.getCreatedAt())
                 .build();
     }
 }

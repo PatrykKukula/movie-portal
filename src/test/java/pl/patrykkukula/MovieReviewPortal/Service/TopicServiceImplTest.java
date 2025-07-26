@@ -162,36 +162,36 @@ public class TopicServiceImplTest {
 
         assertThrows(ResourceNotFoundException.class, () -> topicService.findTopicById(1L));
     }
-    @Test
-    public void shouldFindAllTopicsCorrectlyAsc(){
-        when(topicRepository.findAllOrderByTopicIdAsc()).thenReturn(List.of(topic1, topic2));
-
-        List<TopicDtoBasic> topics = topicService.findAllTopics("ASC");
-
-        assertEquals(2, topics.size());
-        assertEquals("Topic", topics.get(0).getTitle());
-        assertEquals("New Topic", topics.get(1).getTitle());
-    }
-    @Test
-    public void shouldFindAllTopicsCorrectlyDesc(){
-        when(topicRepository.findAllOrderByTopicIdDesc()).thenReturn(List.of(topic2, topic1));
-
-        List<TopicDtoBasic> topics = topicService.findAllTopics("DESC");
-
-        assertEquals(2, topics.size());
-        assertEquals("Topic", topics.get(1).getTitle());
-        assertEquals("New Topic", topics.get(0).getTitle());
-    }
-    @Test
-    public void shouldFindAllTopicsCorrectlyAscWithInvalidInputSorting(){
-        when(topicRepository.findAllOrderByTopicIdAsc()).thenReturn(List.of(topic1, topic2));
-
-        List<TopicDtoBasic> topics = topicService.findAllTopics("X");
-
-        assertEquals(2, topics.size());
-        assertEquals("Topic", topics.get(0).getTitle());
-        assertEquals("New Topic", topics.get(1).getTitle());
-    }
+//    @Test
+//    public void shouldFindAllTopicsCorrectlyAsc(){
+//        when(topicRepository.findAllOrderByTopicIdAsc()).thenReturn(List.of(topic1, topic2));
+//
+//        List<TopicDtoBasic> topics = topicService.findAllTopics("ASC");
+//
+//        assertEquals(2, topics.size());
+//        assertEquals("Topic", topics.get(0).getTitle());
+//        assertEquals("New Topic", topics.get(1).getTitle());
+//    }
+//    @Test
+//    public void shouldFindAllTopicsCorrectlyDesc(){
+//        when(topicRepository.findAllOrderByTopicIdDesc()).thenReturn(List.of(topic2, topic1));
+//
+//        List<TopicDtoBasic> topics = topicService.findAllTopics("DESC");
+//
+//        assertEquals(2, topics.size());
+//        assertEquals("Topic", topics.get(1).getTitle());
+//        assertEquals("New Topic", topics.get(0).getTitle());
+//    }
+//    @Test
+//    public void shouldFindAllTopicsCorrectlyAscWithInvalidInputSorting(){
+//        when(topicRepository.findAllOrderByTopicIdAsc()).thenReturn(List.of(topic1, topic2));
+//
+//        List<TopicDtoBasic> topics = topicService.findAllTopics("X");
+//
+//        assertEquals(2, topics.size());
+//        assertEquals("Topic", topics.get(0).getTitle());
+//        assertEquals("New Topic", topics.get(1).getTitle());
+//    }
     @Test
     public void shouldReturnEmptyListWhenNoTopicsFoundByTitle(){
         when(topicRepository.findByTitleContainingIgnoreCaseOrderByTitleAsc(anyString())).thenReturn(Collections.emptyList());

@@ -15,7 +15,6 @@ import java.util.List;
 public class TopicDtoToDisplay {
     private Long topicId;
     private String title;
-    private String movieTitle;
     private String author;
     private List<CommentDtoWithUser> comments = new ArrayList<>();
     private Long postCount;

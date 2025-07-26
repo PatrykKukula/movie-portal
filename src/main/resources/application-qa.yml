@@ -4,6 +4,8 @@ spring:
   config:
     activate:
       on-profile: qa
+  session:
+    timeout: 86400
   datasource:
     url: jdbc:postgresql://localhost:5432/MoviePortal
     driver-class-name: org.postgresql.Driver

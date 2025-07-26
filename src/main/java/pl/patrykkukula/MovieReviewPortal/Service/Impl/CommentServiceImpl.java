@@ -21,6 +21,7 @@ import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Repository.CommentRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ICommentService;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class CommentServiceImpl implements ICommentService {
     private final CommentRepository commentRepository;
     private final TopicRepository topicRepository;
     private final UserEntityRepository userRepository;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     @Transactional
@@ -46,11 +48,12 @@ public class CommentServiceImpl implements ICommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Topic", "topic id",  String.valueOf(topicId)));
         Topic topic = topicWithMaxCommentId.get("topic", Topic.class);
         Long currentMaxCommentId = topicWithMaxCommentId.get("maxId", Long.class);
+        UserEntity user = userDetailsService.getUserEntity();
         Comment comment = Comment.builder()
                         .text(commentDto.getText())
                         .topic(topic)
                         .commentIdInPost(currentMaxCommentId+1)
-                        .user(getUserEntity())
+                        .user(user)
                         .build();
         try {
             Comment savedComment = commentRepository.save(comment);
@@ -115,13 +118,5 @@ public class CommentServiceImpl implements ICommentService {
                 .orElseThrow(() -> new IllegalStateException("Error during resource modification. Please try again or contact technical support"));
 
         return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
-    }
-    private UserEntity getUserEntity() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new UsernameNotFoundException("User is not logged in");
-        }
-        User user = (User) auth.getPrincipal();
-        return userRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

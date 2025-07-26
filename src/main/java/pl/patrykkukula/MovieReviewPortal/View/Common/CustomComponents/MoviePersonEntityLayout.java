@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Account.Components;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -10,18 +10,17 @@ import com.vaadin.flow.component.upload.Upload;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.BiographyDiv;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.MoviesDiv;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Poster;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.RatingStarsLayout;
+import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UploadComponent;
 
 import java.io.IOException;
 import java.util.List;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Common.PosterConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants.*;
 
 public class MoviePersonEntityLayout extends VerticalLayout {
-
+    /*
+        DIV to display movie person details
+     */
     public MoviePersonEntityLayout(UserDetailsServiceImpl userDetailsService, ImageServiceImpl imageService,
                                    Button editButton, Button deleteButton, Button backButton,
                                    VerticalLayout personDetails, RatingStarsLayout ratingStarsLayout, Long entityId, String dir, String dirPh,
@@ -39,8 +38,8 @@ public class MoviePersonEntityLayout extends VerticalLayout {
         detailsLayout.getStyle().set("padding-left", "20px");
         detailsLayout.add(ratingStarsLayout);
 
-        VerticalLayout actorDataLayout = new VerticalLayout();
-        actorDataLayout.addClassName("details-layout");
+        VerticalLayout dataLayout = new VerticalLayout();
+        dataLayout.addClassName("details-layout");
 
         Upload upload = new UploadComponent(
                 MAX_SIZE, MAX_SIZE_BYTES, ALLOWED_FORMAT, ALLOWED_TYPES, entityId, dir, imageService
@@ -55,20 +54,16 @@ public class MoviePersonEntityLayout extends VerticalLayout {
         H3 header = new H3(firstName + " " + lastName);
         header.addClassName("header");
 
-        actorDataLayout.add(header, posterDetailsLayout);
+        dataLayout.add(header, posterDetailsLayout);
         if (userDetailsService.isAdmin()) {
-            actorDataLayout.add(upload);
+            dataLayout.add(upload);
         }
         buttonsLayout.addClassName("buttons-layout");
         buttonsLayout.add(backButton);
-        actorDataLayout.add(biographyDiv, moviesDiv, buttonsLayout);
-
-        HorizontalLayout commentsLayout = new HorizontalLayout();
-        H3 secondSecHeader = new H3("Comments");
-        commentsLayout.add(secondSecHeader);
+        dataLayout.add(biographyDiv, moviesDiv, buttonsLayout);
 
         setAlignItems(Alignment.CENTER);
-        add(actorDataLayout, commentsLayout);
+        add(dataLayout);
     }
 
 }

@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
 @Slf4j
 @Layout
@@ -64,7 +64,7 @@ public class MainLayout extends AppLayout {
         this.avatarService = avatarService;
 
         Div title = new Div("Movie Portal");
-        title.setClassName("title");
+        title.addClassName("main-title");
         title.addClickListener(e -> UI.getCurrent().navigate(MovieView.class));
         setupLogout();
         setUpViewMap();

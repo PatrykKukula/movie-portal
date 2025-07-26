@@ -21,11 +21,11 @@ public class FormFields {
     public static TextField textField(String label){
         TextField firstNameField = new TextField(label);
         firstNameField.setValueChangeMode(ValueChangeMode.EAGER);
+        firstNameField.setRequiredIndicatorVisible(true);
         return firstNameField;
     }
-    public static TextArea textAreaField(String label) {
+    public static TextArea textAreaField(String label, int charLimit) {
         TextArea textAreaField = new TextArea(label);
-        int charLimit = 1000;
         textAreaField.getStyle().set("overflow", "auto");
         textAreaField.setMaxLength(charLimit);
         textAreaField.setValueChangeMode(ValueChangeMode.EAGER);

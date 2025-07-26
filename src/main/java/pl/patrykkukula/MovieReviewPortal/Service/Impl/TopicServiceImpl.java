@@ -1,6 +1,11 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,26 +26,28 @@ import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
+import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ITopicService;
 import java.util.List;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TopicServiceImpl implements ITopicService {
     private final TopicRepository topicRepository;
-    private final UserEntityRepository userEntityRepository;
-    private final MovieRepository movieRepository;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @Transactional
     @Override
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long movieId) {
-        validateId(movieId);
-        UserEntity user = getUserEntity();
-        Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie","Movie id", String.valueOf(movieId)));
-        Topic topic = TopicMapper.mapToTopic(topicWithComment.getTopic(), movie);
+    public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long entityId, String entityType) {
+        validateId(entityId);
+        UserEntity user = userDetailsService.getUserEntity();
+
+        Topic topic = TopicMapper.mapToTopic(topicWithComment.getTopic());
         topic.setUser(user);
+
         Comment comment = Comment.builder()
                 .commentIdInPost(1L)
                 .text(topicWithComment.getComment().getText())
@@ -55,7 +62,7 @@ public class TopicServiceImpl implements ITopicService {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void deleteTopic(Long topicId) {
         validateId(topicId);
-        UserEntity userEntity = getUserEntity();
+        UserEntity userEntity = userDetailsService.getUserEntity();
         Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topicRepository.deleteById(topicId);
@@ -72,16 +79,21 @@ public class TopicServiceImpl implements ITopicService {
         return topicDtoToDisplay;
     }
     @Override
-    public List<TopicDtoBasic> findAllTopics(String sorted) {
+    public Page<TopicDtoBasic> findAllTopics(int page, int size, String sorted, String entityType, Long entityId) {
         String validatedSorting = validateSorting(sorted);
-        List<Topic> topics = validatedSorting.equals("ASC") ?
-                topicRepository.findAllOrderByTopicIdAsc():
-                topicRepository.findAllOrderByTopicIdDesc();
-        return topics.stream().map(topic -> {
+        Sort sort = validatedSorting.equals("ASC") ?
+                Sort.by("topicId").ascending() :
+                Sort.by("topicId").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Topic> topicsPage = topicRepository.findAllByEntityTypeAndEntityId(entityType, entityId, pageable);
+        log.info("topic page size{}: ", topicsPage.getTotalElements());
+
+        return topicsPage.map(topic -> {
             TopicDtoBasic topicDtoBasic = TopicMapper.mapToTopicDtoBasic(topic);
             topicDtoBasic.setPostCount(topic.getComments().size());
             return topicDtoBasic;
-        }).toList();
+        });
     }
     @Override
     public List<TopicDtoBasic> findTopicsByTitle(String title, String sorted) {
@@ -99,18 +111,10 @@ public class TopicServiceImpl implements ITopicService {
     @Transactional
     public void updateTopic(Long topicId, TopicUpdateDto topicUpdateDto) {
         validateId(topicId);
-        UserEntity userEntity = getUserEntity();
+        UserEntity userEntity = userDetailsService.getUserEntity();
         Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topic.setTitle(topicUpdateDto.getTitle());
         topicRepository.save(topic);
-    }
-    private UserEntity getUserEntity() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new UsernameNotFoundException("User is not logged in");
-        }
-        User user = (User) auth.getPrincipal();
-        return userEntityRepository.findByUsername(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
 }

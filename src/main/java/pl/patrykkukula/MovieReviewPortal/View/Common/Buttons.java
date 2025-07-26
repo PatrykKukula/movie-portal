@@ -3,17 +3,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.HasUrlParameter;
-import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
-import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.RatingStars;
+import com.vaadin.flow.router.RouteParameters;
+import pl.patrykkukula.MovieReviewPortal.View.Topic.AddTopicView;
 
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Map;
+
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParametersConstants.*;
 
 public class Buttons {
 
@@ -49,5 +46,19 @@ public class Buttons {
         addButton.addClickListener(e -> UI.getCurrent().navigate(navigationTarget));
         addButton.setPrefixComponent(VaadinIcon.PLUS.create());
         return addButton;
+    }
+    public static <T, C extends Component & HasUrlParameter<T>> Button addButton(Class<? extends C> navigationTarget, String label, T parameter) {
+        Button addButton = new Button(label);
+        addButton.addClickListener(e -> UI.getCurrent().navigate(navigationTarget, parameter));
+        addButton.setPrefixComponent(VaadinIcon.PLUS.create());
+        return addButton;
+    }
+    public static Button createTopicButton(String entityType, Long entityId){
+        Button createTopicButton =  new Button("Create new topic",
+                e -> UI.getCurrent().navigate(AddTopicView.class,
+                        new RouteParameters(Map.of(ENTITY_TYPE, entityType, ENTITY_ID, entityId.toString()))));
+        createTopicButton.getStyle().set("margin-left", "auto").set("margin-top", "20px");
+
+        return createTopicButton;
     }
 }

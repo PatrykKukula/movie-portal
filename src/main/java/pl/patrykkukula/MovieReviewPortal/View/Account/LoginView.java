@@ -23,7 +23,7 @@ import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
 @Slf4j
 @Route("login")

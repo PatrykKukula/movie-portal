@@ -1,11 +1,11 @@
-.title {
+.main-title {
     font-size: 2.2rem;
     color: white;
     font-family: cursive;
     white-space: nowrap;
     cursor: pointer;
 }
-.title:hover {
+.main-title:hover {
     font-weight: bold;
 }
 .tab {

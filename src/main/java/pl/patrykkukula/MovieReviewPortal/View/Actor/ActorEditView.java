@@ -54,7 +54,7 @@ public class ActorEditView extends Composite<FormLayout> implements HasUrlParame
         binder.bind(lastNameField, "lastName");
         var countryField = FormFields.textField("Country");
         binder.bind(countryField, "country");
-        TextArea biographyField = FormFields.textAreaField("Biography");
+        TextArea biographyField = FormFields.textAreaField("Biography", 1000);
         binder.bind(biographyField, "biography");
 
         FormLayout datePickerLayout = customDatePicker.generateDatePickerLayout("Date of birth");

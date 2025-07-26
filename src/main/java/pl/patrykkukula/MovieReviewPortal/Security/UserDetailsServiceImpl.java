@@ -36,6 +36,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return null;
     }
+    public String getUsername(String email) {
+        UserEntity user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
+        return user.getUsername();
+    }
     public Long getAuthenticatedUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getPrincipal() instanceof UserDetails userDetails) {
@@ -49,7 +53,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserEntity getUserEntity() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new UsernameNotFoundException("Log in to add rate");
+            throw new UsernameNotFoundException("User is not logged in");
         }
         User user = (User) auth.getPrincipal();
         return userRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));

@@ -11,7 +11,7 @@ import pl.patrykkukula.MovieReviewPortal.View.MainView;
 
 import java.util.List;
 
-import static pl.patrykkukula.MovieReviewPortal.View.Account.AccountViewConstants.*;
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
 @Route("verify")
 @PageTitle("Verify account")

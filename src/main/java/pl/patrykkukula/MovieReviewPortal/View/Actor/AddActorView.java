@@ -49,7 +49,7 @@ public class AddActorView extends Composite<FormLayout> {
         var countryField = FormFields.textField("Country");
         binder.bind(countryField, "country");
 
-        var biographyField = FormFields.textAreaField("Biography");
+        var biographyField = FormFields.textAreaField("Biography", 1000);
         binder.bind(biographyField, "biography");
 
         FormLayout datePickerLayout = customDatePicker.generateDatePickerLayout("Date of birth");

@@ -22,7 +22,7 @@ public class BaseEntity {
     private String createdBy;
     @Column(updatable = false, nullable = false)
     @CreatedDate
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
     @Column(insertable = false)
     @LastModifiedBy
     private String updatedBy;

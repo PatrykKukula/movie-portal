@@ -1,0 +1,63 @@
+.main-title {
+    font-size: 2.2rem;
+    color: white;
+    font-family: cursive;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.main-title:hover {
+    font-weight: bold;
+}
+.tab {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.tab:hover {
+    font-weight: bold;
+    color: white;
+}
+.container {
+    background-color: #339cff;
+    padding: 10px;
+    flex-wrap: nowrap;
+    width: 100%;
+    align-items: center;
+}
+.account-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.account-tab:hover {
+    font-weight: bold;
+    color: white;
+}
+.tabs-container {
+    position: absolute;
+    display: none;
+    top: 100%;
+    left: 0;
+    flex-direction: column;
+    font-size: 1.2rem;
+    color: white;
+    z-index: 999;
+    cursor: auto;
+}
+.account-tab:hover .tabs-container{
+    display: flex;
+    border: 2px solid black;
+    border-radius: 8px;
+    padding: 0.5rem 3rem 0.5rem 1rem;
+    background-color: mediumaquamarine;
+}
+.dropdown-tab {
+    font-size: 1rem;
+    padding: 0.5rem 0;
+}
+.dropdown-tab:hover {
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+}

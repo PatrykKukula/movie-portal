@@ -1,54 +1,93 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
+
 import lombok.Data;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieDtoBasic;
-import pl.patrykkukula.MovieReviewPortal.Dto.MovieDtoWithDetails;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.MovieUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.*;
+import pl.patrykkukula.MovieReviewPortal.Model.Actor;
+import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import pl.patrykkukula.MovieReviewPortal.Model.Movie;
+
+import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.updateDateField;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.updateField;
 
 @Data
 public class MovieMapper {
 
     public static Movie mapToMovie(MovieDto movieDto){
-        Movie movie = new Movie();
-        movie.setTitle(movieDto.getTitle());
-        movie.setDescription(movieDto.getDescription());
-        movie.setReleaseDate(movieDto.getReleaseDate());
-        return movie;
+        String title = movieDto.getTitle().substring(0,1).toUpperCase() + movieDto.getTitle().substring(1);
+        return Movie.builder()
+                .title(title)
+                .description(movieDto.getDescription())
+                .category(movieDto.getCategory())
+                .releaseDate(movieDto.getReleaseDate())
+                .build();
     }
-    public static MovieDtoWithDetails mapToMovieDtoWithDetails(Movie movie, Double rate){
+    public static MovieDtoWithDetails mapToMovieDtoWithDetails(Movie movie, Double rate, Integer rateNumber){
+        Director director = movie.getDirector();
+        DirectorDto directorDto = new DirectorDto();
+        if (director != null) {
+            directorDto = pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper.mapToDirectorDto(director);
+        }
+
         return MovieDtoWithDetails.builder()
                 .id(movie.getMovieId())
                 .title(movie.getTitle())
                 .rating(rate)
+                .rateNumber(rateNumber)
                 .releaseDate(movie.getReleaseDate())
                 .category(movie.getCategory().toString())
                 .description(movie.getDescription())
-                .director(movie.getDirector().getFirstName() + " " + movie.getDirector().getLastName())
+                .director(directorDto)
                 .actors(
                         movie.getActors().stream()
-                                .map(actor -> actor.getFirstName() + " " + actor.getLastName())
+                                .map(ActorMapper::mapToActorDto)
                                 .toList()
                 )
                 .build();
     }
     public static MovieDto mapToMovieDto(Movie movie){
-        return MovieDto.builder()
+        MovieDto dto = MovieDto.builder()
                 .id(movie.getMovieId())
                 .title(movie.getTitle())
+                .description(movie.getDescription())
+                .category(movie.getCategory())
+                .releaseDate(movie.getReleaseDate())
+                .actorIds(
+                        movie.getActors().stream().mapToLong(Actor::getActorId).boxed().toList())
+                .build();
+        Director director = movie.getDirector();
+        if (director != null) {
+            dto.setDirectorId(director.getDirectorId());
+        }
+        return dto;
+    }
+    public static MovieViewDto mapToMovieViewDto(Movie movie, Double rating, Integer rateNumber){
+        return MovieViewDto.builder()
+                .id(movie.getMovieId())
+                .title(movie.getTitle())
+                .category(movie.getCategory())
+                .releaseDate(movie.getReleaseDate())
+                .rateNumber(rateNumber)
+                .averageRate(rating)
                 .build();
     }
-    public static Movie mapToMovieUpdate(MovieUpdateDto movieUpdateDto, Movie movie){
-        updateField(movieUpdateDto::getTitle, movie::setTitle);
-        updateField(movieUpdateDto::getDescription, movie::setDescription);
-        updateField(movieUpdateDto::getReleaseDate, movie::setReleaseDate);
+    public static Movie mapMovieDtoToMovie(MovieDto movieDto, Movie movie){
+        updateField(movieDto::getTitle, movie::setTitle);
+        updateField(movieDto::getDescription, movie::setDescription);
+        updateDateField(movieDto::getReleaseDate, movie::setReleaseDate);
+        return movie;
+    }
+    public static Movie mapMovieUpdateDtoToMovieUpdate(MovieUpdateDto movieDto, Movie movie){
+        updateField(movieDto::getTitle, movie::setTitle);
+        updateField(movieDto::getDescription, movie::setDescription);
+        updateDateField(movieDto::getReleaseDate, movie::setReleaseDate);
         return movie;
     }
     public static MovieDtoBasic mapToMovieDtoBasic(Movie movie){
         return MovieDtoBasic.builder()
                 .id(movie.getMovieId())
                 .title(movie.getTitle())
+                .category(movie.getCategory().toString())
                 .build();
     }
 }

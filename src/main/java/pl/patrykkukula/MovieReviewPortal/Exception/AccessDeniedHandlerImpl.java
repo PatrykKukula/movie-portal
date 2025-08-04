@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import pl.patrykkukula.MovieReviewPortal.Dto.ErrorResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ErrorResponseDto;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import static jakarta.servlet.http.HttpServletResponse.*;

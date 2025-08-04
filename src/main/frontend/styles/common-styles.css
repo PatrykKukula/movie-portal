@@ -1,0 +1,89 @@
+.details-layout {
+    padding-bottom: 0;
+    width: 55% !important;
+    height: auto;
+    box-sizing: border-box;
+    border-bottom: 1px solid lightgrey;
+}
+.main-layout {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto !important;
+    height: 100%;
+}
+.buttons-layout {
+    position: relative;
+    bottom: 10px;
+    width: 100%;
+}
+.details {
+    white-space: pre-line;
+    line-height: 2;
+    display: block;
+}
+.view-title {
+    font-size: 2.2rem;
+    font-family: cursive;
+    display: block;
+    cursor: auto;
+    color: black;
+}
+.icon-star {
+    color: lightgray;
+    font-size: 14px;
+    cursor: pointer;
+}
+.icon {
+    cursor: pointer;
+    font-size: 12px;
+}
+.close-icon {
+    color: red;
+    cursor: pointer;
+    font-size: 11px;
+}
+.bold-component {
+    font-weight: bold;
+}
+.header {
+    font-weight: bold;
+    font-size: 36px;
+}
+.title {
+    font-size: 22px
+}
+.actor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.added-label {
+    color: red;
+    font-size: 0.8rem;
+}
+.movies {
+    white-space: pre-line;
+}
+.movies a {
+    display: block;
+    padding-bottom: 4px;
+    text-decoration: none;
+}
+.movies a:hover {
+    text-decoration: underline;
+}
+.post-detail {
+    font-size: 12px;
+}
+.link {
+    cursor: pointer;
+    color: darkblue;
+}
+.link:hover {
+    text-decoration: underline;
+}
+.no-underline:hover {
+    text-decoration: none;
+    cursor: pointer;
+}

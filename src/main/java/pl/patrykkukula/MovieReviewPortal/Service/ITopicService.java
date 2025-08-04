@@ -1,16 +1,19 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
 
-import pl.patrykkukula.MovieReviewPortal.Dto.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.TopicUpdateDto;
+import org.springframework.data.domain.Page;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoWithCommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicUpdateDto;
 
 import java.util.List;
 
 public interface ITopicService {
 
-    Long createTopic(TopicDtoWithCommentDto topicWithComment, Long movieId);
+    Long createTopic(TopicDtoWithCommentDto topicWithComment, Long movieId, String entityType);
     void deleteTopic(Long topicId);
     TopicDtoToDisplay findTopicById(Long topicId);
-    List<TopicDtoBasic> findAllTopics(String sorted);
+    Page<TopicDtoBasic> findAllTopics(int page, int size, String sorted, String entityType, Long entityId);
     List<TopicDtoBasic> findTopicsByTitle(String title, String sorted);
     void updateTopic(Long topicId, TopicUpdateDto topicUpdateDto);
 }

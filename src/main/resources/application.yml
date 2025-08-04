@@ -1,11 +1,15 @@
 server:
   port: 8081
 spring:
+  profiles:
+    active: default
   datasource:
     url: jdbc:postgresql://db:5432/MoviePortal
     driver-class-name: org.postgresql.Driver
     password: postgres
     username: postgres
+  session:
+    timeout: 86400
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,6 +17,8 @@ spring:
   sql:
     init:
       mode: always
+  application:
+    name: "Movie Review Portal"
 logging:
   pattern:
     console: "%green(%d{HH:mm:ss}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"

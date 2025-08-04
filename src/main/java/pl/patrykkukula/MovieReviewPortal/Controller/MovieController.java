@@ -6,9 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-import pl.patrykkukula.MovieReviewPortal.Dto.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.UpdateDto.MovieUpdateDto;
-import pl.patrykkukula.MovieReviewPortal.Service.MovieServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithDetails;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ErrorResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +21,7 @@ import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
 @RestController
-@RequestMapping("/movies")
+@RequestMapping("/api/movies")
 @RequiredArgsConstructor
 public class MovieController {
 
@@ -51,11 +56,11 @@ public class MovieController {
     }
     @GetMapping("/{movieId}")
     public ResponseEntity<MovieDtoWithDetails> fetchMovieById(@PathVariable Long movieId) {
-        return ResponseEntity.ok().body(movieService.fetchMovieById(movieId));
+        return ResponseEntity.ok().body(movieService.fetchMovieDetailsById(movieId));
     }
     @GetMapping("/search")
     public ResponseEntity<List<MovieDtoBasic>> fetchAllMoviesByTitle(@RequestParam(name = "title") String title,
-                                          @RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted) {
+                                                                     @RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted) {
         return ResponseEntity.ok(movieService.fetchAllMoviesByTitle(title, sorted));
     }
     @GetMapping
@@ -68,14 +73,14 @@ public class MovieController {
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
     @PostMapping("/rate")
-    public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody MovieRateDto movieRateDto){
+    public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody RateDto movieRateDto){
         movieService.addRateToMovie(movieRateDto);
         return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
     }
     @DeleteMapping("/{movieId}/rate")
     public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
-        boolean isRemoved = movieService.removeRate(movieId);
-        return isRemoved ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
+        Double newRate = movieService.removeRate(movieId);
+        return newRate !=null ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDto(
                         request.getDescription(false),
                         STATUS_404,

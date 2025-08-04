@@ -1,47 +1,62 @@
 package pl.patrykkukula.MovieReviewPortal.Security;
-import lombok.RequiredArgsConstructor;
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import pl.patrykkukula.MovieReviewPortal.Exception.AccessDeniedHandlerImpl;
 import pl.patrykkukula.MovieReviewPortal.Exception.AuthEntryPointImpl;
-import static org.springframework.security.config.Customizer.withDefaults;
+import pl.patrykkukula.MovieReviewPortal.View.Account.LoginView;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
-public class SecurityConfig {
+@AllArgsConstructor
+public class SecurityConfig extends VaadinWebSecurity {
+    private static final String LOGOUT_URL = "/movies";
 
-    @Bean
-    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
         http.securityContext(scc -> scc.requireExplicitSave(false));
-        http.csrf(csrf -> csrf.disable());
+                http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 
         http.authorizeHttpRequests(request ->
-            request.requestMatchers("/auth/**").permitAll()
+            request.requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
+                    .requestMatchers("/actors/add", "/actors/edit").hasRole("ADMIN")
+                    .requestMatchers("/directors/add", "/directors/edit").hasRole("ADMIN")
+                    .requestMatchers("/movies/add", "/movies/edit").hasRole("ADMIN")
+                    .requestMatchers("/topics/add", "/topics/edit").authenticated()
+                    .requestMatchers("/comments/add", "/comments/edit").authenticated()
+                    .requestMatchers("/login/**", "/logout/**", "/register", "/verify", "/reset").permitAll()
+                    .requestMatchers("/api/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
-                    .requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
-                    .requestMatchers("/actors/**").hasRole("ADMIN")
-                    .requestMatchers("/directors/**").hasRole("ADMIN")
-                    .requestMatchers("/movies/**").hasRole("ADMIN")
-                    .requestMatchers("/topics/**").authenticated()
-                    .requestMatchers("/comments/**").authenticated()
-
         );
         http.exceptionHandling(ehc -> {
             ehc.accessDeniedHandler(new AccessDeniedHandlerImpl());
             ehc.authenticationEntryPoint(new AuthEntryPointImpl());
         });
-        http.httpBasic(withDefaults());
-        return http.build();
+
+        super.configure(http);
+        setLoginView(http, LoginView.class);
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl(LOGOUT_URL));
+        http.httpBasic(Customizer.withDefaults());
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
     @Bean
     public PasswordEncoder passwordEncoder() {

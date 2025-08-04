@@ -1,14 +1,18 @@
 package pl.patrykkukula.MovieReviewPortal.Controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.patrykkukula.MovieReviewPortal.Dto.PasswordResetDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.UserEntityDto;
+import pl.patrykkukula.MovieReviewPortal.Constants.SecurityConstants;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.LoginDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.AuthServiceImpl;
 
 import java.util.Map;
 
@@ -18,6 +22,7 @@ import java.util.Map;
 public class AuthController {
     private final IAuthService registerService;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final AuthServiceImpl authServiceImpl;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserEntityDto userDto) {

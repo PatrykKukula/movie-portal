@@ -46,35 +46,35 @@ public class TopicControllerTest {
     private TopicDtoToDisplay topicDtoToDisplay;
     private TopicDtoBasic topicDtoBasic;
 
-    @BeforeEach
-    void setUp() {
-        TopicDto topicDto = TopicDto.builder()
-                .title("Topic")
-                .movieId(1L)
-                .build();
-        CommentDto commentDto = CommentDto.builder()
-                .text("Comment")
-                .topicId(1L)
-                .build();
-        topicDtoWithComment = TopicDtoWithCommentDto.builder()
-                .topic(topicDto)
-                .comment(commentDto)
-                .build();
-        topicDtoToDisplay = TopicDtoToDisplay.builder()
-                .topicId(1L)
-                .title("Topic")
-                .movieTitle("Movie")
-                .author("Author")
-                .comments(Collections.emptyList())
-                .postCount(1L)
-                .build();
-        topicDtoBasic = TopicDtoBasic.builder()
-                .title("Topic")
-                .author("Author")
-                .movieTitle("Movie")
-                .postCount(1L)
-                .build();
-    }
+//    @BeforeEach
+//    void setUp() {
+//        TopicDto topicDto = TopicDto.builder()
+//                .title("Topic")
+//                .movieId(1L)
+//                .build();
+//        CommentDto commentDto = CommentDto.builder()
+//                .text("Comment")
+//                .topicId(1L)
+//                .build();
+//        topicDtoWithComment = TopicDtoWithCommentDto.builder()
+//                .topic(topicDto)
+//                .comment(commentDto)
+//                .build();
+//        topicDtoToDisplay = TopicDtoToDisplay.builder()
+//                .topicId(1L)
+//                .title("Topic")
+//                .movieTitle("Movie")
+//                .author("Author")
+//                .comments(Collections.emptyList())
+//                .postCount(1L)
+//                .build();
+//        topicDtoBasic = TopicDtoBasic.builder()
+//                .title("Topic")
+//                .author("Author")
+//                .movieTitle("Movie")
+//                .postCount(1L)
+//                .build();
+//    }
 
 
     @Test

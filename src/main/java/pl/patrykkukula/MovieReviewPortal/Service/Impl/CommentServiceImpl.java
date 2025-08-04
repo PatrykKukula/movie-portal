@@ -3,39 +3,32 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
-import pl.patrykkukula.MovieReviewPortal.Mapper.CommentMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
 import pl.patrykkukula.MovieReviewPortal.Model.Topic;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Repository.CommentRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
-import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ICommentService;
 
 import java.util.List;
 
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
-import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements ICommentService {
 
     private final CommentRepository commentRepository;
     private final TopicRepository topicRepository;
-    private final UserEntityRepository userRepository;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -49,10 +42,13 @@ public class CommentServiceImpl implements ICommentService {
         Topic topic = topicWithMaxCommentId.get("topic", Topic.class);
         Long currentMaxCommentId = topicWithMaxCommentId.get("maxId", Long.class);
         UserEntity user = userDetailsService.getUserEntity();
+
         Comment comment = Comment.builder()
                         .text(commentDto.getText())
                         .topic(topic)
                         .commentIdInPost(currentMaxCommentId+1)
+                        .isReply(commentDto.isReply())
+                        .repliedCommentId(commentDto.getReplyCommentId())
                         .user(user)
                         .build();
         try {
@@ -64,8 +60,9 @@ public class CommentServiceImpl implements ICommentService {
         }
     }
     @Override
+    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public void removeComment(Long commentId){
+    public void removeComment(Long commentId, boolean hasReplies){
         validateId(commentId);
         Comment comment = commentRepository
                 .findCommentByIdWithUser(commentId)
@@ -73,27 +70,43 @@ public class CommentServiceImpl implements ICommentService {
         Long userId = comment.getUser().getUserId();
         if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to delete this comment");
         commentRepository.delete(comment);
+
+        if (hasReplies){
+            List<Comment> replies = commentRepository.findAllRepliesByCommentId(commentId);
+            commentRepository.deleteAll(replies);
+        }
     }
-    @Override
-    public List<CommentDtoWithUser> fetchAllCommentsForTopic(String sorted, Long topicId){
-        validateId(topicId);
-        String validSorting = validateSorting(sorted);
-        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllByTopicIdSortedAsc(topicId) :
-                    commentRepository.findAllByTopicIdSortedDesc(topicId);
-        return mapToCommentsDtoWithUser(comments);
-    }
-    @Override
-    public List<CommentDtoWithUser> fetchAllCommentsForUser(String username) {
-        List<Comment> comments = commentRepository.findByUsername(username);
-        return mapToCommentsDtoWithUser(comments);
-    }
-    @Override
-    public List<CommentDtoWithUser> fetchAllComments(String sorted) {
-        String validSorting = validateSorting(sorted);
-        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllWithTopicOrderByIdAsc() :
-                commentRepository.findAllWithTopicOrderByIdDesc();
-        return mapToCommentsDtoWithUser(comments);
-    }
+//    @Override
+//    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+//    public void removeComment(Long commentId){
+//        validateId(commentId);
+//        Comment comment = commentRepository
+//                .findCommentByIdWithUser(commentId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
+//        Long userId = comment.getUser().getUserId();
+//        if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to delete this comment");
+//        commentRepository.delete(comment);
+//    }
+//    @Override
+//    public List<CommentDtoWithUser> fetchAllCommentsForTopic(String sorted, Long topicId){
+//        validateId(topicId);
+//        String validSorting = validateSorting(sorted);
+//        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllByTopicIdSortedAsc(topicId) :
+//                    commentRepository.findAllByTopicIdSortedDesc(topicId);
+//        return mapToCommentsDtoWithUser(comments, "");
+//    }
+//    @Override
+//    public List<CommentDtoWithUser> fetchAllCommentsForUser(String username) {
+//        List<Comment> comments = commentRepository.findByUsername(username);
+//        return mapToCommentsDtoWithUser(comments, "");
+//    }
+//    @Override
+//    public List<CommentDtoWithUser> fetchAllComments(String sorted) {
+//        String validSorting = validateSorting(sorted);
+//        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllWithTopicOrderByIdAsc() :
+//                commentRepository.findAllWithTopicOrderByIdDesc();
+//        return mapToCommentsDtoWithUser(comments, "");
+//    }
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public void updateComment(Long commentId, CommentDto commentDto){
@@ -106,16 +119,14 @@ public class CommentServiceImpl implements ICommentService {
         comment.setText(commentDto.getText());
         commentRepository.save(comment);
     }
-    private List<CommentDtoWithUser> mapToCommentsDtoWithUser(List<Comment> comments) {
-        return comments.stream()
-                .map(CommentMapper::mapToCommentDtoWithUser)
-                .toList();
-    }
+    // change
+//    private List<CommentDtoWithUser> mapToCommentsDtoWithUser(List<Comment> comments) {
+//        return comments.stream()
+//                .map(comment -> CommentMapper.mapToCommentDtoWithUser(comment))
+//                .toList();
+//    }
     private boolean canUserModify(Long userId){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)auth.getPrincipal();
-        UserEntity userEntity = userRepository.findByUsernameWithRoles(user.getUsername())
-                .orElseThrow(() -> new IllegalStateException("Error during resource modification. Please try again or contact technical support"));
+        UserEntity userEntity = userDetailsService.getUserEntity();
 
         return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
     }

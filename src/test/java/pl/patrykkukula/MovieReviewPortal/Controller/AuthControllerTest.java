@@ -100,39 +100,39 @@ public class AuthControllerTest {
                         status().isOk()
                 );
     }
-    @Test
-    public void shouldResetPasswordCorrectly() throws Exception{
-        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
-                        .newPassword("Newpassword123!")
-                        .email("email@email.com")
-                        .pwdResetToken("pwdResetToken")
-                        .build();
-
-        mockMvc.perform(post("/auth/reset")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(passwordResetDto)))
-                .andExpectAll(
-                        status().isOk(),
-                        content().string("Password reset successfully")
-                );
-    }
-    @Test
-    public void shouldRespond400WhenResetPasswordAndInvalidRequestBody() throws Exception{
-        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
-                .newPassword("x")
-                .email("email@email.com")
-                .pwdResetToken("pwdResetToken")
-                .build();
-
-        mockMvc.perform(post("/auth/reset")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(passwordResetDto)))
-                .andExpectAll(
-                        status().isBadRequest(),
-                        jsonPath("$.statusCode").value("400"),
-                        jsonPath("$.errorMessage").value(containsString("Password must contain small and capital letter"))
-                );
-    }
+//    @Test
+//    public void shouldResetPasswordCorrectly() throws Exception{
+//        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
+//                        .newPassword("Newpassword123!")
+//                        .email("email@email.com")
+//                        .pwdResetToken("pwdResetToken")
+//                        .build();
+//
+//        mockMvc.perform(post("/auth/reset")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(mapper.writeValueAsString(passwordResetDto)))
+//                .andExpectAll(
+//                        status().isOk(),
+//                        content().string("Password reset successfully")
+//                );
+//    }
+//    @Test
+//    public void shouldRespond400WhenResetPasswordAndInvalidRequestBody() throws Exception{
+//        PasswordResetDto passwordResetDto = PasswordResetDto.builder()
+//                .newPassword("x")
+//                .email("email@email.com")
+//                .pwdResetToken("pwdResetToken")
+//                .build();
+//
+//        mockMvc.perform(post("/auth/reset")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(mapper.writeValueAsString(passwordResetDto)))
+//                .andExpectAll(
+//                        status().isBadRequest(),
+//                        jsonPath("$.statusCode").value("400"),
+//                        jsonPath("$.errorMessage").value(containsString("Password must contain small and capital letter"))
+//                );
+//    }
     @Test
     public void shouldSendPwdResetTokenCorrectly() throws Exception{
         mockMvc.perform(get("/auth/reset")

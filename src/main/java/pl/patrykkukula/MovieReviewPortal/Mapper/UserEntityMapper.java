@@ -3,6 +3,8 @@ package pl.patrykkukula.MovieReviewPortal.Mapper;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 
+import java.time.LocalDateTime;
+
 public class UserEntityMapper {
 
     public static UserEntity mapToUserEntity(UserEntityDto userDto){
@@ -10,9 +12,11 @@ public class UserEntityMapper {
                 .username(userDto.getUsername().toLowerCase())
                 .email(userDto.getEmail().toLowerCase())
                 .userSex(userDto.getUserSex())
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
                 .dateOfBirth(userDto.getDateOfBirth())
-                .firstName(userDto.getFirstName().substring(0, 1).toUpperCase() + userDto.getFirstName().substring(1).toLowerCase())
-                .lastName(userDto.getLastName().substring(0, 1).toUpperCase() + userDto.getLastName().substring(1).toLowerCase())
+                .registeredAt(LocalDateTime.now())
+                .isEnabled(false)
                 .build();
     }
 }

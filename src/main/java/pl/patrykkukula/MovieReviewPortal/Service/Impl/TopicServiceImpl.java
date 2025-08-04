@@ -1,4 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
+
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,10 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
@@ -20,22 +18,28 @@ import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyExceptio
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.TopicMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
-import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 import pl.patrykkukula.MovieReviewPortal.Model.Topic;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
-import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
+import pl.patrykkukula.MovieReviewPortal.Repository.CommentRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
-import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ITopicService;
+
+import java.util.HashMap;
 import java.util.List;
-import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
+import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TopicServiceImpl implements ITopicService {
     private final TopicRepository topicRepository;
+    private final CommentRepository commentRepository;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -70,12 +74,25 @@ public class TopicServiceImpl implements ITopicService {
     @Override
     public TopicDtoToDisplay findTopicById(Long topicId) {
         validateId(topicId);
+
         Topic topic = topicRepository.findByTopicIdWithComments(topicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         List<Comment> comments = topic.getComments();
-        TopicDtoToDisplay topicDtoToDisplay = TopicMapper.mapToTopicDtoToDisplay(topic, comments);
-        long postCount = comments.size();
-        topicDtoToDisplay.setPostCount(postCount);
+
+        List<Comment> allCommentsWithUsers = commentRepository.findAllCommentsForTopicWithUsers(topicId);
+
+        List<Tuple> tuples = commentRepository.countCommentsForUserByTopicId(topicId);
+        Map<Long, Long> commentsCount = new HashMap<>();
+        for (Tuple tuple : tuples) {
+            Long userId = tuple.get("userId", Long.class);
+            long count = tuple.get("count", Long.class);
+            commentsCount.put(userId, count);
+        }
+
+        TopicDtoToDisplay topicDtoToDisplay = TopicMapper.mapToTopicDtoToDisplay(topic, comments, commentsCount, allCommentsWithUsers);
+
+        topicDtoToDisplay.setPostCount((long)comments.size());
+
         return topicDtoToDisplay;
     }
     @Override
@@ -87,7 +104,6 @@ public class TopicServiceImpl implements ITopicService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Topic> topicsPage = topicRepository.findAllByEntityTypeAndEntityId(entityType, entityId, pageable);
-        log.info("topic page size{}: ", topicsPage.getTotalElements());
 
         return topicsPage.map(topic -> {
             TopicDtoBasic topicDtoBasic = TopicMapper.mapToTopicDtoBasic(topic);

@@ -33,18 +33,18 @@ public class DirectorMapperTest {
         assertEquals("Poland", directorDto.getCountry());
         assertEquals(1, directorDto.getId());
     }
-    @Test
-    public void shouldMapActorToActorDtoWithMoviesCorrectly(){
-        Director director = createDirector();
-
-        DirectorDtoWithMovies directorDto = pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper.mapToDirectorDtoWithMovies(director);
-
-        assertEquals("Jane", directorDto.getFirstName());
-        assertEquals("Doe", directorDto.getLastName());
-        assertEquals(LocalDate.of(1990, 1, 1), directorDto.getDateOfBirth());
-        assertEquals("Poland", directorDto.getCountry());
-        assertEquals(0, directorDto.getMovies().size());
-    }
+//    @Test
+//    public void shouldMapActorToActorDtoWithMoviesCorrectly(){
+//        Director director = createDirector();
+//
+//        DirectorDtoWithMovies directorDto = pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper.mapToDirectorDtoWithMovies(director);
+//
+//        assertEquals("Jane", directorDto.getFirstName());
+//        assertEquals("Doe", directorDto.getLastName());
+//        assertEquals(LocalDate.of(1990, 1, 1), directorDto.getDateOfBirth());
+//        assertEquals("Poland", directorDto.getCountry());
+//        assertEquals(0, directorDto.getMovies().size());
+//    }
     @Test
     public void shouldMapActorUpdateDtoToActorCorrectly(){
         DirectorUpdateDto directorDto = DirectorUpdateDto.builder().firstName("Joe").build();

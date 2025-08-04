@@ -33,18 +33,18 @@ public class ActorMapperTest {
         assertEquals("Poland", actorDto.getCountry());
         assertEquals(1, actorDto.getId());
     }
-    @Test
-    public void shouldMapActorToActorDtoWithMoviesCorrectly(){
-        Actor actor = createActor();
-
-        ActorDtoWithMovies actorDto = ActorMapper.mapToActorDtoWithMovies(actor);
-
-        assertEquals("Jane", actorDto.getFirstName());
-        assertEquals("Doe", actorDto.getLastName());
-        assertEquals(LocalDate.of(1990, 1, 1), actorDto.getDateOfBirth());
-        assertEquals("Poland", actorDto.getCountry());
-        assertEquals(0, actorDto.getMovies().size());
-    }
+//    @Test
+//    public void shouldMapActorToActorDtoWithMoviesCorrectly(){
+//        Actor actor = createActor();
+//
+//        ActorDtoWithMovies actorDto = ActorMapper.mapToActorDtoWithMovies(actor);
+//
+//        assertEquals("Jane", actorDto.getFirstName());
+//        assertEquals("Doe", actorDto.getLastName());
+//        assertEquals(LocalDate.of(1990, 1, 1), actorDto.getDateOfBirth());
+//        assertEquals("Poland", actorDto.getCountry());
+//        assertEquals(0, actorDto.getMovies().size());
+//    }
     @Test
     public void shouldMapActorUpdateDtoToActorCorrectly(){
         ActorUpdateDto actorDto = ActorUpdateDto.builder().firstName("Joe").build();

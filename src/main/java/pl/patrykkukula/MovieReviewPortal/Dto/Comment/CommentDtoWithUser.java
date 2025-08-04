@@ -10,9 +10,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CommentDtoWithUser {
-
+    private Long commentId;
     private String text;
-    private Long topicId;
+    private String createdAt;
+    private String updatedAt;
+    private String author;
     private Long commentIdInPost;
-    private String user;
+    private String userRegistered;
+    private Long userCommentCount;
+    private boolean isReply;
+    private Long repliedCommentId;
+    private Long userId;
+    private Long topicId;
 }

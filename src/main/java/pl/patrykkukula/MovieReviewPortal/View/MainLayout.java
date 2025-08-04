@@ -12,6 +12,7 @@ import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
@@ -109,9 +110,9 @@ public class MainLayout extends AppLayout {
         account.add(detailsContainer);
         HorizontalLayout rightTabs = new HorizontalLayout();
         rightTabs.getStyle().set("margin-left", "auto").set("padding-right", "1rem");
-
-        if (userDetailsService.getAuthenticatedUser()!=null) {
-            AvatarImpl avatar = new AvatarImpl(avatarService,userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH);
+        Long userId = userDetailsService.getAuthenticatedUserId();
+        if (userId!=null) {
+            AvatarImpl avatar = new AvatarImpl(avatarService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH, userId);
             rightTabs.add(avatar, account);
         }
         else {

@@ -29,22 +29,22 @@ public class CommentController {
     }
     @DeleteMapping("/{commentId}")
     public ResponseEntity<ResponseDto> deleteComment(@PathVariable Long commentId){
-        commentService.removeComment(commentId);
+        commentService.removeComment(commentId, true);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
-    @GetMapping("/topic/{topicId}")
-    public ResponseEntity<List<CommentDtoWithUser>> fetchAllCommentsForTopic(@PathVariable Long topicId,
-                                                                             @RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorting) {
-        return ResponseEntity.ok().body(commentService.fetchAllCommentsForTopic(sorting, topicId));
-    }
-    @GetMapping("/user/{username}")
-    public ResponseEntity<List<CommentDtoWithUser>> fetchAllCommentsForUser(@PathVariable String username) {
-        return ResponseEntity.ok().body(commentService.fetchAllCommentsForUser(username));
-    }
-    @GetMapping
-    public ResponseEntity<List<CommentDtoWithUser>> fetchAllComments(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorting) {
-        return ResponseEntity.ok().body(commentService.fetchAllComments(sorting));
-    }
+//    @GetMapping("/topic/{topicId}")
+//    public ResponseEntity<List<CommentDtoWithUser>> fetchAllCommentsForTopic(@PathVariable Long topicId,
+//                                                                             @RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorting) {
+//        return ResponseEntity.ok().body(commentService.fetchAllCommentsForTopic(sorting, topicId));
+//    }
+//    @GetMapping("/user/{username}")
+//    public ResponseEntity<List<CommentDtoWithUser>> fetchAllCommentsForUser(@PathVariable String username) {
+//        return ResponseEntity.ok().body(commentService.fetchAllCommentsForUser(username));
+//    }
+//    @GetMapping
+//    public ResponseEntity<List<CommentDtoWithUser>> fetchAllComments(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorting) {
+//        return ResponseEntity.ok().body(commentService.fetchAllComments(sorting));
+//    }
     @PatchMapping("/{commentId}")
     public ResponseEntity<ResponseDto> updateComment(@PathVariable Long commentId, @Valid @RequestBody CommentDto commentDto){
         commentService.updateComment(commentId, commentDto);

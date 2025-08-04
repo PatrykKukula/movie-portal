@@ -86,7 +86,7 @@ public class AccountView extends VerticalLayout {
             }
             UserEntity user = optionalUser.get();
 
-            AvatarImpl avatar = new AvatarImpl(avatarService, userDetailsService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH);
+            AvatarImpl avatar = new AvatarImpl(avatarService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH, user.getUserId());
             Span username = usernameSpan(user);
             Div password = passwordDiv();
             sexSpan(user);
@@ -194,7 +194,7 @@ public class AccountView extends VerticalLayout {
         change.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         change.addClickListener(e -> {
             boolean isChanged = authService.changeSex(user, userSexComboBox.getValue());
-            if (isChanged) {
+            if (isChanged && userSexComboBox.getValue() != null) {
                 dialogText.removeAll();
                 dialogText.setText("Sex changed successfully");
                 dialog.open();

@@ -1,10 +1,10 @@
 package pl.patrykkukula.MovieReviewPortal.Security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +18,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -28,6 +29,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.findByEmailWithRoles(email)
                 .map(userEntity -> new User(userEntity.getEmail(), userEntity.getPassword(), mapRoleToAuthorities(userEntity))
                 ).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
+    }
+    public UserEntity loadUserEntityById(Long userId) throws UsernameNotFoundException {
+        return userRepository.findByIdWithComments(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Account with id " + userId + " not found"));
+    }
+    public UserEntity loadUserEntityByEmail(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
     }
     public UserDetails getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -53,7 +62,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserEntity getUserEntity() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new UsernameNotFoundException("User is not logged in");
+            return null;
         }
         User user = (User) auth.getPrincipal();
         return userRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));

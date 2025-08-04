@@ -16,5 +16,6 @@ public class CommentDto {
     private String text;
     @Positive(message = "Topic ID must be greater than 0")
     private Long topicId;
-    private Long commentIdInPost;
+    private boolean isReply;
+    private Long replyCommentId;
 }

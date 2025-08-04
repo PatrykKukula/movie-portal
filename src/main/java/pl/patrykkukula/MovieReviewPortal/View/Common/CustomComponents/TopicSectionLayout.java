@@ -35,9 +35,6 @@ public class TopicSectionLayout extends VerticalLayout {
     private final int initialPage;
     VerticalLayout topicLayout = new VerticalLayout();
 
-    /*
-        Creates comment section layout on an entity details view
-     */
     public TopicSectionLayout(TopicServiceImpl topicService, UserDetailsServiceImpl userDetailsService, Long entityId,
                               int initialPage, int pageSize, String sort, String entityType
     ) {
@@ -54,7 +51,7 @@ public class TopicSectionLayout extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
 
         allTopics = topicService.findAllTopics(initialPage, pageSize, sort, entityType, entityId);
-        log.info("Entity type:{} ", entityType);
+        log.info("all topics:{} ", allTopics.getTotalElements());
 
         Button createTopicButton = Buttons.createTopicButton(entityType, entityId);
         Div pageButtons = new Div();
@@ -70,7 +67,7 @@ public class TopicSectionLayout extends VerticalLayout {
             firstLine.addComponentAtIndex(2, createTopicButton);
         }
         updatePagingButtons(allTopics.hasNext(), allTopics.hasPrevious(), allTopics.getNumber(), allTopics.getTotalPages());
-        addPageButtonsListeners(entityId, this);
+        addPageButtonsListeners(entityId);
         updateTopicsLayout(allTopics);
         add(firstLine, topicLayout, pageButtons);
     }
@@ -91,7 +88,7 @@ public class TopicSectionLayout extends VerticalLayout {
         previousButton.setEnabled(hasPrevious);
         page.setText(((currentPage + 1) + " / " + lastPage));
     }
-    private void addPageButtonsListeners(Long entityId, VerticalLayout commentSectionLayout){
+    private void addPageButtonsListeners(Long entityId){
         nextButton.addClickListener(e -> {
             if (allTopics.hasNext()) {
                 Pageable pageable = allTopics.nextPageable();

@@ -53,6 +53,13 @@ public class RegisterView extends Composite<FormLayout> implements BeforeLeaveOb
         binder.bind(emailField, "email");
         PasswordField passwordField = FormFields.passwordField();
         binder.bind(passwordField, "password");
+        TextField firstNameField = FormFields.textField("First name");
+        firstNameField.setRequiredIndicatorVisible(false);
+        binder.bind(firstNameField, "firstName");
+        TextField lastNameField = FormFields.textField("Last name");
+        lastNameField.setRequiredIndicatorVisible(false);
+        binder.bind(lastNameField, "lastName");
+
         ComboBox<UserSex> userSexComboBox = new UserSexComboBox();
         binder.bind(userSexComboBox, "userSex");
 
@@ -60,7 +67,7 @@ public class RegisterView extends Composite<FormLayout> implements BeforeLeaveOb
         Button registerButton = registerButton(binder);
         Button cancelButton = Buttons.cancelButton(MovieView.class);
 
-        layout.add(usernameField, emailField, passwordField, userSexComboBox, registerButton, cancelButton);
+        layout.add(usernameField, emailField, passwordField, firstNameField, lastNameField, userSexComboBox, registerButton, cancelButton);
     }
     private Button registerButton(BeanValidationBinder<UserEntityDto> binder) {
         Button registerButton = new Button("Register");

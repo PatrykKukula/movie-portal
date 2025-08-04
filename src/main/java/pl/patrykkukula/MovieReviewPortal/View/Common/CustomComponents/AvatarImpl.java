@@ -13,10 +13,9 @@ public class AvatarImpl extends Div {
 
     private final Avatar avatar = new Avatar();
 
-    public AvatarImpl(IImageService avatarService, UserDetailsServiceImpl userDetails, String width, String height, String dir, String placeholderDir) throws IOException {
-        Long userId = userDetails.getAuthenticatedUserId();
+    public AvatarImpl(IImageService imageService, String width, String height, String dir, String placeholderDir, Long userId) throws IOException {
         if (userId != null) {
-            StreamResource streamResource = avatarService.loadImage(userId, dir, placeholderDir)
+            StreamResource streamResource = imageService.loadImage(userId, dir, placeholderDir)
                     .map(data -> new StreamResource(userId + ".png", () -> new ByteArrayInputStream(data)))
                     .orElse(null);
             avatar.setHeight(width);

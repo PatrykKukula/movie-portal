@@ -6,6 +6,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.View.MainLayout;
 
 @Tag("div")
@@ -13,6 +14,7 @@ import pl.patrykkukula.MovieReviewPortal.View.MainLayout;
 @PermitAll
 @CssImport("./styles/error-styles.css")
 @PageTitle("Error")
+@Slf4j
 public class ErrorView extends Div implements HasErrorParameter<RuntimeException> {
 
     @Override
@@ -20,6 +22,7 @@ public class ErrorView extends Div implements HasErrorParameter<RuntimeException
         String message = ex.getCustomMessage() != null ?
                 ex.getCustomMessage() :
                 "Something went wrong...";
+        ex.getCaughtException().printStackTrace();
 
         addClassName("error-div");
         setText("An error has occurred: " + message);

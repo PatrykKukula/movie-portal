@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +28,8 @@ public class SecurityConfig extends VaadinWebSecurity {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.securityContext(scc -> scc.requireExplicitSave(false));
-                http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+                http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 
         http.authorizeHttpRequests(request ->
             request.requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
@@ -37,6 +39,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                     .requestMatchers("/topics/add", "/topics/edit").authenticated()
                     .requestMatchers("/comments/add", "/comments/edit").authenticated()
                     .requestMatchers("/login/**", "/logout/**", "/register", "/verify", "/reset").permitAll()
+                    .requestMatchers("/api/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
         );
         http.exceptionHandling(ehc -> {
@@ -49,6 +52,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         http.logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl(LOGOUT_URL));
+        http.httpBasic(Customizer.withDefaults());
     }
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

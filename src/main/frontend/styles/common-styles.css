@@ -1,6 +1,6 @@
 .details-layout {
     padding-bottom: 0;
-    width: 45% !important;
+    width: 55% !important;
     height: auto;
     box-sizing: border-box;
     border-bottom: 1px solid lightgrey;
@@ -40,7 +40,7 @@
 .close-icon {
     color: red;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 11px;
 }
 .bold-component {
     font-weight: bold;
@@ -75,4 +75,15 @@
 }
 .post-detail {
     font-size: 12px;
+}
+.link {
+    cursor: pointer;
+    color: darkblue;
+}
+.link:hover {
+    text-decoration: underline;
+}
+.no-underline:hover {
+    text-decoration: none;
+    cursor: pointer;
 }

@@ -20,9 +20,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t AS topic, COALESCE(MAX(c.commentIdInPost), 0) AS maxId FROM Topic t INNER JOIN t.comments c WHERE t.topicId = :topicId GROUP BY t")
     Optional<Tuple> findTopicWithCurrentMaxCommentId(@Param(value = "topicId") Long topicId);
-    @Query("SELECT t FROM Topic t JOIN FETCH t.comments WHERE t.topicId = :topicId")
+    @Query("SELECT DISTINCT t FROM Topic t LEFT JOIN FETCH t.comments WHERE t.topicId = :topicId")
     Optional<Topic> findByTopicIdWithComments(Long topicId);
-    @Query("SELECT t FROM Topic t JOIN FETCH t.comments WHERE t.entityType = :entityType AND t.entityId = :entityId")
+    @Query("SELECT DISTINCT t FROM Topic t JOIN FETCH t.comments WHERE t.entityType = :entityType AND t.entityId = :entityId")
     Page<Topic> findAllByEntityTypeAndEntityId(@Param(value = "entityType") String entityType, @Param(value = "entityId") Long entityId, Pageable pageable);
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleAsc(String title);
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleDesc(String title);

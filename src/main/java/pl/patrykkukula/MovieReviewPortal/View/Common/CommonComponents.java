@@ -28,16 +28,15 @@ public class CommonComponents {
         Icon closeIcon = VaadinIcon.CLOSE.create();
         closeIcon.addClassName("close-icon");
         closeIcon.getStyle().set("margin-left", "2rem");
-//        closeIcon.getStyle().set("color", "red").set("margin-left", "3rem");
-//        closeIcon.setSize("1rem");
 
         Dialog dialog = new Dialog("Cannot save changes - invalid or empty fields");
         dialog.getHeader().addComponentAtIndex(0, closeIcon);
         dialog.setCloseOnOutsideClick(false);
+        dialog.setMaxWidth("600px");
 
         VerticalLayout dialogLayout = new VerticalLayout();
         Div errorMessage = validationErrorsMessage(validationResults);
-        errorMessage.getStyle().set("text-align", "center");
+        errorMessage.getStyle().set("text-align", "start");
         Div closeText = new Div("Press X button or ESC on keyboard to close");
         closeText.getStyle().set("font-size","0.7rem");
 
@@ -88,7 +87,7 @@ public class CommonComponents {
     }
     private static Div validationErrorsMessage(List<ValidationResult> validationResults){
         String joinedErrors = validationResults.stream()
-                .map(validationError -> validationError.getErrorMessage())
+                .map(validationError -> "- " + validationError.getErrorMessage())
                 .collect(Collectors.joining(System.lineSeparator()));
 
         Div errorMessage = new Div(joinedErrors);

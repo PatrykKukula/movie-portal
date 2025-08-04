@@ -27,14 +27,11 @@ public class UserEntityDto {
     private String email;
     @NotEmpty(message = "Password cannot be empty")
     @Pattern(regexp = PASSWORD_REGEX,
-    message = "Password must contain small and capital letter, number, special character and be at lest 8 character long")
+    message = "Password must contain small and capital letter, number, special character and be at least 8 character long")
     private String password;
     @PastOrPresent(message = "Date of birth cannot be in the future")
     private LocalDate dateOfBirth;
     private UserSex userSex;
-    @Pattern(regexp = ONLY_LETTER_REGEX, message = "Name must not contain number or special characters")
     private String firstName;
-    @Pattern(regexp = ONLY_LETTER_REGEX, message = "Last name must not contain number or special characters")
     private String lastName;
-
 }

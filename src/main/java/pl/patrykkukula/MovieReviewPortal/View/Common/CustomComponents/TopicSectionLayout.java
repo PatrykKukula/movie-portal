@@ -1,4 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -20,7 +21,8 @@ import pl.patrykkukula.MovieReviewPortal.View.Topic.TopicDetailsView;
 
 import java.time.format.DateTimeFormatter;
 
-@Slf4j
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableConstants.*;
+
 public class TopicSectionLayout extends VerticalLayout {
     private final TopicServiceImpl topicService;
     private final UserDetailsServiceImpl userDetailsService;
@@ -51,14 +53,13 @@ public class TopicSectionLayout extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
 
         allTopics = topicService.findAllTopics(initialPage, pageSize, sort, entityType, entityId);
-        log.info("all topics:{} ", allTopics.getTotalElements());
 
         Button createTopicButton = Buttons.createTopicButton(entityType, entityId);
         Div pageButtons = new Div();
         pageButtons.add(previousButton, page, nextButton);
         pageButtons.setVisible(areTopicsAvailable());
         H2 header = new H2("Topics");
-        ComboBox<String> sortComboBox = new SortDirectionComboBox(this);
+        ComboBox<String> sortComboBox = sortDirectionComboBox(this);
         HorizontalLayout firstLine = new HorizontalLayout(header, sortComboBox);
         firstLine.getStyle().set("padding-left", "15px").set("width", "100%").set("align-items", "center").set("justify-content", "start");
 
@@ -149,5 +150,20 @@ public class TopicSectionLayout extends VerticalLayout {
             });
         }
        else topicLayout.add(new Div("No topics available"));
+    }
+    private ComboBox<String>  sortDirectionComboBox(TopicSectionLayout commentSectionLayout){
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.setLabel("Sort by");
+        comboBox.setItems(LATEST, OLDEST);
+        comboBox.setValue(LATEST);
+        comboBox.getStyle().set("padding-left", "10px");
+
+        comboBox.addValueChangeListener(e -> {
+            if (e.getValue().equals(OLDEST)) {
+                commentSectionLayout.updateCommentSectionLayout(SORT_DESC);
+            }
+            else commentSectionLayout.updateCommentSectionLayout(SORT_ASC);
+        });
+        return comboBox;
     }
 }

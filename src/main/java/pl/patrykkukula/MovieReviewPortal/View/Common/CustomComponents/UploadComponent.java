@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Account.Components;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
 
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;

@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
     public UserEntity loadUserEntityById(Long userId) throws UsernameNotFoundException {
         return userRepository.findByIdWithComments(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("Account with id " + userId + " not found"));
+                .orElse(null);
     }
     public UserEntity loadUserEntityByEmail(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)

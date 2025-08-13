@@ -1,16 +1,21 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.MoviePerson;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
-import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UploadComponent;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.UploadComponent;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image.Poster;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating.RatingStarsLayout;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +23,8 @@ import java.util.List;
 import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants.*;
 
 public class MoviePersonEntityLayout extends VerticalLayout {
+    private static final String WIDTH = "210x";
+    private static final String HEIGHT = "300px";
     /*
         DIV to display movie person details
      */
@@ -45,11 +52,11 @@ public class MoviePersonEntityLayout extends VerticalLayout {
                 MAX_SIZE, MAX_SIZE_BYTES, ALLOWED_FORMAT, ALLOWED_TYPES, entityId, dir, imageService
         );
 
-        Poster poster = new Poster(imageService, entityId, dir, dirPh);
+        Poster poster = new Poster(imageService, entityId, dir, dirPh, WIDTH, HEIGHT);
         HorizontalLayout posterDetailsLayout = new HorizontalLayout(poster, detailsLayout);
 
         Div biographyDiv = new BiographyDiv(biography);
-        Div moviesDiv = new MoviesDiv(movies);
+        Div moviesDiv = moviesDiv(movies);
 
         H3 header = new H3(firstName + " " + lastName);
         header.addClassName("header");
@@ -64,6 +71,17 @@ public class MoviePersonEntityLayout extends VerticalLayout {
 
         setAlignItems(Alignment.CENTER);
         add(dataLayout);
+    }
+    private Div moviesDiv(List<MovieDtoBasic> movies) {
+        Div div = new Div();
+        addClassName("movies");
+        Span moviesSpan = CommonComponents.labelSpan("Movies");
+        div.add(moviesSpan);
+        for (MovieDtoBasic movie : movies) {
+            Anchor movieLink = new Anchor("movies/" + movie.getId(), "• " + movie.getTitle());
+            add(movieLink);
+        }
+        return div;
     }
 
 }

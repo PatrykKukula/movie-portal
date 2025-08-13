@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Repository;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,7 +29,7 @@ public interface ActorRepository extends JpaRepository<Actor, Long> {
     @Query("SELECT SIZE(a.actorRates) FROM Actor a WHERE a.actorId =:actorId")
     Integer countActorRates(@Param(value = "actorId") Long actorId);
     @Query("SELECT a FROM Actor a LEFT JOIN FETCH a.actorRates")
-    List<Actor> findAllWithActorRates();
+    List<Actor> findAllWithActorRates(Sort sort);
     @Query("SELECT a FROM Actor a LEFT JOIN FETCH a.actorRates WHERE LOWER(a.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<Actor> findAllWithRatesByNameOrLastName(@Value("name") String name);
+    List<Actor> findAllWithRatesByNameOrLastName(@Value("name") String name, Sort sort);
 }

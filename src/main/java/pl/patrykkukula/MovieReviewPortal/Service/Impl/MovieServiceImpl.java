@@ -12,7 +12,10 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
-import pl.patrykkukula.MovieReviewPortal.Repository.*;
+import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
+import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRepository;
+import pl.patrykkukula.MovieReviewPortal.Repository.MovieRateRepository;
+import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IMovieService;
 
@@ -161,18 +164,28 @@ public class MovieServiceImpl implements IMovieService {
        VAADIN VIEW SECTION
    */
     @Override
-    public List<MovieViewDto> fetchAllMoviesForView(String title) {
-        return title.isEmpty() ? movieRepository.findAllWithRates().stream().map(
-                movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList() :
-                movieRepository.findAllWithRatesByTitle(title).stream().map(
-                        movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList();
+    public List<MovieViewDto> fetchAllMoviesForView(String title, String sorting, MovieCategory category) {
+        String validatedSorting = validateSorting(sorting);
+
+        if (title == null && validatedSorting.equals("ASC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesAsc().stream()
+                .map(MovieMapper::mapToMovieViewDto).toList();
+        else if (title == null && validatedSorting.equals("DESC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesDesc().stream()
+                .map(MovieMapper::mapToMovieViewDto).toList();
+        else if (title != null && validatedSorting.equals("ASC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesByTitleAsc(title).stream()
+                .map(MovieMapper::mapToMovieViewDto).toList();
+        else if (title != null && validatedSorting.equals("DESC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesByTitleDesc(title).stream()
+                .map(MovieMapper::mapToMovieViewDto).toList();
+        else if (title != null && validatedSorting.equals("ASC")) return movieRepository.findAllWithRatesByTitleAndCategoryAsc(title, category)
+                .stream().map(MovieMapper::mapToMovieViewDto).toList();
+        else return movieRepository.findAllWithRatesByTitleAndCategoryDesc(title, category)
+                .stream().map(MovieMapper::mapToMovieViewDto).toList();
     }
     @Override
     public List<MovieViewDto> fetchAllMoviesForViewByCategory(MovieCategory category, String title) {
         return title.isEmpty() ? movieRepository.findAllWithRatesByCategory(category).stream().map(
-                movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList() :
+                movie -> MovieMapper.mapToMovieViewDto(movie)).toList() :
                 movieRepository.findAllWithRatesByCategoryByTitle(category,title).stream().map(
-                        movie -> MovieMapper.mapToMovieViewDto(movie, movie.averageMovieRate(), movie.movieRatesNumber())).toList();
+                        movie -> MovieMapper.mapToMovieViewDto(movie)).toList();
     }
     @Override
     public MovieDto fetchMovieByIdVaadin(Long movieId) {
@@ -223,12 +236,4 @@ public class MovieServiceImpl implements IMovieService {
         return directorRepository.findById(directorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(directorId)));
     }
-//    private UserEntity getUserEntity() {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-//            throw new UsernameNotFoundException("Log in to add rate");
-//        }
-//        User user = (User) auth.getPrincipal();
-//        return userEntityRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
-//    }
 }

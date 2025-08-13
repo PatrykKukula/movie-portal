@@ -25,11 +25,11 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
-import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UploadComponent;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.UploadComponent;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.TopicSectionLayout;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Poster;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.RatingStarsLayout;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image.Poster;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating.RatingStarsLayout;
 
 import java.io.IOException;
 
@@ -48,6 +48,8 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParam
         private final UserDetailsServiceImpl userDetailsService;
         private final IImageService imageService;
         private final TopicServiceImpl topicService;
+    private static final String WIDTH = "210x";
+    private static final String HEIGHT = "300px";
 
         public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, IImageService imageService, TopicServiceImpl topicService) {
             this.movieService = movieService;
@@ -100,7 +102,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParam
                 Upload upload = new UploadComponent(
                   MAX_SIZE, MAX_SIZE_BYTES, ALLOWED_FORMAT, ALLOWED_TYPES, movieId, MOV_DIR, imageService
                 );
-                Poster poster = new Poster(imageService, movieId, MOV_DIR, MOV_DIR_PH);
+                Poster poster = new Poster(imageService, movieId, MOV_DIR, MOV_DIR_PH, WIDTH, HEIGHT);
 
                 HorizontalLayout posterDetailsLayout = new HorizontalLayout(poster, detailsLayout);
 

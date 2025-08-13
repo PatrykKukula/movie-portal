@@ -6,6 +6,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
+import pl.patrykkukula.MovieReviewPortal.Model.DirectorRate;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,15 +37,15 @@ public class DirectorMapper {
                 .dateOfBirth(director.getDateOfBirth())
                 .build();
     }
-    public static DirectorViewDto mapToDirectorViewDto(Director director, Double rate) {
+    public static DirectorViewDto mapToDirectorViewDto(Director director) {
         return DirectorViewDto.builder()
                 .id(director.getDirectorId())
                 .firstName(director.getFirstName())
                 .lastName(director.getLastName())
                 .country(director.getCountry())
                 .dateOfBirth(director.getDateOfBirth())
-                .biography(director.getBiography())
-                .rate(rate)
+                .averageRate(director.averageDirectorRate())
+                .rateNumber(director.getDirectorRates().size())
                 .build();
     }
     public static DirectorDtoWithMovies mapToDirectorDtoWithMovies(Director director, Double rate, Integer rateNumber) {
@@ -90,5 +91,13 @@ public class DirectorMapper {
                     .build();
         }
         return new DirectorSummaryDto();
+    }
+    public static DirectorDtoWithUserRate mapToDirectorDtoWithUserRate(DirectorRate directorRate){
+        return DirectorDtoWithUserRate.builder()
+                .id(directorRate.getDirector().getDirectorId())
+                .firstName(directorRate.getDirector().getFirstName())
+                .lastName(directorRate.getDirector().getLastName())
+                .userRate(directorRate.getRate())
+                .build();
     }
 }

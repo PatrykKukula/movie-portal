@@ -2,7 +2,11 @@ package pl.patrykkukula.MovieReviewPortal.Mapper;
 
 import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithUserRate;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
+import pl.patrykkukula.MovieReviewPortal.Model.DirectorRate;
+import pl.patrykkukula.MovieReviewPortal.Model.MovieRate;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Map;

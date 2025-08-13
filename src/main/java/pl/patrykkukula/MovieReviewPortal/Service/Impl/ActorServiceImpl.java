@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.*;
@@ -8,6 +9,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
+import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
@@ -138,16 +140,15 @@ public class ActorServiceImpl implements IActorService {
     }
 
     @Override
-    public List<ActorViewDto> fetchAllActorsView(String searchedText) {
+    public List<ActorViewDto> fetchAllActorsView(String searchedText, String sorting) {
+        String validatedSorting = validateSorting(sorting);
+        Sort sort = validatedSorting.equals("ASC") ?
+                Sort.by("firstName").ascending() :
+                Sort.by("firstName").descending();
+
         return searchedText == null || searchedText.isEmpty() ?
-        actorRepository.findAllWithActorRates().stream().map(actor -> {
-            Double rate = actor.averageActorRate();
-            return mapToActorViewDto(actor, rate);
-        }).toList() :
-                actorRepository.findAllWithRatesByNameOrLastName(searchedText).stream().map(actor -> {
-                    Double rate = actor.averageActorRate();
-                    return mapToActorViewDto(actor, rate);
-                }).toList();
+                actorRepository.findAllWithActorRates(sort).stream().map(ActorMapper::mapToActorViewDto).toList() :
+                actorRepository.findAllWithRatesByNameOrLastName(searchedText, sort).stream().map(ActorMapper::mapToActorViewDto).toList();
     }
 
     @Override

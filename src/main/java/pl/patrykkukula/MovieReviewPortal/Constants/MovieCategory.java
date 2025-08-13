@@ -1,5 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.Constants;
 
 public enum MovieCategory {
-    NONE, ACTION, COMEDY, DRAMA, FANTASY, HORROR, MUSICAL, SCIENCE, THRILLER
+    ALL, ACTION, COMEDY, DRAMA, FANTASY, HORROR, MUSICAL, SCIENCE, THRILLER
 }

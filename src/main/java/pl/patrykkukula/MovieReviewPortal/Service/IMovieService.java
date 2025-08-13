@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
 
+import org.springframework.data.domain.Page;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
@@ -28,7 +29,7 @@ public interface IMovieService {
     /*
         VAADIN VIEW SECTION
      */
-    List<MovieViewDto> fetchAllMoviesForView(String title);
+    List<MovieViewDto> fetchAllMoviesForView(String title, String sort, MovieCategory category);
     List<MovieViewDto> fetchAllMoviesForViewByCategory(MovieCategory category, String title);
     MovieDto fetchMovieByIdVaadin(Long movieId);
     void updateMovieVaadin(Long movieId, MovieDto movieDto);

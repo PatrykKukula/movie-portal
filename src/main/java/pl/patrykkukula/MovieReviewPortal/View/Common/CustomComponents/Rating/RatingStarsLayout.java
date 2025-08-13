@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;

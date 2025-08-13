@@ -6,6 +6,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Movie.*;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import pl.patrykkukula.MovieReviewPortal.Model.Movie;
+import pl.patrykkukula.MovieReviewPortal.Model.MovieRate;
 
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.updateDateField;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.updateField;
@@ -61,14 +62,14 @@ public class MovieMapper {
         }
         return dto;
     }
-    public static MovieViewDto mapToMovieViewDto(Movie movie, Double rating, Integer rateNumber){
+    public static MovieViewDto mapToMovieViewDto(Movie movie){
         return MovieViewDto.builder()
                 .id(movie.getMovieId())
                 .title(movie.getTitle())
                 .category(movie.getCategory())
                 .releaseDate(movie.getReleaseDate())
-                .rateNumber(rateNumber)
-                .averageRate(rating)
+                .rateNumber(movie.movieRatesNumber())
+                .averageRate(movie.averageMovieRate())
                 .build();
     }
     public static Movie mapMovieDtoToMovie(MovieDto movieDto, Movie movie){
@@ -88,6 +89,13 @@ public class MovieMapper {
                 .id(movie.getMovieId())
                 .title(movie.getTitle())
                 .category(movie.getCategory().toString())
+                .build();
+    }
+    public static MovieDtoWithUserRate mapToMovieDtoWithUserRate(MovieRate movieRate){
+        return MovieDtoWithUserRate.builder()
+                .id(movieRate.getMovie().getMovieId())
+                .title(movieRate.getMovie().getTitle())
+                .userRate(movieRate.getRate())
                 .build();
     }
 }

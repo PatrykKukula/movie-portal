@@ -45,10 +45,10 @@ public class FormFields {
     }
     public static ComboBox<MovieCategory> categoryComboBox(boolean required) {
         ComboBox<MovieCategory> categoryComboBox = new ComboBox<>("Category");
-        List<MovieCategory> categoryItems = Arrays.stream(MovieCategory.values()).sorted().toList();
+        List<MovieCategory> categoryItems = Arrays.stream(MovieCategory.values()).filter(value -> !value.equals(MovieCategory.ALL)).sorted().toList();
         categoryComboBox.setItems(categoryItems);
         categoryComboBox.setRequiredIndicatorVisible(required);
-        categoryComboBox.setValue(MovieCategory.NONE);
+        categoryComboBox.setValue(MovieCategory.ALL);
         return categoryComboBox;
     }
     public static PasswordField passwordField() {

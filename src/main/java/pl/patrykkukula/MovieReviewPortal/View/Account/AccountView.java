@@ -31,7 +31,7 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.View.Account.Components.EditFieldForm;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.AvatarImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image.AvatarImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Account.Components.UserSexComboBox;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.CustomDatePicker;

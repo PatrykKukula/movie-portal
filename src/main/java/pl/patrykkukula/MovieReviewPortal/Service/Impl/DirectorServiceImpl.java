@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
@@ -146,16 +147,15 @@ public class DirectorServiceImpl implements IDirectorService {
                 .toList();
     }
     @Override
-    public List<DirectorViewDto> fetchAllDirectorsView(String searchedText) {
+    public List<DirectorViewDto> fetchAllDirectorsView(String searchedText, String sorting) {
+        String validatedSorting = validateSorting(sorting);
+        Sort sort = validatedSorting.equals("ASC") ?
+                Sort.by("firstName").ascending() :
+                Sort.by("firstName").descending();
+
         return searchedText == null || searchedText.isEmpty() ?
-                directorRepository.findAllWithDirectorRates().stream().map(director -> {
-                    Double rate = director.averageDirectorRate();
-                    return mapToDirectorViewDto(director, rate);
-                }).toList() :
-                directorRepository.findAllWithRatesByNameOrLastName(searchedText).stream().map(director -> {
-                    Double rate = director.averageDirectorRate();
-                    return mapToDirectorViewDto(director, rate);
-                }).toList();
+                directorRepository.findAllWithDirectorRates(sort).stream().map(DirectorMapper::mapToDirectorViewDto).toList() :
+                directorRepository.findAllWithRatesByNameOrLastName(searchedText, sort).stream().map(DirectorMapper::mapToDirectorViewDto).toList();
     }
     @Override
     public void updateDirectorVaadin(Long directorId, DirectorDto directorDto) {

@@ -1,9 +1,8 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image;
 
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.server.StreamResource;
-import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 
 import java.io.ByteArrayInputStream;

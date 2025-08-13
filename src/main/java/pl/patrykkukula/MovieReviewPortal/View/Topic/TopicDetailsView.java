@@ -33,14 +33,16 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.CommentServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
-import pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PagedList;
-import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.AvatarImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.PagedList;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image.AvatarImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.PageButtons;
 import pl.patrykkukula.MovieReviewPortal.View.MainView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
 
 @Slf4j
 @Route("topics")
@@ -53,12 +55,11 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
     private final ImageServiceImpl imageService;
     private final CommentServiceImpl commentService;
     private final VerticalLayout commentDetailsLayout = new VerticalLayout();
-    private final Button nextButton = new Button(VaadinIcon.ARROW_RIGHT.create());
-    private final Button previousButton = new Button(VaadinIcon.ARROW_LEFT.create());
-    private final Span page = new Span();
+    private PageButtons pageButtons;
     private List<CommentDtoWithUser> comments = new ArrayList<>();
     private PagedList<CommentDtoWithUser> pagedList;
     private UserEntity currentUserEntity;
+    private BiConsumer<UserDetails, Long> consumer;
     private int currentSize = 0;
     private int currentPage = 0;
     private int totalPages = 0;
@@ -68,7 +69,7 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
     private final String AVATAR_HEIGHT_REPLY = "54px";
     private final String DIR =  "avatars";
     private final String DIR_PH = "avatars/placeholder.png";
-    private final int PAGE_SIZE = 5;
+    private final int PAGE_SIZE = 2;
 
     public TopicDetailsView(TopicServiceImpl topicService, UserDetailsServiceImpl userDetailsService, ImageServiceImpl imageService, CommentServiceImpl commentService) {
         this.topicService = topicService;
@@ -98,41 +99,41 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
 
         commentDetailsLayout.setAlignItems(Alignment.START);
 
+        pageButtons = new PageButtons(currentPage, totalPages);
+
         try {
-            renderPage(user, topicId);
-            add(commentDetailsLayout);
+            consumer = renderPage();
+        } catch (IOException e) {
+            event.rerouteToError(IOException.class, "Internal error loading user avatar. Please contact technical support");
         }
-        catch (IOException e) {
-            log.error("No user avatar or placeholder found", e);
-            event.rerouteToError(RuntimeException.class, "Error loading user avatar. Please contact technical support");
-        }
+        pageButtons.configurePageButtons(user, topicId, pagedList, consumer);
 
-        Div pageButtons = new Div();
-        page.setText(currentPage + 1 + " / " + totalPages);
-        pageButtons.add(previousButton, page, nextButton);
-        configurePageButtons(user, topicId);
+        consumer.accept(user, topicId);
+        add(commentDetailsLayout);
 
-        add( pageButtons);
+        add(pageButtons);
     }
 
-    private void renderPage(UserDetails user, Long topicId) throws IOException {
-        commentDetailsLayout.removeAll();
+    private BiConsumer<UserDetails, Long> renderPage() throws IOException {
+        BiConsumer<UserDetails, Long> consumer = (user, topicId) -> {
+            commentDetailsLayout.removeAll();
+            currentPage = pageButtons.getCurrentPage();
+            List<CommentDtoWithUser> page = pagedList.getPage(currentPage);
+            int count = 1;
+            for (CommentDtoWithUser comment : page) {
+                VerticalLayout singleUserDetailsLayout = getSingleUserDetailsLayout(comment);
+                VerticalLayout singleCommentDetailsLayout = getSingleCommentDetailsLayout(comment, user);
 
-        List<CommentDtoWithUser> currentPage = pagedList.getPage(this.currentPage);
-        int count = 1;
-        for (CommentDtoWithUser comment : currentPage) {
-            VerticalLayout singleUserDetailsLayout = getSingleUserDetailsLayout(comment);
-            VerticalLayout singleCommentDetailsLayout = getSingleCommentDetailsLayout(comment, user);
-
-            HorizontalLayout row = new HorizontalLayout(singleUserDetailsLayout, singleCommentDetailsLayout);
-            row.getStyle().set("border", "1px solid black").set("width", "100%");
-            // Sets attribute to attach reply layout to correct row
-            row.getElement().setAttribute("row-id", String.valueOf(count));
-            count++;
-            commentDetailsLayout.add(row);
-        }
-        configureNotLoggedInLayout(user, topicId);
-
+                HorizontalLayout row = new HorizontalLayout(singleUserDetailsLayout, singleCommentDetailsLayout);
+                row.getStyle().set("border", "1px solid black").set("width", "100%");
+                // Sets attribute to attach reply layout to correct row
+                row.getElement().setAttribute("row-id", String.valueOf(count));
+                count++;
+                commentDetailsLayout.add(row);
+            }
+            configureNotLoggedInLayout(user, topicId);
+        };
+        return consumer;
     }
     /*
         Creates left side layout with user details for a comment
@@ -347,41 +348,6 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
 
         replySpan.setVisible(user != null);
         return replySpan;
-    }
-    /*
-        Setup for paging buttons
-     */
-    private void configurePageButtons(UserDetails user, Long topicId){
-        nextButton.setEnabled(currentPage < totalPages - 1);
-        previousButton.setEnabled(false);
-        nextButton.addClickListener(e -> {
-            try {
-                currentPage++;
-                boolean isValid = pagedList.isValidPage(currentPage);
-                nextButton.setEnabled(currentPage < totalPages - 1);
-                previousButton.setEnabled(currentPage != 0);
-                if (isValid) {
-                    renderPage(user, topicId);
-                    page.setText(currentPage + 1 + " / " + totalPages);
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException("Error loading user avatar", ex);
-            }
-        });
-        previousButton.addClickListener(e -> {
-            try {
-                currentPage--;
-                boolean isValid = pagedList.isValidPage(currentPage);
-                previousButton.setEnabled(currentPage != 0);
-                nextButton.setEnabled(currentPage < totalPages - 1);
-                if (isValid) {
-                    renderPage(user, topicId);
-                    page.setText(currentPage + 1 + " / " + totalPages);
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException("Error loading user avatar", ex);
-            }
-        });
     }
     /*
         Adds components to layout depending on if user is authenticated

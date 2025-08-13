@@ -25,7 +25,7 @@ public interface IDirectorService {
         VAADIN VIEW SECTION
      */
     List<DirectorSummaryDto> fetchAllDirectorsSummary();
-    List<DirectorViewDto> fetchAllDirectorsView(String searchedText);
+    List<DirectorViewDto> fetchAllDirectorsView(String searchedText, String sorting);
     DirectorDto fetchDirectorById(Long id);
     DirectorSummaryDto fetchDirectorSummaryById(Long id);
     void updateDirectorVaadin(Long id, DirectorDto directorDto);

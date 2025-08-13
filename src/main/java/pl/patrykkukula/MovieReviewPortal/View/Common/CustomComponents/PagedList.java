@@ -1,10 +1,10 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common.Constants;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
 
 import java.util.Collections;
 import java.util.List;
 
 public class PagedList<T> {
-    private final List<T> fullList;
+    private List<T> fullList;
     private final int pageSize;
 
     public PagedList(List<T> fullList, int pageSize) {
@@ -24,5 +24,8 @@ public class PagedList<T> {
     }
     public boolean isValidPage(int pageNumber) {
         return pageNumber >= 0 && pageNumber < getTotalPages();
+    }
+    public void setList(List<T> list){
+        this.fullList = list;
     }
 }

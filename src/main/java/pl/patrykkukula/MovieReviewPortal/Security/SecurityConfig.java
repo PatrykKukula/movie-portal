@@ -38,7 +38,7 @@ public class SecurityConfig extends VaadinWebSecurity {
                     .requestMatchers("/movies/add", "/movies/edit").hasRole("ADMIN")
                     .requestMatchers("/topics/add", "/topics/edit").authenticated()
                     .requestMatchers("/comments/add", "/comments/edit").authenticated()
-                    .requestMatchers("/login/**", "/logout/**", "/register", "/verify", "/reset").permitAll()
+                    .requestMatchers("/login/**", "/logout/**", "/register", "/verify", "/reset", "/error/**").permitAll()
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
         );

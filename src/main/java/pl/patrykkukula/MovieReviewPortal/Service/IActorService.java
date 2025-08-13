@@ -25,7 +25,7 @@ public interface IActorService {
         VAADIN VIEW SECTION
      */
     List<ActorSummaryDto> fetchAllActorsSummary();
-    List<ActorViewDto> fetchAllActorsView(String searchedText);
+    List<ActorViewDto> fetchAllActorsView(String searchedText, String sorting);
     List<ActorSummaryDto> fetchAllActorsSummaryByIds(List<Long> actorIds);
     ActorDto fetchActorById(Long id);
     void updateActorVaadin(Long id, ActorDto actorDto);

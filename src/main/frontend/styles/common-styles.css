@@ -4,6 +4,7 @@
     height: auto;
     box-sizing: border-box;
     border-bottom: 1px solid lightgrey;
+    align-self: center;
 }
 .main-layout {
     display: flex;
@@ -86,4 +87,8 @@
 .no-underline:hover {
     text-decoration: none;
     cursor: pointer;
+}
+.detail {
+    font-size: 22px;
+    font-weight: bold;
 }

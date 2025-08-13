@@ -2,7 +2,10 @@ package pl.patrykkukula.MovieReviewPortal.Mapper;
 
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
+import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
+import pl.patrykkukula.MovieReviewPortal.Model.ActorRate;
+import pl.patrykkukula.MovieReviewPortal.Model.MovieRate;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,15 +35,15 @@ public class ActorMapper {
                         .biography(actor.getBiography())
                         .build();
     }
-    public static ActorViewDto mapToActorViewDto(Actor actor, Double rate) {
+    public static ActorViewDto mapToActorViewDto(Actor actor) {
         return ActorViewDto.builder()
                 .id(actor.getActorId())
                 .firstName(actor.getFirstName())
                 .lastName(actor.getLastName())
                 .country(actor.getCountry())
                 .dateOfBirth(actor.getDateOfBirth())
-                .biography(actor.getBiography())
-                .rate(rate)
+                .averageRate(actor.averageActorRate())
+                .rateNumber(actor.getActorRates().size())
                 .build();
     }
     public static ActorDtoWithMovies mapToActorDtoWithMovies(Actor actor, Double rate, Integer rateNumber){
@@ -83,6 +86,14 @@ public class ActorMapper {
         actor.setDateOfBirth(actorDto.getDateOfBirth());
         actor.setBiography(actorDto.getBiography());
         return actor;
+    }
+    public static ActorDtoWithUserRate mapToActorDtoWithUserRate(ActorRate actorRate){
+        return ActorDtoWithUserRate.builder()
+                .id(actorRate.getActor().getActorId())
+                .firstName(actorRate.getActor().getFirstName())
+                .lastName(actorRate.getActor().getLastName())
+                .userRate(actorRate.getRate())
+                .build();
     }
 
 }

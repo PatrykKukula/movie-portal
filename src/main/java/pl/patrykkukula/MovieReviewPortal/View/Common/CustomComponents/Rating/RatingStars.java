@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
@@ -17,7 +17,7 @@ public class RatingStars extends Div {
     private AtomicInteger currentRate = new AtomicInteger();
     private Div loginText = new Div("Log in to rate");
     private static final int MAX_STARS = 6;
-    private static final String COLOR_ACTIVE = "yellow";
+    private static final String COLOR_ACTIVE = "blue";
     private static final String COLOR_INACTIVE = "lightgray";
 
     public RatingStars(int initialRate, boolean readOnly, IntConsumer onRateChange, Supplier<Boolean> removeRate) {

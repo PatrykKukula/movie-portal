@@ -1,4 +1,4 @@
-package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image;
 
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.server.StreamResource;
@@ -11,22 +11,21 @@ public class Poster extends Image {
     private final IImageService avatarService;
     private final Long id;
     private final String dir;
-    private static final String WIDTH = "210x";
-    private static final String HEIGHT = "300px";
 
-    public Poster(IImageService avatarService, Long id, String dir, String placeholderDir) throws IOException {
-        this.avatarService = avatarService;
+    public Poster(IImageService imageService, Long id, String dir, String placeholderDir, String width, String height) throws IOException {
+        this.avatarService = imageService;
         this.id = id;
         this.dir = dir;
-        StreamResource streamResource = avatarService.loadImage(id, dir, placeholderDir)
+        StreamResource streamResource = imageService.loadImage(id, dir, placeholderDir)
                 .map(bytes -> new StreamResource(id + ".png", () -> new ByteArrayInputStream(bytes)))
                 .orElse(null);
 
         setAlt("Poster");
         if (streamResource != null) {
             setSrc(streamResource);
-            setWidth(WIDTH);
-            setHeight(HEIGHT);
+            setWidth(width);
+            setHeight(height);
+            getStyle().set("border-radius", "16px");
         }
         else {
             setWidth("24px");

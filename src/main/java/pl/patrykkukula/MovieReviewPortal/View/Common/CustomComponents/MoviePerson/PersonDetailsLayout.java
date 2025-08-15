@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.MoviePerson;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
@@ -28,6 +29,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableCo
 /*
     Layout for view for person entity details
  */
+@CssImport("./styles/common-styles.css")
 public class PersonDetailsLayout<T extends ViewableEntityWithMovies> extends VerticalLayout {
 
     public PersonDetailsLayout(Function<Long, T> fetchPerson, Long personId, BeforeEvent event, UserDetailsServiceImpl userDetailsService,

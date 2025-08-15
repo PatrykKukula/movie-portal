@@ -95,7 +95,14 @@ public class MovieMapper {
         return MovieDtoWithUserRate.builder()
                 .id(movieRate.getMovie().getMovieId())
                 .title(movieRate.getMovie().getTitle())
-                .userRate(movieRate.getRate())
+                .userRate(movieRate.getRate() != null ? movieRate.getRate() : 0)
+                .build();
+    }
+    public static MovieDtoWithUserRate mapToMovieDtoWithUserRate(Movie movie, Double averageRate){
+        return MovieDtoWithUserRate.builder()
+                .id(movie.getMovieId())
+                .title(movie.getTitle())
+                .averageRate(averageRate)
                 .build();
     }
 }

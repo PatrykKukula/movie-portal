@@ -15,6 +15,7 @@ public class DirectorDtoWithUserRate implements EntityWithRate {
     private String firstName;
     private String lastName;
     private Integer userRate;
+    private Double averageRate;
 
     @Override
     public Long getId() {
@@ -31,5 +32,9 @@ public class DirectorDtoWithUserRate implements EntityWithRate {
     @Override
     public Integer getUserRate() {
         return userRate;
+    }
+    @Override
+    public Double getAverageRate() {
+        return averageRate;
     }
 }

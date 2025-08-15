@@ -46,7 +46,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
     private final UserDetailsServiceImpl userDetails;
     private final ImageServiceImpl imageService;
     private final UserServiceImpl userService;
-    private SingleEntityLayoutWithPoster<?> singleEntityLayout;
+    private final SingleEntityLayoutWithPoster<?> singleEntityLayout;
     private final Tab actorTab = new Tab("Actors");
     private final Tab directorTab = new Tab("Directors");
     private final Tab movieTab = new Tab("Movies");
@@ -91,7 +91,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
             statsHeader.getStyle().set("align-self", "center");
 
             VerticalLayout statistics = statisticsLayout(userId, userEntity);
-            VerticalLayout top5Rated = top5RatedLayout(userId);
+            VerticalLayout top5Rated = topRatedLayout(userId);
             top5Rated.add(seeAllButton);
 
             add(userDetailsLayout, statsHeader, statistics, top5Rated);
@@ -129,10 +129,12 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
         VerticalLayout layout = new VerticalLayout();
 
         Double rate = userService.fetchAverageRate(userId, "Movie");
+        Div avgRate = new Div("Average movie rate");
+        avgRate.addClassName("bold-component");
         Div text = new Div();
         if (rate == null || rate == 0.0){
             text.setText("No movies rated");
-            layout.add(text);
+            layout.add(avgRate, text);
         }
         else {
             Icon star = starIcon();
@@ -142,9 +144,6 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
             Span span = new Span(new Span(star), new Span(String.format("%.2f", rate)));
             Div div = new Div(span, text);
 
-            Div avgRate = new Div("Average movie rate");
-            avgRate.addClassName("bold-component");
-
             layout.add(avgRate, div);
         }
         return layout;
@@ -153,14 +152,13 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
         VerticalLayout layout = new VerticalLayout();
 
         MovieCategory movieCategory = userService.fetchMostRatedCategory(userId);
+        Div mostRated = new Div("Average movie rate");
+        mostRated.addClassName("bold-component");
         if (movieCategory == null) {
-            layout.add(new Div("No movies rated"));
+            layout.add(mostRated, new Div("No movies rated"));
         }
         else {
             String category = movieCategory.toString().substring(0, 1).toUpperCase() + movieCategory.toString().substring(1).toLowerCase();
-
-            Div mostRated = new Div("Most rated category");
-            mostRated.addClassName("bold-component");
 
             layout.add(mostRated, new Div(category));
         }
@@ -225,7 +223,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
         layout.add(name, birthDate, registeredDiv);
         return layout;
     }
-    private VerticalLayout top5RatedLayout(Long userId){
+    private VerticalLayout topRatedLayout(Long userId){
         VerticalLayout layout = new VerticalLayout();
         layout.addClassName("details-layout");
 
@@ -233,9 +231,9 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
         header.addClassName("detail");
         header.getStyle().set("align-self", "center");
 
-        List<MovieDtoWithUserRate> movies = userService.fetch5HighestRatedMovies(userId);
-        List<ActorDtoWithUserRate> actors = userService.fetch5HighestRatedActors(userId);
-        List<DirectorDtoWithUserRate> directors = userService.fetch5HighestRatedDirectors(userId);
+        List<MovieDtoWithUserRate> movies = userService.fetchHighestRatedMoviesByUser(userId);
+        List<ActorDtoWithUserRate> actors = userService.fetchHighestRatedActorsByUser(userId);
+        List<DirectorDtoWithUserRate> directors = userService.fetchHighestRatedDirectorsByUser(userId);
         HorizontalLayout topRatedLayout = new HorizontalLayout();
         topRatedLayout.getStyle().set("margin", "auto").set("margin-bottom", "10px");
         renderTopRatedLayout(movies, topRatedLayout);

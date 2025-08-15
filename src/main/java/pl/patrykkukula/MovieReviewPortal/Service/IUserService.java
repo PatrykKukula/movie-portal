@@ -10,9 +10,9 @@ import java.util.List;
 public interface IUserService {
     Double fetchAverageRate(Long userId, String entityType);
     MovieCategory fetchMostRatedCategory(Long userId);
-    List<MovieDtoWithUserRate> fetch5HighestRatedMovies(Long userId);
-    List<ActorDtoWithUserRate> fetch5HighestRatedActors(Long userId);
-    List<DirectorDtoWithUserRate> fetch5HighestRatedDirectors(Long userId);
+    List<MovieDtoWithUserRate> fetchHighestRatedMoviesByUser(Long userId);
+    List<ActorDtoWithUserRate> fetchHighestRatedActorsByUser(Long userId);
+    List<DirectorDtoWithUserRate> fetchHighestRatedDirectorsByUser(Long userId);
     Long fetchMovieRateCount(Long userId);
     Long fetchActorRateCount(Long userId);
     Long fetchDirectorRateCount(Long userId);

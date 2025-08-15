@@ -46,7 +46,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
     private final DirectorServiceImpl directorService;
     private final ActorServiceImpl actorService;
     private final VerticalLayout pickedActors = new VerticalLayout();
-    private final Notification successNotification = CommonComponents.successNotification("Movie updated successfully");
+    private final Notification successNotification = pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents.successNotification("Movie updated successfully");
     private Dialog validationDialog;
     private ComboBox<DirectorSummaryDto> directorField;
 
@@ -78,10 +78,10 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         customDatePicker.setPresentationValue(LocalDate.now());
         binder.bind(customDatePicker, "releaseDate");
 
-        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox(true);
+        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox(true, false);
         binder.bind(categoryField, "category");
 
-        directorField = MovieViewCommon.directorComboBox(directorService);
+        directorField = CommonComponents.directorComboBox(directorService);
         if (dto.getDirectorId() != null) {
             directorField.setValue(setCurrentDirector(dto));
         }
@@ -89,7 +89,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         List<ActorSummaryDto> actors = new ArrayList<>(actorService.fetchAllActorsSummaryByIds(dto.getActorIds()));
         setCurrentActors(actors);
 
-        ComboBox<ActorSummaryDto> actorComboBox = MovieViewCommon.actorComboBox(actorService);
+        ComboBox<ActorSummaryDto> actorComboBox = CommonComponents.actorComboBox(actorService);
         setActorComboBox(actorComboBox, actors);
 
         binder.setBean(dto);
@@ -121,7 +121,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
             } else {
                 List<ValidationResult> validationResults = binder.validate().getValidationErrors();
 
-                validationDialog = CommonComponents.validationErrorsDialog(validationResults);
+                validationDialog = pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents.validationErrorsDialog(validationResults);
                 validationDialog.open();
             }
         });
@@ -138,9 +138,9 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
                 if (!isPresent) {
                     actors.add(pickedActor);
 
-                    Div addedActor = MovieViewCommon.addedActor(pickedActor.getFullName());
+                    Div addedActor = CommonComponents.addedActor(pickedActor.getFullName());
 
-                    Icon closeIcon = MovieViewCommon.closeIcon(pickedActor, addedActor, actors, pickedActors);
+                    Icon closeIcon = CommonComponents.closeIcon(pickedActor, addedActor, actors, pickedActors);
                     addedActor.add(closeIcon);
 
                     pickedActors.add(addedActor);
@@ -151,9 +151,9 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
     }
     private void setCurrentActors(List<ActorSummaryDto> actors) {
         actors.forEach(actor -> {
-            Div currentActor = MovieViewCommon.addedActor(actor.getFullName());
+            Div currentActor = CommonComponents.addedActor(actor.getFullName());
 
-            Icon closeIcon = MovieViewCommon.closeIcon(actor, currentActor, actors, pickedActors);
+            Icon closeIcon = CommonComponents.closeIcon(actor, currentActor, actors, pickedActors);
             currentActor.add(closeIcon);
             pickedActors.add(currentActor);
         });

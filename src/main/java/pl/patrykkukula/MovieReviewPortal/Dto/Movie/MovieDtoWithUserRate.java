@@ -13,6 +13,7 @@ public class MovieDtoWithUserRate implements EntityWithRate {
     private Long id;
     private String title;
     private Integer userRate;
+    private Double averageRate;
 
     @Override
     public Long getId() {
@@ -29,5 +30,9 @@ public class MovieDtoWithUserRate implements EntityWithRate {
     @Override
     public Integer getUserRate() {
         return userRate;
+    }
+    @Override
+    public Double getAverageRate() {
+        return averageRate;
     }
 }

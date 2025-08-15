@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
+import pl.patrykkukula.MovieReviewPortal.Model.Movie;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -30,4 +32,6 @@ public interface DirectorRepository extends JpaRepository<Director, Long> {
     List<Director> findAllWithDirectorRates(Sort sort);
     @Query("SELECT d FROM Director d LEFT JOIN FETCH d.directorRates WHERE LOWER(d.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(d.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Director> findAllWithRatesByNameOrLastName(@Value("name") String name, Sort sort);
+    @Query("SELECT d FROM Director d LEFT JOIN FETCH d.directorRates r ORDER BY r.rate DESC LIMIT 5")
+    List<Director> findTopRatedDirectors();
 }

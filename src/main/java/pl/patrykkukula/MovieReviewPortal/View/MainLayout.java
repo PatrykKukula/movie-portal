@@ -12,6 +12,7 @@ import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.web.csrf.CsrfToken;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
@@ -27,13 +28,16 @@ import pl.patrykkukula.MovieReviewPortal.View.Director.AddDirectorView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorEditView;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorView;
+import pl.patrykkukula.MovieReviewPortal.View.Movie.AddMovieView;
 import pl.patrykkukula.MovieReviewPortal.View.Movie.MovieDetailsView;
+import pl.patrykkukula.MovieReviewPortal.View.Movie.MovieEditView;
 import pl.patrykkukula.MovieReviewPortal.View.Movie.MovieView;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.zip.CheckedOutputStream;
 
 import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
@@ -65,7 +69,7 @@ public class MainLayout extends AppLayout {
 
         Div title = new Div("Movie Portal");
         title.addClassName("main-title");
-        title.addClickListener(e -> UI.getCurrent().navigate(MovieView.class));
+        title.addClickListener(e -> UI.getCurrent().navigate(MainView.class));
         setupLogout();
         setUpViewMap();
         setTabsClassNames();
@@ -74,6 +78,7 @@ public class MainLayout extends AppLayout {
         HorizontalLayout container = new HorizontalLayout(title,navBar);
 
         container.addClassName("container");
+        container.getStyle().set("padding", "20px 10px");
         addToNavbar(container);
     }
     @Override
@@ -137,6 +142,8 @@ public class MainLayout extends AppLayout {
     private void setUpViewMap() {
         viewToTab.put(MovieView.class, movies);
         viewToTab.put(MovieDetailsView.class, movies);
+        viewToTab.put(MovieEditView.class, movies);
+        viewToTab.put(AddMovieView.class, movies);
         viewToTab.put(ActorView.class, actors);
         viewToTab.put(ActorDetailsView.class, actors);
         viewToTab.put(ActorEditView.class, actors);

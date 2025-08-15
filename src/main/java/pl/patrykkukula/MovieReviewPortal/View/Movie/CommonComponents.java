@@ -12,9 +12,9 @@ import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 
 import java.util.List;
 
-public class MovieViewCommon {
+public class CommonComponents {
 
-    private MovieViewCommon() {}
+    private CommonComponents() {}
 
     public static Icon closeIcon(ActorSummaryDto actor, Div currentActor, List<ActorSummaryDto> actors, VerticalLayout pickedActors){
         Icon closeIcon = VaadinIcon.CLOSE.create();

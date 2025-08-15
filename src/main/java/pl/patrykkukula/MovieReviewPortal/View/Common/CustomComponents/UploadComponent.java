@@ -23,7 +23,6 @@ public class UploadComponent extends Upload {
         error.setIncorrectFileType("Allowed file types: " + allowedFormat);
         I18N.setError(error);
         setReceiver(buffer);
-
         setI18n(I18N);
         setAcceptedFileTypes(allowedTypes);
         setMaxFileSize(maxSizeBytes);

@@ -5,4 +5,5 @@ public interface EntityWithRate {
     String getText();
     String getType();
     Integer getUserRate();
+    Double getAverageRate();
 }

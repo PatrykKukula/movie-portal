@@ -5,9 +5,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
+import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
+import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import pl.patrykkukula.MovieReviewPortal.Model.DirectorRate;
@@ -174,5 +176,10 @@ public class DirectorServiceImpl implements IDirectorService {
                     .build();
         }
         return null;
+    }
+
+    @Override
+    public List<EntityWithRate> fetchTopRatedDirectors() {
+        return directorRepository.findTopRatedDirectors().stream().map(director -> (EntityWithRate) DirectorMapper.mapToDirectorDtoWithUserRate(director, director.averageDirectorRate())).toList();
     }
 }

@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
 
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
+import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 
@@ -30,4 +31,5 @@ public interface IDirectorService {
     DirectorSummaryDto fetchDirectorSummaryById(Long id);
     void updateDirectorVaadin(Long id, DirectorDto directorDto);
     RateDto fetchRateByDirectorIdAndUserId(Long directorId, Long userId);
+    List<EntityWithRate> fetchTopRatedDirectors();
 }

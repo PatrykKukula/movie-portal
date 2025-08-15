@@ -48,8 +48,8 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParam
         private final UserDetailsServiceImpl userDetailsService;
         private final IImageService imageService;
         private final TopicServiceImpl topicService;
-    private static final String WIDTH = "210x";
-    private static final String HEIGHT = "300px";
+        private static final String WIDTH = "210x";
+        private static final String HEIGHT = "300px";
 
         public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, IImageService imageService, TopicServiceImpl topicService) {
             this.movieService = movieService;

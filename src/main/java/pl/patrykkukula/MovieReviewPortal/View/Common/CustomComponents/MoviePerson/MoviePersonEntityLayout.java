@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.MoviePers
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants.*;
 
+@CssImport("./styles/common-styles.css")
 public class MoviePersonEntityLayout extends VerticalLayout {
     private static final String WIDTH = "210x";
     private static final String HEIGHT = "300px";
@@ -74,14 +76,13 @@ public class MoviePersonEntityLayout extends VerticalLayout {
     }
     private Div moviesDiv(List<MovieDtoBasic> movies) {
         Div div = new Div();
-        addClassName("movies");
+        div.addClassName("movies");
         Span moviesSpan = CommonComponents.labelSpan("Movies");
         div.add(moviesSpan);
         for (MovieDtoBasic movie : movies) {
             Anchor movieLink = new Anchor("movies/" + movie.getId(), "• " + movie.getTitle());
-            add(movieLink);
+            div.add(movieLink);
         }
         return div;
     }
-
 }

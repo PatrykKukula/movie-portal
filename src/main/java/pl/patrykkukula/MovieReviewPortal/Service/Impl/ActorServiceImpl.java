@@ -5,11 +5,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.*;
+import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
+import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
@@ -168,5 +170,10 @@ public class ActorServiceImpl implements IActorService {
                     .build();
         }
         return null;
+    }
+
+    @Override
+    public List<EntityWithRate> fetchTopRatedActors() {
+        return actorRepository.findTopRatedActors().stream().map(actor -> (EntityWithRate) ActorMapper.mapToActorDtoWithUserRate(actor, actor.averageActorRate())).toList();
     }
 }

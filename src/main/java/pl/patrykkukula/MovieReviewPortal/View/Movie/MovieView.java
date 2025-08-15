@@ -43,7 +43,7 @@ public class MovieView extends VerticalLayout {
     private final MovieServiceImpl movieService;
     private final IImageService imageService;
     private final UserDetailsServiceImpl userDetailsService;
-    private final ComboBox<MovieCategory> categoryComboBox = FormFields.categoryComboBox(false);
+    private final ComboBox<MovieCategory> categoryComboBox = FormFields.categoryComboBox(false, true);
     private List<MovieViewDto> movies;
     private PagedList<MovieViewDto> pagedList;
     private PageButtons pageButtons;

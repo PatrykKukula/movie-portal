@@ -39,6 +39,7 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
     }
     @Override
     public void setParameter(BeforeEvent event, Long actorId) {
+        addClassName("main-layout");
         PersonDetailsLayout<ActorDtoWithMovies> layout = new PersonDetailsLayout<>(
                 actorService::fetchActorByIdWithMovies,
                 actorId,

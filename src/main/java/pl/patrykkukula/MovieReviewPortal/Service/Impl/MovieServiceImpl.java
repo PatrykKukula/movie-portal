@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
+import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
@@ -181,13 +182,6 @@ public class MovieServiceImpl implements IMovieService {
                 .stream().map(MovieMapper::mapToMovieViewDto).toList();
     }
     @Override
-    public List<MovieViewDto> fetchAllMoviesForViewByCategory(MovieCategory category, String title) {
-        return title.isEmpty() ? movieRepository.findAllWithRatesByCategory(category).stream().map(
-                movie -> MovieMapper.mapToMovieViewDto(movie)).toList() :
-                movieRepository.findAllWithRatesByCategoryByTitle(category,title).stream().map(
-                        movie -> MovieMapper.mapToMovieViewDto(movie)).toList();
-    }
-    @Override
     public MovieDto fetchMovieByIdVaadin(Long movieId) {
         validateId(movieId);
         Movie movie = movieRepository.findByIdWithDetails(movieId)
@@ -227,6 +221,10 @@ public class MovieServiceImpl implements IMovieService {
                     .build();
         }
         return null;
+    }
+    @Override
+    public List<EntityWithRate> fetchTopRatedMovies() {
+        return movieRepository.findTopRatedMovies().stream().map(movie -> (EntityWithRate)MovieMapper.mapToMovieDtoWithUserRate(movie, movie.averageMovieRate())).toList();
     }
 
     private MovieCategory findCategory(MovieCategory category) {

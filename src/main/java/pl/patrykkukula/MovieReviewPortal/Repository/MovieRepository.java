@@ -1,6 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Repository;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -40,10 +40,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     List<Movie> findAllWithRatesByTitleAndCategoryAsc(@Value("title") String title, MovieCategory category);
     @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%')) AND m.category= :category ORDER BY m.title DESC")
     List<Movie> findAllWithRatesByTitleAndCategoryDesc(@Value("title") String title, MovieCategory category);
-    @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE m.category = :category")
-    List<Movie> findAllWithRatesByCategory(@Value("category")MovieCategory category);
-    @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates WHERE m.category = :category AND LOWER(m.title) LIKE LOWER(CONCAT('%', :title, '%'))")
-    List<Movie> findAllWithRatesByCategoryByTitle(@Value("category")MovieCategory category, @Value("title") String title);
     @Query("SELECT SIZE(m.movieRates) FROM Movie m WHERE m.movieId =:movieId")
     Integer countMovieRates(@Param(value = "movieId") Long movieId);
+    @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates r ORDER BY r.rate DESC LIMIT 5")
+    List<Movie> findTopRatedMovies();
 }

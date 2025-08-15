@@ -5,6 +5,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Model.Actor;
 import pl.patrykkukula.MovieReviewPortal.Model.ActorRate;
+import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 import pl.patrykkukula.MovieReviewPortal.Model.MovieRate;
 
 import java.util.Collections;
@@ -93,6 +94,14 @@ public class ActorMapper {
                 .firstName(actorRate.getActor().getFirstName())
                 .lastName(actorRate.getActor().getLastName())
                 .userRate(actorRate.getRate())
+                .build();
+    }
+    public static ActorDtoWithUserRate mapToActorDtoWithUserRate(Actor actor, Double averageRate){
+        return ActorDtoWithUserRate.builder()
+                .id(actor.getActorId())
+                .firstName(actor.getFirstName())
+                .lastName(actor.getLastName())
+                .averageRate(averageRate)
                 .build();
     }
 

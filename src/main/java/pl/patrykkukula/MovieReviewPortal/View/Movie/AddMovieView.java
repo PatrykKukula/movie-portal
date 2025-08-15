@@ -45,7 +45,7 @@ public class AddMovieView extends Composite<FormLayout> {
     private final DirectorServiceImpl directorService;
     private final ActorServiceImpl actorService;
     private final VerticalLayout pickedActors = new VerticalLayout();
-    private final Notification successNotification = CommonComponents.successNotification("Movie added successfully");
+    private final Notification successNotification = pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents.successNotification("Movie added successfully");
     private ComboBox<DirectorSummaryDto> directorField;
 
     public AddMovieView(MovieServiceImpl movieServiceImpl, DirectorServiceImpl directorService, ActorServiceImpl actorService) {
@@ -71,13 +71,13 @@ public class AddMovieView extends Composite<FormLayout> {
         customDatePicker.setPresentationValue(LocalDate.now());
         binder.bind(customDatePicker, "releaseDate");
 
-        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox( true);
+        ComboBox<MovieCategory> categoryField = FormFields.categoryComboBox( true, false);
         binder.bind(categoryField, "category");
 
-        directorField = MovieViewCommon.directorComboBox(directorService);
+        directorField = CommonComponents.directorComboBox(directorService);
         List<ActorSummaryDto> actors = new ArrayList<>();
 
-        ComboBox<ActorSummaryDto> actorComboBox = MovieViewCommon.actorComboBox(actorService);
+        ComboBox<ActorSummaryDto> actorComboBox = CommonComponents.actorComboBox(actorService);
         setActorComboBox(actorComboBox, actors);
 
         Button saveButton = saveButton(binder, actors);
@@ -108,7 +108,7 @@ public class AddMovieView extends Composite<FormLayout> {
             }
             else {
                 List<ValidationResult> validationResults = binder.validate().getValidationErrors();
-                validationDialog = CommonComponents.validationErrorsDialog(validationResults);
+                validationDialog = pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents.validationErrorsDialog(validationResults);
                 validationDialog.open();
             }
         });
@@ -121,9 +121,9 @@ public class AddMovieView extends Composite<FormLayout> {
             if (!actors.contains(pickedActor) && pickedActor != null) {
                 actors.add(pickedActor);
 
-                Div addedActor = MovieViewCommon.addedActor(pickedActor.getFullName());
+                Div addedActor = CommonComponents.addedActor(pickedActor.getFullName());
 
-                Icon closeIcon = MovieViewCommon.closeIcon(pickedActor, addedActor, actors, pickedActors);
+                Icon closeIcon = CommonComponents.closeIcon(pickedActor, addedActor, actors, pickedActors);
                 addedActor.add(closeIcon);
 
                 pickedActors.add(addedActor);

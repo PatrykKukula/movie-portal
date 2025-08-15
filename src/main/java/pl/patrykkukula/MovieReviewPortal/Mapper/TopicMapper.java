@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.MainViewTopicDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
@@ -39,6 +40,19 @@ public class TopicMapper {
                 .title(topic.getTitle())
                 .createdBy(topic.getCreatedBy())
                 .createdAt(topic.getCreatedAt())
+                .build();
+    }
+    public static MainViewTopicDto mapToMainViewTopicDto(Topic topic, long commentCount, String entityName, String entityType){
+        return MainViewTopicDto.builder()
+                .id(topic.getTopicId())
+                .title(topic.getTitle())
+                .createdBy(topic.getUser().getUsername())
+                .createdAt(topic.getCreatedAt())
+                .entityId(topic.getEntityId())
+                .commentCount(commentCount)
+                .entityName(entityName)
+                .entityType(entityType)
+                .userId(topic.getUser().getUserId())
                 .build();
     }
 }

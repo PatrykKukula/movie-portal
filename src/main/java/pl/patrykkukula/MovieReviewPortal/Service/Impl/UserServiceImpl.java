@@ -32,15 +32,15 @@ public class UserServiceImpl implements IUserService {
         return movieRates.isEmpty() ? null : movieRates.getFirst();
     }
     @Override
-    public List<MovieDtoWithUserRate> fetch5HighestRatedMovies(Long userId) {
+    public List<MovieDtoWithUserRate> fetchHighestRatedMoviesByUser(Long userId) {
           return userRepository.find5TopRatedMovies(userId).stream().map(MovieMapper::mapToMovieDtoWithUserRate).toList();
     }
     @Override
-    public List<ActorDtoWithUserRate> fetch5HighestRatedActors(Long userId) {
+    public List<ActorDtoWithUserRate> fetchHighestRatedActorsByUser(Long userId) {
         return userRepository.find5TopRatedActors(userId).stream().map(ActorMapper::mapToActorDtoWithUserRate).toList();
     }
     @Override
-    public List<DirectorDtoWithUserRate> fetch5HighestRatedDirectors(Long userId) {
+    public List<DirectorDtoWithUserRate> fetchHighestRatedDirectorsByUser(Long userId) {
         return userRepository.find5TopRatedDirectors(userId).stream().map(DirectorMapper::mapToDirectorDtoWithUserRate).toList();
     }
     @Override

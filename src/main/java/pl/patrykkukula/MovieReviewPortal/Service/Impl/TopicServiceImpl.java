@@ -10,26 +10,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
-import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
-import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoWithCommentDto;
-import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicUpdateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Topic.*;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.TopicMapper;
-import pl.patrykkukula.MovieReviewPortal.Model.Comment;
-import pl.patrykkukula.MovieReviewPortal.Model.Topic;
-import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
-import pl.patrykkukula.MovieReviewPortal.Repository.CommentRepository;
-import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
+import pl.patrykkukula.MovieReviewPortal.Model.*;
+import pl.patrykkukula.MovieReviewPortal.Repository.*;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ITopicService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
@@ -40,6 +30,9 @@ import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorti
 public class TopicServiceImpl implements ITopicService {
     private final TopicRepository topicRepository;
     private final CommentRepository commentRepository;
+    private final MovieRepository movieRepository;
+    private final ActorRepository actorRepository;
+    private final DirectorRepository directorRepository;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -132,5 +125,34 @@ public class TopicServiceImpl implements ITopicService {
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topic.setTitle(topicUpdateDto.getTitle());
         topicRepository.save(topic);
+    }
+
+    @Override
+    public List<MainViewTopicDto> fetchLatestTopics() {
+        return topicRepository.findLatestTopics().stream()
+                .map(topic -> {
+                    String type = topic.getEntityType();
+                    log.info("created time:{} ", topic.getCreatedAt());
+                    switch (type){
+                        case "actor" -> {
+                            Optional<Actor> actor = actorRepository.findById(topic.getEntityId());
+                            String entityName = actor.map(value -> value.getFirstName() + " " + value.getLastName()).orElse(" ");
+                            return TopicMapper.mapToMainViewTopicDto(topic, topic.getComments().size(), entityName, type);
+                        }
+                        case "director" -> {
+                            Optional<Director> director = directorRepository.findById(topic.getEntityId());
+                            String entityName = director.map(value -> value.getFirstName() + " " + value.getLastName()).orElse(" ");
+                            return TopicMapper.mapToMainViewTopicDto(topic, topic.getComments().size(), entityName, type);
+                        }
+                        case "movie" -> {
+                            Optional<Movie> movie = movieRepository.findById(topic.getEntityId());
+                            String entityName = movie.map(Movie::getTitle).orElse("");
+                            return TopicMapper.mapToMainViewTopicDto(topic, topic.getComments().size(), entityName, type);
+                        }
+                        default -> {
+                            return new MainViewTopicDto();
+                        }
+                    }
+                }).toList();
     }
 }

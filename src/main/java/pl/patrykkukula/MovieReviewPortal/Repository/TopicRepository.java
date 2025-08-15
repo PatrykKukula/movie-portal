@@ -28,4 +28,6 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleDesc(String title);
     @Query("SELECT t FROM Topic t INNER JOIN t.user")
     Optional<Topic> findByIdWithUser(@Param(value = "topicId") Long topicId);
+    @Query("SELECT t FROM Topic t JOIN FETCH t.comments JOIN FETCH t.user ORDER BY t.createdAt DESC LIMIT 5")
+    List<Topic> findLatestTopics();
 }

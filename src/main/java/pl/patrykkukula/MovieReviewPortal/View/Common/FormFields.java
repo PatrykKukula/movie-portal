@@ -11,6 +11,7 @@ import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,10 +44,13 @@ public class FormFields {
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         return searchField;
     }
-    public static ComboBox<MovieCategory> categoryComboBox(boolean required) {
+    public static ComboBox<MovieCategory> categoryComboBox(boolean required, boolean allEnabled) {
         ComboBox<MovieCategory> categoryComboBox = new ComboBox<>("Category");
-        List<MovieCategory> categoryItems = Arrays.stream(MovieCategory.values()).filter(value -> !value.equals(MovieCategory.ALL)).sorted().toList();
-        categoryComboBox.setItems(categoryItems);
+        List<MovieCategory> categories;
+        if (!allEnabled) categories = Arrays.stream(MovieCategory.values()).filter(value -> !value.equals(MovieCategory.ALL)).sorted().toList();
+        else categories = Arrays.stream(MovieCategory.values()).toList();
+
+        categoryComboBox.setItems(categories);
         categoryComboBox.setRequiredIndicatorVisible(required);
         categoryComboBox.setValue(MovieCategory.ALL);
         return categoryComboBox;

@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorViewDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoBasic;
@@ -98,6 +99,14 @@ public class DirectorMapper {
                 .firstName(directorRate.getDirector().getFirstName())
                 .lastName(directorRate.getDirector().getLastName())
                 .userRate(directorRate.getRate())
+                .build();
+    }
+    public static DirectorDtoWithUserRate mapToDirectorDtoWithUserRate(Director director, Double averageRate){
+        return DirectorDtoWithUserRate.builder()
+                .id(director.getDirectorId())
+                .firstName(director.getFirstName())
+                .lastName(director.getLastName())
+                .averageRate(averageRate)
                 .build();
     }
 }

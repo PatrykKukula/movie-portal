@@ -4,6 +4,8 @@ import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @CacheEvict(value = "topic", key = "#commentDto.topicId")
     public Long addComment(CommentDto commentDto) {
         Long topicId = commentDto.getTopicId();
         Tuple topicWithMaxCommentId = topicRepository
@@ -62,6 +65,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @CacheEvict(value = "topic", key = "#commentDto.topicId")
     public void removeComment(Long commentId, boolean hasReplies){
         validateId(commentId);
         Comment comment = commentRepository
@@ -109,6 +113,7 @@ public class CommentServiceImpl implements ICommentService {
 //    }
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = "topic", key = "#commentId")
     public void updateComment(Long commentId, CommentDto commentDto){
         validateId(commentId);
         Comment comment = commentRepository
@@ -127,7 +132,6 @@ public class CommentServiceImpl implements ICommentService {
 //    }
     private boolean canUserModify(Long userId){
         UserEntity userEntity = userDetailsService.getUserEntity();
-
         return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
     }
 }

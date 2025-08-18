@@ -1,6 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -33,20 +35,22 @@ public class DirectorServiceImpl implements IDirectorService {
     private final MovieRepository movieRepository;
     private final DirectorRateRepository directorRateRepository;
     private final UserDetailsServiceImpl userDetailsService;
+    private final CacheLookupServiceImpl cacheLookupService;
     /*
         COMMON SECTION
      */
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = {"all-directors", "all-directors-summary"}, allEntries = true)
     public Long addDirector(DirectorDto directorDto) {
         Director director = mapToDirector(directorDto);
-        director.setCreatedBy("ADMIN"); //zmienione na potrzeby vaadin bez logowania
         Director savedDirector = directorRepository.save(director);
         return savedDirector.getDirectorId();
     }
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
+    @CacheEvict(value = {"director", "director-details"})
     public void removeDirector(Long directorId) {
         validateId(directorId);
           Director director = directorRepository.findByIdWithMovies(directorId)
@@ -58,6 +62,7 @@ public class DirectorServiceImpl implements IDirectorService {
         directorRepository.deleteById(directorId);
     }
     @Override
+    @Cacheable(value = "director-details")
     public DirectorDtoWithMovies fetchDirectorByIdWithMovies(Long directorId) {
         validateId(directorId);
         Director director = directorRepository.findByIdWithMovies(directorId)
@@ -67,6 +72,7 @@ public class DirectorServiceImpl implements IDirectorService {
         return mapToDirectorDtoWithMovies(director, rate, rateNumber);
     }
     @Override
+    @Cacheable(value = "all-directors")
     public List<DirectorDto> fetchAllDirectors(String sorted) {
         String validatedSorting = validateSorting(sorted);
         return validatedSorting.equals("ASC") ?
@@ -84,6 +90,7 @@ public class DirectorServiceImpl implements IDirectorService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = {"director", "director-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToDirector(RateDto rateDto) {
         validateId(rateDto.getEntityId());
         UserEntity user = userDetailsService.getUserEntity();
@@ -110,6 +117,7 @@ public class DirectorServiceImpl implements IDirectorService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = {"director", "director-details"})
     public Double removeRate(Long directorId) {
         validateId(directorId);
         UserEntity user = userDetailsService.getUserEntity();
@@ -122,9 +130,10 @@ public class DirectorServiceImpl implements IDirectorService {
      */
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = {"director", "director-details"}, key = "#directorId")
     public void updateDirector(DirectorUpdateDto directorDto, Long directorId) {
         validateId(directorId);
-        Director director = directorRepository.findById(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "id", String.valueOf(directorId)));
+        Director director = cacheLookupService.findDirectorById(directorId);
         directorRepository.save(mapToDirectorUpdate(directorDto, director));
     }
     /*
@@ -133,22 +142,23 @@ public class DirectorServiceImpl implements IDirectorService {
     @Override
     public DirectorDto fetchDirectorById(Long directorId) {
         validateId(directorId);
-        Director director = directorRepository.findById(directorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", valueOf(directorId)));
+        Director director = cacheLookupService.findDirectorById(directorId);
         return mapToDirectorDto(director);
     }
     @Override
-    public DirectorSummaryDto fetchDirectorSummaryById(Long id) {
-        Director director = directorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Director", "id", String.valueOf(id)));
+    public DirectorSummaryDto fetchDirectorSummaryById(Long directorId) {
+        Director director = cacheLookupService.findDirectorById(directorId);
         return DirectorMapper.mapToDirectorSummary(director);
     }
     @Override
+    @Cacheable(value = "all-directors-summary")
     public List<DirectorSummaryDto> fetchAllDirectorsSummary() {
         return directorRepository.findAll().stream()
                 .map(DirectorMapper::mapToDirectorSummary)
                 .toList();
     }
     @Override
+    @Cacheable(value = "directors-search", unless = "#result.isEmpty or #searchedText == null or #searchedText.length() <= 3")
     public List<DirectorViewDto> fetchAllDirectorsView(String searchedText, String sorting) {
         String validatedSorting = validateSorting(sorting);
         Sort sort = validatedSorting.equals("ASC") ?
@@ -160,9 +170,10 @@ public class DirectorServiceImpl implements IDirectorService {
                 directorRepository.findAllWithRatesByNameOrLastName(searchedText, sort).stream().map(DirectorMapper::mapToDirectorViewDto).toList();
     }
     @Override
+    @CacheEvict(value = "director, director-details", key = "#directorId")
     public void updateDirectorVaadin(Long directorId, DirectorDto directorDto) {
         validateId(directorId);
-        Director director = directorRepository.findById(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "id", valueOf(directorId)));
+        Director director = cacheLookupService.findDirectorById(directorId);
         directorRepository.save(mapToDirectorUpdateVaadin(directorDto, director));
     }
     @Override
@@ -177,8 +188,8 @@ public class DirectorServiceImpl implements IDirectorService {
         }
         return null;
     }
-
     @Override
+    @Cacheable(value = "top-rated-directors")
     public List<EntityWithRate> fetchTopRatedDirectors() {
         return directorRepository.findTopRatedDirectors().stream().map(director -> (EntityWithRate) DirectorMapper.mapToDirectorDtoWithUserRate(director, director.averageDirectorRate())).toList();
     }

@@ -1,6 +1,9 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,9 @@ import pl.patrykkukula.MovieReviewPortal.Repository.ActorRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IActorService;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import static java.lang.String.valueOf;
@@ -30,11 +36,13 @@ public class ActorServiceImpl implements IActorService {
     private final ActorRepository actorRepository;
     private final ActorRateRepository actorRateRepository;
     private final UserDetailsServiceImpl userDetailsService;
+    private final CacheLookupServiceImpl cacheLookupService;
     /*
         COMMON SECTION
      */
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = {"all-actors", "all-actors-summary"}, allEntries = true)
     public Long addActor(ActorDto actorDto) {
         Actor actor = actorRepository.save(mapToActor(actorDto));
         return actor.getActorId();
@@ -42,6 +50,7 @@ public class ActorServiceImpl implements IActorService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
+    @CacheEvict(value = {"actor", "actor-details"})
     public void removeActor(Long actorId) {
         validateId(actorId);
         Actor actor = actorRepository.findByIdWithMovies(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));
@@ -49,6 +58,7 @@ public class ActorServiceImpl implements IActorService {
         actorRepository.deleteById(actorId);
     }
     @Override
+    @Cacheable("actor-details")
     public ActorDtoWithMovies fetchActorByIdWithMovies(Long actorId) {
         validateId(actorId);
         Actor actor = actorRepository.findByIdWithMovies(actorId)
@@ -58,6 +68,7 @@ public class ActorServiceImpl implements IActorService {
         return mapToActorDtoWithMovies(actor, rate, rateNumber);
     }
     @Override
+    @Cacheable(value = "all-actors")
     public List<ActorDto> fetchAllActors(String sorted) {
         String validatedSorted = validateSorting(sorted);
         return validatedSorted.equals("ASC") ?
@@ -74,6 +85,7 @@ public class ActorServiceImpl implements IActorService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = {"actor", "actor-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToActor(RateDto rateDto) {
         validateId(rateDto.getEntityId());
         UserEntity user = userDetailsService.getUserEntity();
@@ -101,6 +113,7 @@ public class ActorServiceImpl implements IActorService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = {"actor", "actor-details"})
     public Double removeRate(Long actorId) {
         validateId(actorId);
         UserEntity user = userDetailsService.getUserEntity();
@@ -113,9 +126,10 @@ public class ActorServiceImpl implements IActorService {
      */
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = {"actor", "actor-details"}, key = "#actorId")
     public void updateActor(ActorUpdateDto actorDto, Long actorId) {
         validateId(actorId);
-        Actor actor = actorRepository.findById(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));
+        Actor actor = cacheLookupService.findActorById(actorId);
         actorRepository.save(mapToActorUpdate(actorDto, actor));
     }
     /*
@@ -124,8 +138,7 @@ public class ActorServiceImpl implements IActorService {
     @Override
     public ActorDto fetchActorById(Long actorId) {
         validateId(actorId);
-        Actor actor = actorRepository.findById(actorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actor", "actor id", valueOf(actorId)));
+        Actor actor = cacheLookupService.findActorById(actorId);
         return mapToActorDto(actor);
     }
     @Override
@@ -135,13 +148,14 @@ public class ActorServiceImpl implements IActorService {
                 .toList();
     }
     @Override
+    @Cacheable("all-actors-summary")
     public List<ActorSummaryDto> fetchAllActorsSummary() {
         return actorRepository.findAll().stream()
                 .map(ActorMapper::mapToActorSummary)
                 .toList();
     }
-
     @Override
+    @Cacheable(value = "actors-search", unless = "#result.isEmpty() or #searchedText == null or #searchedText.length() <= 3")
     public List<ActorViewDto> fetchAllActorsView(String searchedText, String sorting) {
         String validatedSorting = validateSorting(sorting);
         Sort sort = validatedSorting.equals("ASC") ?
@@ -152,11 +166,11 @@ public class ActorServiceImpl implements IActorService {
                 actorRepository.findAllWithActorRates(sort).stream().map(ActorMapper::mapToActorViewDto).toList() :
                 actorRepository.findAllWithRatesByNameOrLastName(searchedText, sort).stream().map(ActorMapper::mapToActorViewDto).toList();
     }
-
     @Override
+    @CacheEvict(value = {"actor", "actor-details"}, key = "#actorId")
     public void updateActorVaadin(Long actorId, ActorDto actorDto) {
         validateId(actorId);
-        Actor actor = actorRepository.findById(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));
+        Actor actor = cacheLookupService.findActorById(actorId);
         actorRepository.save(mapToActorUpdateVaadin(actorDto, actor));
     }
     @Override
@@ -171,8 +185,8 @@ public class ActorServiceImpl implements IActorService {
         }
         return null;
     }
-
     @Override
+    @Cacheable("top-rated-actors")
     public List<EntityWithRate> fetchTopRatedActors() {
         return actorRepository.findTopRatedActors().stream().map(actor -> (EntityWithRate) ActorMapper.mapToActorDtoWithUserRate(actor, actor.averageActorRate())).toList();
     }

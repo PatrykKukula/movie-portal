@@ -4,6 +4,9 @@ import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Cache;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +60,7 @@ public class TopicServiceImpl implements ITopicService {
     }
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = "topic")
     public void deleteTopic(Long topicId) {
         validateId(topicId);
         UserEntity userEntity = userDetailsService.getUserEntity();
@@ -65,6 +69,7 @@ public class TopicServiceImpl implements ITopicService {
         topicRepository.deleteById(topicId);
     }
     @Override
+    @Cacheable(value = "topic")
     public TopicDtoToDisplay findTopicById(Long topicId) {
         validateId(topicId);
 
@@ -89,6 +94,7 @@ public class TopicServiceImpl implements ITopicService {
         return topicDtoToDisplay;
     }
     @Override
+    @Cacheable(value = "all-entity-topics")
     public Page<TopicDtoBasic> findAllTopics(int page, int size, String sorted, String entityType, Long entityId) {
         String validatedSorting = validateSorting(sorted);
         Sort sort = validatedSorting.equals("ASC") ?
@@ -105,6 +111,7 @@ public class TopicServiceImpl implements ITopicService {
         });
     }
     @Override
+    @Cacheable(value = "topics-by-title", unless = "#result.isEmpty() or #title.length() <= 3")
     public List<TopicDtoBasic> findTopicsByTitle(String title, String sorted) {
         String validatedSorting = validateSorting(sorted);
         List<Topic> topics = validatedSorting.equals("ASC") ?
@@ -118,6 +125,7 @@ public class TopicServiceImpl implements ITopicService {
     }
     @Override
     @Transactional
+    @CacheEvict(value = "topic", key = "topicId")
     public void updateTopic(Long topicId, TopicUpdateDto topicUpdateDto) {
         validateId(topicId);
         UserEntity userEntity = userDetailsService.getUserEntity();
@@ -126,13 +134,12 @@ public class TopicServiceImpl implements ITopicService {
         topic.setTitle(topicUpdateDto.getTitle());
         topicRepository.save(topic);
     }
-
     @Override
+    @Cacheable(value = "latest-topics")
     public List<MainViewTopicDto> fetchLatestTopics() {
         return topicRepository.findLatestTopics().stream()
                 .map(topic -> {
                     String type = topic.getEntityType();
-                    log.info("created time:{} ", topic.getCreatedAt());
                     switch (type){
                         case "actor" -> {
                             Optional<Actor> actor = actorRepository.findById(topic.getEntityId());

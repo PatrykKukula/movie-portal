@@ -1,8 +1,10 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
-
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
@@ -19,7 +21,6 @@ import pl.patrykkukula.MovieReviewPortal.Repository.MovieRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IMovieService;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -36,10 +37,13 @@ public class MovieServiceImpl implements IMovieService {
     private final ActorRepository actorRepository;
     private final UserDetailsServiceImpl userDetailsService;
     private final MovieRateRepository movieRateRepository;
+    private final CacheLookupServiceImpl cacheLookupService;
     /*
         COMMON SECTION
      */
+
     @Override
+    @Cacheable(value = "movie-details")
     public MovieDtoWithDetails fetchMovieDetailsById(Long movieId) {
         validateId(movieId);
         Movie movie = movieRepository.findByIdWithDetails(movieId)
@@ -49,10 +53,10 @@ public class MovieServiceImpl implements IMovieService {
         return mapToMovieDtoWithDetails(movie, rate, rateNumber);
     }
     @Override
+    @CacheEvict(value = "movie-details", key = "#movieId")
     public void updateMovie(Long movieId, MovieUpdateDto movieDto) {
         validateId(movieId);
-        Movie movie = movieRepository.findById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie", String.valueOf(movieId)));
+        Movie movie = cacheLookupService.findMovieById(movieId);
         Long directorId = movieDto.getDirectorId();
         if (directorId != null) {
             validateId(directorId);
@@ -67,6 +71,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = "all-movies", allEntries = true)
     public Long addMovie(MovieDto movieDto) {
         Movie movie = mapToMovie(movieDto);
         movie.setCategory(findCategory(movieDto.getCategory()));
@@ -77,14 +82,16 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = "movie-details")
     public void deleteMovie(Long movieId) {
         validateId(movieId);
-        movieRepository.findById(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie", "Movie id", String.valueOf(movieId)));
+        cacheLookupService.findMovieById(movieId);
         movieRepository.deleteById(movieId);
     }
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = "movie-details", key = "#rateDto.entityId")
     public RatingResult addRateToMovie(RateDto rateDto) {
         validateId(rateDto.getEntityId());
         UserEntity user = userDetailsService.getUserEntity();
@@ -111,6 +118,7 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @CacheEvict(value = "movie-details")
     public Double removeRate(Long movieId) {
         validateId(movieId);
         UserEntity user = userDetailsService.getUserEntity();
@@ -124,10 +132,16 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "movie-details", key = "#movieId"),
+                    @CacheEvict(value = "actor, actor-details", key = "#actorId")
+            }
+    )
     public boolean addActorToMovie(Long movieId, Long actorId) {
         validateId(movieId);
         validateId(actorId);
-        Actor actor = actorRepository.findById(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "actor id", String.valueOf(actorId)));
+        Actor actor = cacheLookupService.findActorById(actorId);
         Movie movie = movieRepository.findByIdWithActors(movieId).orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
         if (!movie.getActors().contains(actor)) {
             movie.getActors().add(actor);
@@ -139,6 +153,12 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "movie-details", key = "#movieId"),
+                    @CacheEvict(value = "actor, actor-details", key = "#actorId")
+            }
+    )
     public boolean removeActorFromMovie(Long movieId, Long actorId) {
         validateId(movieId);
         validateId(actorId);
@@ -155,6 +175,7 @@ public class MovieServiceImpl implements IMovieService {
                 movieRepository.findByTitleContainingIgnoreCaseOrderByTitleDesc(title).stream().map(MovieMapper::mapToMovieDtoBasic).toList();
     }
     @Override
+    @Cacheable(value = "all-movies")
     public List<MovieDtoBasic> fetchAllMovies(String sorted) {
         String validatedSorted = validateSorting(sorted);
         return validatedSorted.equals("ASC") ?
@@ -165,6 +186,7 @@ public class MovieServiceImpl implements IMovieService {
        VAADIN VIEW SECTION
    */
     @Override
+    @Cacheable(value = "all-movies-view", unless = "#result.isEmpty() or #title == null or #title.length() <= 3")
     public List<MovieViewDto> fetchAllMoviesForView(String title, String sorting, MovieCategory category) {
         String validatedSorting = validateSorting(sorting);
 
@@ -182,6 +204,7 @@ public class MovieServiceImpl implements IMovieService {
                 .stream().map(MovieMapper::mapToMovieViewDto).toList();
     }
     @Override
+    @Cacheable(value = "movies-dto")
     public MovieDto fetchMovieByIdVaadin(Long movieId) {
         validateId(movieId);
         Movie movie = movieRepository.findByIdWithDetails(movieId)
@@ -223,10 +246,10 @@ public class MovieServiceImpl implements IMovieService {
         return null;
     }
     @Override
+    @Cacheable("top-rated-movies")
     public List<EntityWithRate> fetchTopRatedMovies() {
         return movieRepository.findTopRatedMovies().stream().map(movie -> (EntityWithRate)MovieMapper.mapToMovieDtoWithUserRate(movie, movie.averageMovieRate())).toList();
     }
-
     private MovieCategory findCategory(MovieCategory category) {
         return MovieCategory.valueOf(category.name());
     }

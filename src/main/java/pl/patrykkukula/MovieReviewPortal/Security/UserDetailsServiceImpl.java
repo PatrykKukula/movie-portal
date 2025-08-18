@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -59,6 +60,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return null;
     }
+    @Cacheable(value = "user")
     public UserEntity getUserEntity() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {

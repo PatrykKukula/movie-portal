@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
@@ -61,6 +62,7 @@ public class ImageServiceImpl implements IImageService {
         }
     }
     @Override
+    @Cacheable(value = "image", key = "#id + '_' + #imageDir")
     public Optional<byte[]> loadImage(Long id, String imageDir, String placeholderDir) throws IOException {
         Path dirPath = Paths.get(imageDir);
         Path formatPath = dirPath.resolve(METADATA_FILE);

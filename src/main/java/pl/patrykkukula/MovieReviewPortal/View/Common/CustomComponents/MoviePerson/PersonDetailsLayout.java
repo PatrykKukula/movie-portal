@@ -12,6 +12,7 @@ import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating.RatingStarsLayout;
@@ -33,7 +34,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableCo
 public class PersonDetailsLayout<T extends ViewableEntityWithMovies> extends VerticalLayout {
 
     public PersonDetailsLayout(Function<Long, T> fetchPerson, Long personId, BeforeEvent event, UserDetailsServiceImpl userDetailsService,
-                               BiFunction<Long, Long, RateDto> fetchRate, Function<RateDto, RatingResult> addRate, Function<Long, Double> removeRate,
+                               UserServiceImpl userService, BiFunction<Long, Long, RateDto> fetchRate, Function<RateDto, RatingResult> addRate, Function<Long, Double> removeRate,
                                String entityType, Consumer<Long> removeEntity, Class<? extends VerticalLayout> viewClass,
                                ImageServiceImpl imageService, String posterDir, String posterPh, TopicServiceImpl topicService) {
         addClassName("main-layout");
@@ -73,7 +74,7 @@ public class PersonDetailsLayout<T extends ViewableEntityWithMovies> extends Ver
             );
 
             TopicSectionLayout topicSectionLayout = new TopicSectionLayout(
-                    topicService, userDetailsService, entityId, INITIAL_PAGE, PAGE_SIZE, "ASC", entityType.toLowerCase()
+                    topicService, userDetailsService, userService, entityId, INITIAL_PAGE, PAGE_SIZE, "ASC", entityType.toLowerCase()
             );
 
             add(moviePersonEntityLayout, topicSectionLayout);

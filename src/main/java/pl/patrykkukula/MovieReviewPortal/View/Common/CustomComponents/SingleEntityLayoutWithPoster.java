@@ -14,6 +14,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Image.Poster;
 import pl.patrykkukula.MovieReviewPortal.View.Director.DirectorDetailsView;
@@ -159,8 +160,8 @@ public class SingleEntityLayoutWithPoster<T extends EntityWithRate> extends Hori
             renderView();
         });
     }
-    public Div setHeader(Long userId, UserDetailsServiceImpl userDetailsService){
-        UserEntity user = userDetailsService.loadUserEntityById(userId);
+    public Div setHeader(Long userId, UserServiceImpl userService){
+        UserEntity user = userService.loadUserEntityById(userId);
 
         Anchor link = new Anchor("user/%s".formatted(userId), user.getFirstName() + " " + user.getLastName());
         Div div = new Div((new Span("Movies rated by ")), link, new Span(" (%s)".formatted(user.getUsername())));

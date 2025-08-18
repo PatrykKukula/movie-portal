@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import jakarta.validation.constraints.Null;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,8 +23,8 @@ import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
-import pl.patrykkukula.MovieReviewPortal.View.MainView;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -43,10 +42,12 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
     private final Dialog resetDialog = new Dialog();
     private final Dialog formDialog = new Dialog();
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserServiceImpl userService;
 
-    public LoginView(IAuthService authService, UserDetailsServiceImpl userDetailsService) {
+    public LoginView(IAuthService authService, UserDetailsServiceImpl userDetailsService, UserServiceImpl userService) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
+        this.userService = userService;
         LoginI18n i18n = LoginI18n.createDefault();
         loginForm.setForgotPasswordButtonVisible(true);
         loginForm.addForgotPasswordListener(new forgotPasswordEventListener());
@@ -61,7 +62,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
 //        loginForm.setAction("login");
         loginForm.addLoginListener(e -> {
             try {
-                UserEntity user = userDetailsService.loadUserEntityByEmail(e.getUsername());
+                UserEntity user = userService.loadUserEntityByEmail(e.getUsername());
                 if (!user.isEnabled()) {
                     formDialog.removeAll();
                     Div error = new Div("Account is not activated");

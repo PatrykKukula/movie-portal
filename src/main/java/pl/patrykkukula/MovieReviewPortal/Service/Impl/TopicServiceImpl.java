@@ -4,7 +4,6 @@ import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Cache;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -43,7 +42,7 @@ public class TopicServiceImpl implements ITopicService {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long entityId, String entityType) {
         validateId(entityId);
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
 
         Topic topic = TopicMapper.mapToTopic(topicWithComment.getTopic());
         topic.setUser(user);
@@ -63,7 +62,7 @@ public class TopicServiceImpl implements ITopicService {
     @CacheEvict(value = "topic")
     public void deleteTopic(Long topicId) {
         validateId(topicId);
-        UserEntity userEntity = userDetailsService.getUserEntity();
+        UserEntity userEntity = userDetailsService.getLoggedUserEntity();
         Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topicRepository.deleteById(topicId);
@@ -128,7 +127,7 @@ public class TopicServiceImpl implements ITopicService {
     @CacheEvict(value = "topic", key = "topicId")
     public void updateTopic(Long topicId, TopicUpdateDto topicUpdateDto) {
         validateId(topicId);
-        UserEntity userEntity = userDetailsService.getUserEntity();
+        UserEntity userEntity = userDetailsService.getLoggedUserEntity();
         Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topic.setTitle(topicUpdateDto.getTitle());

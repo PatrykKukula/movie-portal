@@ -43,7 +43,6 @@ import static org.reflections.Reflections.log;
 @CssImport("./styles/common-styles.css")
 public class ProfileView extends VerticalLayout implements HasUrlParameter<Long> {
 
-    private final UserDetailsServiceImpl userDetails;
     private final ImageServiceImpl imageService;
     private final UserServiceImpl userService;
     private final SingleEntityLayoutWithPoster<?> singleEntityLayout;
@@ -57,8 +56,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
     private final String WIDTH = "140px";
     private final String HEIGHT = "180px";
 
-    public ProfileView(UserDetailsServiceImpl userDetails, ImageServiceImpl imageService, UserServiceImpl userService) {
-        this.userDetails = userDetails;
+    public ProfileView(ImageServiceImpl imageService, UserServiceImpl userService) {
         this.imageService = imageService;
         this.userService = userService;
         singleEntityLayout = new SingleEntityLayoutWithPoster<>(imageService);
@@ -69,7 +67,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
 
     @Override
     public void setParameter(BeforeEvent event, Long userId) {
-        UserEntity userEntity = userDetails.loadUserEntityById(userId);
+        UserEntity userEntity = userService.loadUserEntityById(userId);
         HorizontalLayout userDetailsLayout = new HorizontalLayout();
         userDetailsLayout.addClassName("details-layout");
         userDetailsLayout.getStyle().set("padding-bottom", "20px");

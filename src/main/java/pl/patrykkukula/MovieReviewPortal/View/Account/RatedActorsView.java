@@ -20,12 +20,10 @@ import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.SingleEnti
 public class RatedActorsView extends VerticalLayout implements HasUrlParameter<Long> {
     private final UserServiceImpl userService;
     private final ImageServiceImpl imageService;
-    private final UserDetailsServiceImpl userDetailsService;
 
-    public RatedActorsView(UserServiceImpl userService, ImageServiceImpl imageService, UserDetailsServiceImpl userDetailsService) {
+    public RatedActorsView(UserServiceImpl userService, ImageServiceImpl imageService) {
         this.userService = userService;
         this.imageService = imageService;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -35,7 +33,7 @@ public class RatedActorsView extends VerticalLayout implements HasUrlParameter<L
                 userId,
                 imageService
         );
-        Div header = singleEntityLayout.setHeader(userId, userDetailsService);
+        Div header = singleEntityLayout.setHeader(userId, userService);
 
         add(header, singleEntityLayout);
     }

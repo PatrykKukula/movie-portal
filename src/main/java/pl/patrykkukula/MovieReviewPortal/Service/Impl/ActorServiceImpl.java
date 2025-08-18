@@ -2,7 +2,6 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,16 +12,12 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
-import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
-import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.*;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IActorService;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import static java.lang.String.valueOf;
@@ -88,7 +83,7 @@ public class ActorServiceImpl implements IActorService {
     @CacheEvict(value = {"actor", "actor-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToActor(RateDto rateDto) {
         validateId(rateDto.getEntityId());
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
         Optional<ActorRate> optCurrentRate = actorRateRepository.findByActorIdAndUserId(rateDto.getEntityId(), user.getUserId());
         if (optCurrentRate.isPresent()) {
             ActorRate currentRate = optCurrentRate.get();
@@ -116,7 +111,7 @@ public class ActorServiceImpl implements IActorService {
     @CacheEvict(value = {"actor", "actor-details"})
     public Double removeRate(Long actorId) {
         validateId(actorId);
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
         actorRateRepository.deleteByActorIdAndUserId(actorId, user.getUserId());
         Actor actor = actorRepository.findByIdWithRates(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "Actor id", String.valueOf(actorId)));
         return actor.averageActorRate();

@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Topic.TopicDetailsView;
 
@@ -26,6 +27,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableCo
 public class TopicSectionLayout extends VerticalLayout {
     private final TopicServiceImpl topicService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserServiceImpl userService;
     private Page<TopicDtoBasic> allTopics;
     private final Long entityId;
     private final int pageSize;
@@ -37,11 +39,12 @@ public class TopicSectionLayout extends VerticalLayout {
     private final int initialPage;
     VerticalLayout topicLayout = new VerticalLayout();
 
-    public TopicSectionLayout(TopicServiceImpl topicService, UserDetailsServiceImpl userDetailsService, Long entityId,
+    public TopicSectionLayout(TopicServiceImpl topicService, UserDetailsServiceImpl userDetailsService, UserServiceImpl userService, Long entityId,
                               int initialPage, int pageSize, String sort, String entityType
     ) {
         this.topicService = topicService;
         this.userDetailsService = userDetailsService;
+        this.userService = userService;
         this.entityId = entityId;
         this.sort = sort;
         this.entityType = entityType;
@@ -116,7 +119,7 @@ public class TopicSectionLayout extends VerticalLayout {
 
         String createdAtFormatted = topic.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         Span createdAt = new Span(new Span("Post date: "), new Span(createdAtFormatted));
-        String username = userDetailsService.getUsername(topic.getCreatedBy());
+        String username = userService.getUsername(topic.getCreatedBy());
         Span createdBy = new Span(new Span("Created by: "), new Span(username));
         Span postCount = new Span(new Span("Comments: "), new Span(String.valueOf(topic.getPostCount())));
 

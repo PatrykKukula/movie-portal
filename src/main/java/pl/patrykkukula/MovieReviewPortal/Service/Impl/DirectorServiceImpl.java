@@ -11,7 +11,6 @@ import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
-import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Director;
 import pl.patrykkukula.MovieReviewPortal.Model.DirectorRate;
@@ -93,7 +92,7 @@ public class DirectorServiceImpl implements IDirectorService {
     @CacheEvict(value = {"director", "director-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToDirector(RateDto rateDto) {
         validateId(rateDto.getEntityId());
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
         Optional<DirectorRate> optCurrentRate = directorRateRepository.findByDirectorIdAndUserId(rateDto.getEntityId(), user.getUserId());
         if (optCurrentRate.isPresent()) {
             DirectorRate currentRate = optCurrentRate.get();
@@ -120,7 +119,7 @@ public class DirectorServiceImpl implements IDirectorService {
     @CacheEvict(value = {"director", "director-details"})
     public Double removeRate(Long directorId) {
         validateId(directorId);
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
         directorRateRepository.deleteByDirectorIdAndUserId(directorId, user.getUserId());
         Director director = directorRepository.findByIdWithRates(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(directorId)));
         return director.averageDirectorRate();

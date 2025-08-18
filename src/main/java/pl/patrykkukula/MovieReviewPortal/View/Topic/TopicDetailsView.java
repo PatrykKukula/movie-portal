@@ -84,7 +84,7 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
         setAlignItems(Alignment.CENTER);
         commentDetailsLayout.addClassName("details-layout");
         commentDetailsLayout.getStyle().set("padding-bottom", "20px");
-        currentUserEntity = userDetailsService.getUserEntity();
+        currentUserEntity = userDetailsService.getLoggedUserEntity();
 
         UserDetails user = userDetailsService.getAuthenticatedUser();
 

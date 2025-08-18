@@ -14,6 +14,7 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.MoviePerson.PersonDetailsLayout;
 
 import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants.ACT_DIR;
@@ -28,14 +29,16 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
 
     private final ActorServiceImpl actorService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserServiceImpl userService;
     private final ImageServiceImpl imageService;
     private final TopicServiceImpl topicService;
 
-    public ActorDetailsView(ActorServiceImpl actorService, UserDetailsServiceImpl userDetailsService, ImageServiceImpl imageService, TopicServiceImpl topicService, TopicRepository topicRepository) {
+    public ActorDetailsView(ActorServiceImpl actorService, UserDetailsServiceImpl userDetailsService, ImageServiceImpl imageService, TopicServiceImpl topicService, TopicRepository topicRepository, UserServiceImpl userService) {
         this.actorService = actorService;
         this.userDetailsService = userDetailsService;
         this.imageService = imageService;
         this.topicService = topicService;
+        this.userService = userService;
     }
     @Override
     public void setParameter(BeforeEvent event, Long actorId) {
@@ -45,6 +48,7 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
                 actorId,
                 event,
                 userDetailsService,
+                userService,
                 actorService::fetchRateByActorIdAndUserId,
                 actorService::addRateToActor,
                 actorService::removeRate,

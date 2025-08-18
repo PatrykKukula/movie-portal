@@ -94,7 +94,7 @@ public class MovieServiceImpl implements IMovieService {
     @CacheEvict(value = "movie-details", key = "#rateDto.entityId")
     public RatingResult addRateToMovie(RateDto rateDto) {
         validateId(rateDto.getEntityId());
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
         Optional<MovieRate> optCurrentRate = movieRateRepository.findByMovieIdAndUserId(rateDto.getEntityId(), user.getUserId());
         if (optCurrentRate.isPresent()) {
             MovieRate currentRate = optCurrentRate.get();
@@ -121,7 +121,7 @@ public class MovieServiceImpl implements IMovieService {
     @CacheEvict(value = "movie-details")
     public Double removeRate(Long movieId) {
         validateId(movieId);
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
         movieRateRepository.deleteByMovieIdAndUserId(movieId, user.getUserId());
         Movie movie = movieRepository.findByIdWithMovieRates(movieId).orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(movieId)));
         return movie.averageMovieRate();

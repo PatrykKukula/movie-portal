@@ -5,9 +5,14 @@ import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
+import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
+
 import java.util.List;
 
 public interface IUserService {
+    UserEntity loadUserEntityById(Long userId);
+    UserEntity loadUserEntityByEmail(String email);
+    String getUsername(String email);
     Double fetchAverageRate(Long userId, String entityType);
     MovieCategory fetchMostRatedCategory(Long userId);
     List<MovieDtoWithUserRate> fetchHighestRatedMoviesByUser(Long userId);

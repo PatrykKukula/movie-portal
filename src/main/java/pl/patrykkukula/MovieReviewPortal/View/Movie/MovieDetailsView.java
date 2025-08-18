@@ -25,6 +25,7 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.UploadComponent;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.TopicSectionLayout;
@@ -46,14 +47,16 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParam
 
         private final MovieServiceImpl movieService;
         private final UserDetailsServiceImpl userDetailsService;
+        private final UserServiceImpl userService;
         private final IImageService imageService;
         private final TopicServiceImpl topicService;
         private static final String WIDTH = "210x";
         private static final String HEIGHT = "300px";
 
-        public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, IImageService imageService, TopicServiceImpl topicService) {
+        public MovieDetailsView(MovieServiceImpl movieService, UserDetailsServiceImpl userDetailsService, UserServiceImpl userService, IImageService imageService, TopicServiceImpl topicService) {
             this.movieService = movieService;
             this.userDetailsService = userDetailsService;
+            this.userService = userService;
             this.imageService = imageService;
             this.topicService = topicService;
         }
@@ -115,7 +118,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParam
                 movieDataLayout.add(descriptionDiv, actors, buttonsLayout);
 
                 TopicSectionLayout topicSectionLayout = new TopicSectionLayout(
-                        topicService, userDetailsService, movieId, INITIAL_PAGE, PAGE_SIZE, "ASC", TYPE_MOVIE
+                        topicService, userDetailsService, userService, movieId, INITIAL_PAGE, PAGE_SIZE, "ASC", TYPE_MOVIE
                 );
 
                 add(movieDataLayout, topicSectionLayout);

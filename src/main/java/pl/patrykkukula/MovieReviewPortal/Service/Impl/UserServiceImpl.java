@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithUserRate;
@@ -13,6 +14,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
+import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IUserService;
 import java.util.List;
@@ -22,6 +24,21 @@ import java.util.List;
 public class UserServiceImpl implements IUserService {
     private final UserEntityRepository userRepository;
 
+    @Override
+    public UserEntity loadUserEntityById(Long userId) {
+        return userRepository.findByIdWithComments(userId)
+                    .orElse(null);
+    }
+    @Override
+    public UserEntity loadUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
+    }
+    @Override
+    public String getUsername(String email) {
+        UserEntity user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
+        return user.getUsername();
+    }
     @Override
     public Double fetchAverageRate(Long userId, String entityType) {
         return userRepository.findAverageMovieRate(userId);

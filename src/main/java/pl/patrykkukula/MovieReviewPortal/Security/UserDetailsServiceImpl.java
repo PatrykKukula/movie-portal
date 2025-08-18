@@ -31,24 +31,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .map(userEntity -> new User(userEntity.getEmail(), userEntity.getPassword(), mapRoleToAuthorities(userEntity))
                 ).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
     }
-    public UserEntity loadUserEntityById(Long userId) throws UsernameNotFoundException {
-        return userRepository.findByIdWithComments(userId)
-                .orElse(null);
-    }
-    public UserEntity loadUserEntityByEmail(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
-    }
     public UserDetails getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserDetails userDetails) {
             return userDetails;
         }
         return null;
-    }
-    public String getUsername(String email) {
-        UserEntity user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
-        return user.getUsername();
     }
     public Long getAuthenticatedUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -60,8 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return null;
     }
-    @Cacheable(value = "user")
-    public UserEntity getUserEntity() {
+    public UserEntity getLoggedUserEntity() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
             return null;

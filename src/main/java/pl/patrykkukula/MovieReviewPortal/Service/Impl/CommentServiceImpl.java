@@ -5,7 +5,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,7 @@ public class CommentServiceImpl implements ICommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Topic", "topic id",  String.valueOf(topicId)));
         Topic topic = topicWithMaxCommentId.get("topic", Topic.class);
         Long currentMaxCommentId = topicWithMaxCommentId.get("maxId", Long.class);
-        UserEntity user = userDetailsService.getUserEntity();
+        UserEntity user = userDetailsService.getLoggedUserEntity();
 
         Comment comment = Comment.builder()
                         .text(commentDto.getText())
@@ -131,7 +130,7 @@ public class CommentServiceImpl implements ICommentService {
 //                .toList();
 //    }
     private boolean canUserModify(Long userId){
-        UserEntity userEntity = userDetailsService.getUserEntity();
+        UserEntity userEntity = userDetailsService.getLoggedUserEntity();
         return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
     }
 }

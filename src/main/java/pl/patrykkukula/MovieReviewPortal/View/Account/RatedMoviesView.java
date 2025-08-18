@@ -8,7 +8,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
-import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.SingleEntityLayoutWithPoster;
@@ -19,12 +18,10 @@ import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.SingleEnti
 public class RatedMoviesView extends VerticalLayout implements HasUrlParameter<Long> {
     private final UserServiceImpl userService;
     private final ImageServiceImpl imageService;
-    private final UserDetailsServiceImpl userDetailsService;
 
-    public RatedMoviesView(UserServiceImpl userService, ImageServiceImpl imageService, UserDetailsServiceImpl userDetailsService) {
+    public RatedMoviesView(UserServiceImpl userService, ImageServiceImpl imageService) {
         this.userService = userService;
         this.imageService = imageService;
-        this.userDetailsService = userDetailsService;
     }
     @Override
     public void setParameter(BeforeEvent event, Long userId) {
@@ -33,7 +30,7 @@ public class RatedMoviesView extends VerticalLayout implements HasUrlParameter<L
                 userId,
                 imageService
         );
-        Div header = singleEntityLayout.setHeader(userId, userDetailsService);
+        Div header = singleEntityLayout.setHeader(userId, userService);
 
         add(header, singleEntityLayout);
     }

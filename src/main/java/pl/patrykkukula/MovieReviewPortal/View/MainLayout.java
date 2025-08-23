@@ -14,10 +14,12 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.web.csrf.CsrfToken;
+import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
 import pl.patrykkukula.MovieReviewPortal.Service.IImageService;
 import pl.patrykkukula.MovieReviewPortal.View.Account.AccountView;
+import pl.patrykkukula.MovieReviewPortal.View.Account.AdminView;
 import pl.patrykkukula.MovieReviewPortal.View.Account.LoginView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorDetailsView;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorEditView;
@@ -56,6 +58,7 @@ public class MainLayout extends AppLayout {
     private Html logoutForm;
     private final Div login = new Div("Login");
     private final Div details = new Div("Details");
+    private final Div adminPanel = new Div("Admin panel");
     private final Div detailsContainer = new Div();
     private final Map<Class<?>, Div> viewToTab = new HashMap<>();
     private static final String AVATAR_WIDTH = "50px";
@@ -97,8 +100,8 @@ public class MainLayout extends AppLayout {
         account.setClassName("account-tab");
         login.setClassName("tab");
         details.setClassName("dropdown-tab");
+        adminPanel.setClassName("dropdown-tab");
         detailsContainer.setClassName("tabs-container");
-
     }
     private HorizontalLayout navBarLayout() throws IOException {
         HorizontalLayout leftTabs = new HorizontalLayout(movies, actors, directors);
@@ -108,15 +111,20 @@ public class MainLayout extends AppLayout {
         movies.addSingleClickListener(e -> UI.getCurrent().navigate(MovieView.class));
         login.addSingleClickListener(e -> UI.getCurrent().navigate(LoginView.class));
         details.addSingleClickListener(e -> UI.getCurrent().navigate(AccountView.class));
+        adminPanel.addSingleClickListener(e -> UI.getCurrent().navigate(AdminView.class));
+        UserEntity user = userDetailsService.getLoggedUserEntityWithRoles();
 
         HorizontalLayout navBar = new HorizontalLayout(leftTabs);
         detailsContainer.add(logoutForm,details);
+        if (user != null && user.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"))){
+            detailsContainer.add(adminPanel);
+        }
         account.add(detailsContainer);
         HorizontalLayout rightTabs = new HorizontalLayout();
         rightTabs.getStyle().set("margin-left", "auto").set("padding-right", "1rem");
-        Long userId = userDetailsService.getAuthenticatedUserId();
-        if (userId!=null) {
-            AvatarImpl avatar = new AvatarImpl(avatarService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH, userId);
+
+        if (user!=null) {
+            AvatarImpl avatar = new AvatarImpl(avatarService, AVATAR_WIDTH, AVATAR_HEIGHT, DIR, DIR_PH, user.getUserId());
             rightTabs.add(avatar, account);
         }
         else {

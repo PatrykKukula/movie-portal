@@ -39,7 +39,7 @@ import java.util.List;
 @Route("movies/edit")
 @PageTitle("Edit movie")
 @CssImport("./styles/common-styles.css")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "MODERATOR"})
 public class MovieEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final MovieServiceImpl movieService;

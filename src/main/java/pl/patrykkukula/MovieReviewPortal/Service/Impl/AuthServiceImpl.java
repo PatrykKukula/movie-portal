@@ -43,7 +43,6 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordResetRepository pwdRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
-    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     @Override
     @Transactional
@@ -81,25 +80,30 @@ public class AuthServiceImpl implements IAuthService {
     }
     @Override
     @Transactional
-    public String resendVerificationToken(String email) {
+    public String sendVerificationToken(String email) {
         if (email == null || email.isEmpty()) throw new IllegalArgumentException("email cannot be null or empty");
         UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Account", "email", email));
         return resendVerificationToken(user);
     }
     @Override
     @Transactional
-    public void resetPassword(PasswordResetDto passwordResetDto) {
+    public boolean resetPassword(PasswordResetDto passwordResetDto) {
         PasswordResetToken token = pwdRepository.findByToken(passwordResetDto.getPwdResetToken())
                 .orElseThrow(() -> new IllegalStateException("Invalid token"));
+        if (token == null || token.getToken().isEmpty()) throw new IllegalStateException("No password reset token provided. Make sure to click valid link");
         if (token.getExpiryDate().isBefore(LocalDateTime.now())) throw new IllegalStateException("Token expired");
         UserEntity user = token.getUser();
+
+        if (!passwordResetDto.getNewPassword().equals(passwordResetDto.getConfirmPassword())){
+            throw new IllegalStateException("Passwords doesn't match");
+        }
 
         if (encoder.matches(passwordResetDto.getNewPassword(), user.getPassword())) throw new IllegalStateException("New password cannot be same as old password");
         String hashedNewPassword = encoder.encode(passwordResetDto.getNewPassword());
         user.setPassword(hashedNewPassword);
-        user.setPasswordResetToken(null);
         pwdRepository.delete(token);
         userRepository.save(user);
+        return true;
     }
     @Override
     @Transactional(rollbackOn = IllegalStateException.class)
@@ -108,7 +112,7 @@ public class AuthServiceImpl implements IAuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         Optional<PasswordResetToken> existingToken = pwdRepository.findByUser(user);
         existingToken.ifPresent(token -> {
-            user.setPasswordResetToken(null);
+//            user.setPasswordResetToken(null);
             userRepository.save(user);
             pwdRepository.delete(token);
             pwdRepository.flush();
@@ -222,7 +226,6 @@ public class AuthServiceImpl implements IAuthService {
     }
     private String resendVerificationToken(UserEntity user){
         if (user.isEnabled()) throw new IllegalStateException("Account is verified");
-        user.setVerificationToken(null);
         userRepository.save(user);
         pwdRepository.flush();
 
@@ -236,7 +239,6 @@ public class AuthServiceImpl implements IAuthService {
                 .expiryDate(LocalDateTime.now().plusHours(12))
                 .user(user)
                 .build();
-        logger.info("Verification token:{}", verificationToken.getToken());
         verificationRepository.save(verificationToken);
         return token;
 //        return  "Verification token has been created and will be valid for 12 hours: " + lineSeparator() +

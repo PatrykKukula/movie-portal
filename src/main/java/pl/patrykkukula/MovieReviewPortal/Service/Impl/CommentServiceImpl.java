@@ -34,7 +34,7 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER', 'MODERATOR')")
     @CacheEvict(value = "topic", key = "#commentDto.topicId")
     public Long addComment(CommentDto commentDto) {
         Long topicId = commentDto.getTopicId();
@@ -63,7 +63,7 @@ public class CommentServiceImpl implements ICommentService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER', 'MODERATOR')")
     @CacheEvict(value = "topic", key = "#commentDto.topicId")
     public void removeComment(Long commentId, boolean hasReplies){
         validateId(commentId);
@@ -111,7 +111,7 @@ public class CommentServiceImpl implements ICommentService {
 //        return mapToCommentsDtoWithUser(comments, "");
 //    }
     @Override
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = "topic", key = "#commentId")
     public void updateComment(Long commentId, CommentDto commentDto){
         validateId(commentId);

@@ -37,7 +37,7 @@ import java.util.List;
 @Route("movies/add")
 @PageTitle("Add movie")
 @CssImport("./styles/common-styles.css")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "MODERATOR"})
 public class AddMovieView extends Composite<FormLayout> {
 
     private final MovieServiceImpl movieServiceImpl;

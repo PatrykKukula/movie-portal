@@ -27,7 +27,7 @@ import java.util.List;
 
 @Route("actors/edit")
 @PageTitle("Edit actor")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "MODERATOR"})
 public class ActorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final ActorServiceImpl actorService;

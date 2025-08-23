@@ -39,7 +39,7 @@ public class DirectorServiceImpl implements IDirectorService {
         COMMON SECTION
      */
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = {"all-directors", "all-directors-summary"}, allEntries = true)
     public Long addDirector(DirectorDto directorDto) {
         Director director = mapToDirector(directorDto);
@@ -47,7 +47,7 @@ public class DirectorServiceImpl implements IDirectorService {
         return savedDirector.getDirectorId();
     }
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Transactional
     @CacheEvict(value = {"director", "director-details"})
     public void removeDirector(Long directorId) {
@@ -85,10 +85,9 @@ public class DirectorServiceImpl implements IDirectorService {
                 directorRepository.findAllByFirstOrLastNameSortedAsc(name).stream().map(DirectorMapper::mapToDirectorDto).toList() :
                 directorRepository.findAllByFirstOrLastNameSortedDesc(name).stream().map(DirectorMapper::mapToDirectorDto).toList();
     }
-
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = {"director", "director-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToDirector(RateDto rateDto) {
         validateId(rateDto.getEntityId());
@@ -115,7 +114,7 @@ public class DirectorServiceImpl implements IDirectorService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = {"director", "director-details"})
     public Double removeRate(Long directorId) {
         validateId(directorId);
@@ -128,7 +127,7 @@ public class DirectorServiceImpl implements IDirectorService {
         REST API SECTION
      */
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = {"director", "director-details"}, key = "#directorId")
     public void updateDirector(DirectorUpdateDto directorDto, Long directorId) {
         validateId(directorId);
@@ -169,6 +168,7 @@ public class DirectorServiceImpl implements IDirectorService {
                 directorRepository.findAllWithRatesByNameOrLastName(searchedText, sort).stream().map(DirectorMapper::mapToDirectorViewDto).toList();
     }
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = "director, director-details", key = "#directorId")
     public void updateDirectorVaadin(Long directorId, DirectorDto directorDto) {
         validateId(directorId);

@@ -84,7 +84,7 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
         setAlignItems(Alignment.CENTER);
         commentDetailsLayout.addClassName("details-layout");
         commentDetailsLayout.getStyle().set("padding-bottom", "20px");
-        currentUserEntity = userDetailsService.getLoggedUserEntity();
+        currentUserEntity = userDetailsService.getLoggedUserEntityWithRoles();
 
         UserDetails user = userDetailsService.getAuthenticatedUser();
 
@@ -382,6 +382,7 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
         commentArea.setWidthFull();
         return commentArea;
     }
+    // TO BE IMPLEMENTED
     private Span reportSpan(UserDetails userDetails, CommentDtoWithUser comment){
         Icon reportIcon = VaadinIcon.BAN.create();
         reportIcon.getStyle().set("color", "red").set("font-size", "9px");
@@ -467,7 +468,8 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
         edit.getStyle().set("font-size", "10px");
         Span editSpan = new Span(icon, edit);
         edit.getStyle().set("justify-self", "end").set("cursor", "pointer").set("padding-right", "10px");
-        boolean shouldSetVisible = currentUserEntity != null && comment.getUserId().equals(currentUserEntity.getUserId());
+        boolean shouldSetVisible = currentUserEntity != null && (comment.getUserId().equals(currentUserEntity.getUserId()) ||
+                currentUserEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN") || role.getRoleName().equals("MODERATOR")));
         editSpan.setVisible(shouldSetVisible);
 
         edit.addClickListener(e -> {

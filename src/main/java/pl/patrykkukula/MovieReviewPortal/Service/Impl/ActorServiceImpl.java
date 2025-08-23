@@ -36,14 +36,14 @@ public class ActorServiceImpl implements IActorService {
         COMMON SECTION
      */
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = {"all-actors", "all-actors-summary"}, allEntries = true)
     public Long addActor(ActorDto actorDto) {
         Actor actor = actorRepository.save(mapToActor(actorDto));
         return actor.getActorId();
     }
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Transactional
     @CacheEvict(value = {"actor", "actor-details"})
     public void removeActor(Long actorId) {
@@ -79,7 +79,7 @@ public class ActorServiceImpl implements IActorService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = {"actor", "actor-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToActor(RateDto rateDto) {
         validateId(rateDto.getEntityId());
@@ -107,7 +107,7 @@ public class ActorServiceImpl implements IActorService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = {"actor", "actor-details"})
     public Double removeRate(Long actorId) {
         validateId(actorId);
@@ -120,7 +120,7 @@ public class ActorServiceImpl implements IActorService {
         REST API SECTION
      */
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = {"actor", "actor-details"}, key = "#actorId")
     public void updateActor(ActorUpdateDto actorDto, Long actorId) {
         validateId(actorId);
@@ -163,6 +163,7 @@ public class ActorServiceImpl implements IActorService {
     }
     @Override
     @CacheEvict(value = {"actor", "actor-details"}, key = "#actorId")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public void updateActorVaadin(Long actorId, ActorDto actorDto) {
         validateId(actorId);
         Actor actor = cacheLookupService.findActorById(actorId);

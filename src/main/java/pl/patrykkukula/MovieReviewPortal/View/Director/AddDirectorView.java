@@ -27,7 +27,7 @@ import java.util.List;
 
 @Route("directors/add")
 @PageTitle("Add director")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "MODERATOR"})
 public class AddDirectorView extends Composite<FormLayout> {
 
     private final DirectorServiceImpl directorService;

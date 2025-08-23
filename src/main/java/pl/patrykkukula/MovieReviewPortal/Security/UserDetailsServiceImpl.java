@@ -56,6 +56,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = (User) auth.getPrincipal();
         return userRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
     }
+    public UserEntity getLoggedUserEntityWithRoles() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+        User user = (User) auth.getPrincipal();
+        return userRepository.findByEmailWithRoles(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+    }
     public boolean isAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getPrincipal() instanceof UserDetails principal) {

@@ -1,18 +1,27 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserDataDto;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 
+import java.time.Duration;
 import java.util.List;
 
 public interface IUserService {
     UserEntity loadUserEntityById(Long userId);
     UserEntity loadUserEntityByEmail(String email);
     String getUsername(String email);
+    boolean banUser(String username, Duration banTime);
+    boolean removeBan (UserEntity user);
+    boolean addRole(String username, String roleName);
+    boolean removeRole(String username, String roleName);
+    Integer countUsers(String username);
+    Page<UserDataDto> fetchAllUsers(int pageNo, int pageSize, Sort sort, String searchText);
     Double fetchAverageRate(Long userId, String entityType);
     MovieCategory fetchMostRatedCategory(Long userId);
     List<MovieDtoWithUserRate> fetchHighestRatedMoviesByUser(Long userId);

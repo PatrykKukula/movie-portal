@@ -31,7 +31,7 @@ import java.util.List;
 @Slf4j
 @Route("directors/edit")
 @PageTitle("Edit director")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "MODERATOR"})
 public class DirectorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final DirectorServiceImpl directorService;

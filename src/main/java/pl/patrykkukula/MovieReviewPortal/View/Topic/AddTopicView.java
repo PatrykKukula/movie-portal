@@ -45,7 +45,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.RouteParam
 
 @Route("topics/add/:entityType/:entityId")
 @PageTitle("Create topic")
-@RolesAllowed({"ADMIN", "USER"})
+@RolesAllowed({"ADMIN", "USER", "MODERATOR"})
 @CssImport("./styles/common-styles.css")
 @Slf4j
 public class AddTopicView extends FormLayout implements BeforeEnterObserver {

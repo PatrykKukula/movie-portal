@@ -53,6 +53,7 @@ public class MovieServiceImpl implements IMovieService {
         return mapToMovieDtoWithDetails(movie, rate, rateNumber);
     }
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = "movie-details", key = "#movieId")
     public void updateMovie(Long movieId, MovieUpdateDto movieDto) {
         validateId(movieId);
@@ -70,7 +71,7 @@ public class MovieServiceImpl implements IMovieService {
         movieRepository.save(mapMovieUpdateDtoToMovieUpdate(movieDto, movie));
     }
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = "all-movies", allEntries = true)
     public Long addMovie(MovieDto movieDto) {
         Movie movie = mapToMovie(movieDto);
@@ -81,7 +82,7 @@ public class MovieServiceImpl implements IMovieService {
         return savedMovie.getMovieId();
     }
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = "movie-details")
     public void deleteMovie(Long movieId) {
         validateId(movieId);
@@ -90,7 +91,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = "movie-details", key = "#rateDto.entityId")
     public RatingResult addRateToMovie(RateDto rateDto) {
         validateId(rateDto.getEntityId());
@@ -117,7 +118,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = "movie-details")
     public Double removeRate(Long movieId) {
         validateId(movieId);
@@ -131,7 +132,7 @@ public class MovieServiceImpl implements IMovieService {
      */
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Caching(
             evict = {
                     @CacheEvict(value = "movie-details", key = "#movieId"),
@@ -152,7 +153,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @Caching(
             evict = {
                     @CacheEvict(value = "movie-details", key = "#movieId"),
@@ -213,7 +214,7 @@ public class MovieServiceImpl implements IMovieService {
     }
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     public void updateMovieVaadin(Long movieId, MovieDto movieDto) {
         validateId(movieId);
         Movie movie = movieRepository.findById(movieId)

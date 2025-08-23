@@ -105,7 +105,7 @@
 //        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(setCurrentUser()));
 //        when(verificationRepository.save(any(VerificationToken.class))).thenReturn(verificationToken);
 //
-//        String returnMessage = authService.resendVerificationToken("email@email.com");
+//        String returnMessage = authService.sendVerificationToken("email@email.com");
 //
 //        assertTrue(returnMessage.contains("Verification token has been created and will be valid for 12 hours: "));
 //    }
@@ -115,7 +115,7 @@
 //        user.setEnabled(true);
 //        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 //
-//        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.resendVerificationToken("email@email.com"));
+//        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.sendVerificationToken("email@email.com"));
 //        assertEquals("Account is verified", ex.getMessage());
 //    }
 //    @Test

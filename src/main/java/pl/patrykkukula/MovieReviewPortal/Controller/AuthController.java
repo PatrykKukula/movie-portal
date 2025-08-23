@@ -1,14 +1,11 @@
 package pl.patrykkukula.MovieReviewPortal.Controller;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.patrykkukula.MovieReviewPortal.Constants.SecurityConstants;
-import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.LoginDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
@@ -39,7 +36,7 @@ public class AuthController {
     }
     @GetMapping("/register/sendToken")
     public ResponseEntity<String> resendActivationLink(@RequestParam("email") String username) {
-        return ResponseEntity.ok(registerService.resendVerificationToken(username));
+        return ResponseEntity.ok(registerService.sendVerificationToken(username));
     }
     @PostMapping("/reset")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetDto passwordResetDto) {

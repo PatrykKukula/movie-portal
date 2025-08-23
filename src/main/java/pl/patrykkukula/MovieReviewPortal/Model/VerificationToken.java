@@ -15,7 +15,7 @@ public class VerificationToken {
     @Column(nullable = false)
     private String token;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     private UserEntity user;
 

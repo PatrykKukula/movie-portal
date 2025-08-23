@@ -15,10 +15,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
@@ -28,6 +30,8 @@ import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.AccountViewConstants.*;
 
@@ -43,11 +47,13 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
     private final Dialog formDialog = new Dialog();
     private final UserDetailsServiceImpl userDetailsService;
     private final UserServiceImpl userService;
+    private final PasswordEncoder passwordEncoder;
 
-    public LoginView(IAuthService authService, UserDetailsServiceImpl userDetailsService, UserServiceImpl userService) {
+    public LoginView(IAuthService authService, UserDetailsServiceImpl userDetailsService, UserServiceImpl userService, PasswordEncoder passwordEncoder) {
         this.authService = authService;
         this.userDetailsService = userDetailsService;
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
         LoginI18n i18n = LoginI18n.createDefault();
         loginForm.setForgotPasswordButtonVisible(true);
         loginForm.addForgotPasswordListener(new forgotPasswordEventListener());
@@ -59,18 +65,33 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
         i18n.setForm(form);
 
         loginForm.setI18n(i18n);
-//        loginForm.setAction("login");
         loginForm.addLoginListener(e -> {
             try {
                 UserEntity user = userService.loadUserEntityByEmail(e.getUsername());
+                if (user.getBanned() != null && user.getBanned()){
+                    if (user.getBanExpiration().isAfter(LocalDateTime.now())) {
+                        formDialog.removeAll();
+                        Div error = new Div("Account has been banned and will be available at %s"
+                                .formatted(user.getBanExpiration().format(DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm"))));
+                        formDialog.add(error);
+                        formDialog.open();
+                        return;
+                    }
+                    else {
+                        boolean removed = userService.removeBan(user);
+                        if (!removed) return; // possibly issue for failed login when not banned
+                    }
+                }
                 if (!user.isEnabled()) {
                     formDialog.removeAll();
                     Div error = new Div("Account is not activated");
                     formDialog.add(error);
                     formDialog.open();
                     // add link
-                } else {
+                }
+                else {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+                    if (passwordEncoder.matches(e.getPassword(), userDetails.getPassword())){
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             userDetails.getPassword(),
@@ -78,9 +99,11 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
                     );
                     SecurityContextHolder.getContext().setAuthentication(auth);
                     UI.getCurrent().getPage().reload();
+                    }
+                    else throw new BadCredentialsException("");
                 }
             }
-            catch (UsernameNotFoundException | NullPointerException ex){
+            catch (UsernameNotFoundException | NullPointerException | BadCredentialsException ex){
                 loginForm.setError(true);
             }
         });

@@ -23,7 +23,7 @@ import java.util.List;
 
 @Route("actors/add")
 @PageTitle("Add actor")
-@RolesAllowed("ADMIN")
+@RolesAllowed({"ADMIN", "MODERATOR"})
 public class AddActorView extends Composite<FormLayout> {
     private final ActorServiceImpl actorService;
     private final BeanValidationBinder<ActorDto> binder = new BeanValidationBinder<>(ActorDto.class);

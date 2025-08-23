@@ -1,6 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.Constraint;
 import lombok.*;
 import pl.patrykkukula.MovieReviewPortal.Constants.UserSex;
 
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter @ToString
+@Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class UserEntity {
@@ -30,16 +32,21 @@ public class UserEntity {
     private String lastName;
     private boolean isEnabled = false;
     private LocalDateTime registeredAt;
+    @Column(nullable = true)
+    private Boolean banned;
+    private LocalDateTime banExpiration;
+//
+//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    private VerificationToken verificationToken;
+//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+//    private PasswordResetToken passwordResetToken;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private VerificationToken verificationToken;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private PasswordResetToken passwordResetToken;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            inverseJoinColumns = @JoinColumn(name = "role_id"),
+            uniqueConstraints = @UniqueConstraint(name = "unique_constraint", columnNames = {"user_id", "role_id"})
     )
     private List<Role> roles = new ArrayList<>();
 

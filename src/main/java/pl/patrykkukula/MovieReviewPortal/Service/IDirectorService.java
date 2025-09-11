@@ -18,6 +18,7 @@ public interface IDirectorService {
     List<DirectorDto> fetchAllDirectorsByNameOrLastName(String name, String sorted);
     RatingResult addRateToDirector(RateDto rateDto);
     Double removeRate(Long directorId);
+    List<EntityWithRate> fetchTopRatedDirectors();
     /*
         REST API SECTION
      */
@@ -31,5 +32,4 @@ public interface IDirectorService {
     DirectorSummaryDto fetchDirectorSummaryById(Long id);
     void updateDirectorVaadin(Long id, DirectorDto directorDto);
     RateDto fetchRateByDirectorIdAndUserId(Long directorId, Long userId);
-    List<EntityWithRate> fetchTopRatedDirectors();
 }

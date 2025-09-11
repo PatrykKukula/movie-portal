@@ -18,6 +18,7 @@ public interface IActorService {
     List<ActorDto> fetchAllActorsByNameOrLastName(String name, String sorted);
     RatingResult addRateToActor(RateDto rateDto);
     Double removeRate(Long movieId);
+    List<EntityWithRate> fetchTopRatedActors();
     /*
         REST API SECTION
      */
@@ -31,5 +32,4 @@ public interface IActorService {
     ActorDto fetchActorById(Long id);
     void updateActorVaadin(Long id, ActorDto actorDto);
     RateDto fetchRateByActorIdAndUserId(Long actorId, Long userId);
-    List<EntityWithRate> fetchTopRatedActors();
 }

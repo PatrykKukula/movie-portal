@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Entity
@@ -34,5 +35,16 @@ public class Actor extends BaseEntity {
 
     public Double averageActorRate(){
         return actorRates.stream().collect(Collectors.averagingDouble(ActorRate::getRate));
+    }
+    @Override
+    public boolean equals(Object o){
+        if (this==o) return true;
+        if (!(o instanceof Actor)) return false;
+        Actor actor = (Actor) o;
+        return actorId!=null && actorId.equals(actor.getActorId());
+    }
+    @Override
+    public int hashCode(){
+        return Objects.hash(actorId);
     }
 }

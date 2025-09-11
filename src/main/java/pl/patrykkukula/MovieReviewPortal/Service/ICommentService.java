@@ -1,14 +1,23 @@
 package pl.patrykkukula.MovieReviewPortal.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithReplies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import java.util.List;
 
 public interface ICommentService {
-
+    /*
+        common section
+     */
     Long addComment(CommentDto commentDto);
-    void removeComment(Long commentId, boolean hasReplies);
-//    List<CommentDtoWithUser> fetchAllCommentsForTopic(String sorted, Long topicI);
-//    List<CommentDtoWithUser> fetchAllCommentsForUser(String username);
-//    List<CommentDtoWithUser> fetchAllComments(String sorted);
-    void updateComment(Long commentId, CommentDto commentDto);
+    Long removeComment(Long commentId, boolean hasReplies);
+    CommentDtoWithReplies fetchCommentById(Long commentId);
+    List<CommentDtoWithUser> fetchAllCommentsForUser(String username);
+    /*
+        vaadin section
+     */
+    void updateCommentVaadin(Long commentId, CommentDto commentDto);
+    /*
+        REST API section
+     */
+    void updateComment(Long commentId, String text);
 }

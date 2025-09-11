@@ -1,9 +1,11 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.*;
@@ -25,6 +27,7 @@ import static pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ActorServiceImpl implements IActorService {
@@ -83,27 +86,28 @@ public class ActorServiceImpl implements IActorService {
     @CacheEvict(value = {"actor", "actor-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToActor(RateDto rateDto) {
         validateId(rateDto.getEntityId());
-        UserEntity user = userDetailsService.getLoggedUserEntity();
-        Optional<ActorRate> optCurrentRate = actorRateRepository.findByActorIdAndUserId(rateDto.getEntityId(), user.getUserId());
-        if (optCurrentRate.isPresent()) {
-            ActorRate currentRate = optCurrentRate.get();
-            currentRate.setRate(rateDto.getRate());
-            ActorRate updatedRate = actorRateRepository.save(currentRate);
-            return new RatingResult(updatedRate.getActor().averageActorRate(), true);
-
+        Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        if (user.isPresent()) {
+            Optional<ActorRate> optCurrentRate = actorRateRepository.findByActorIdAndUserId(rateDto.getEntityId(), user.get().getUserId());
+            if (optCurrentRate.isPresent()) {
+                ActorRate currentRate = optCurrentRate.get();
+                currentRate.setRate(rateDto.getRate());
+                ActorRate updatedRate = actorRateRepository.save(currentRate);
+                return new RatingResult(updatedRate.getActor().averageActorRate(), true);
+            } else {
+                Actor actor = actorRepository.findByIdWithRates(rateDto.getEntityId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Actor", "actor id", String.valueOf(rateDto.getEntityId())));
+                ActorRate actorRate = ActorRate.builder()
+                        .actor(actor)
+                        .user(user.get())
+                        .rate(rateDto.getRate())
+                        .build();
+                ActorRate addedRate = actorRateRepository.save(actorRate);
+                actor.getActorRates().add(addedRate);
+                return new RatingResult(addedRate.getActor().averageActorRate(), false);
+            }
         }
-        else {
-            Actor actor = actorRepository.findByIdWithRates(rateDto.getEntityId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Actor", "actor id", String.valueOf(rateDto.getEntityId())));
-            ActorRate actorRate = ActorRate.builder()
-                    .actor(actor)
-                    .user(user)
-                    .rate(rateDto.getRate())
-                    .build();
-            ActorRate addedRate = actorRateRepository.save(actorRate);
-            actor.getActorRates().add(addedRate);
-            return new RatingResult(addedRate.getActor().averageActorRate(), false);
-        }
+        throw new AccessDeniedException("Log in to add rate");
     }
     @Override
     @Transactional
@@ -111,10 +115,21 @@ public class ActorServiceImpl implements IActorService {
     @CacheEvict(value = {"actor", "actor-details"})
     public Double removeRate(Long actorId) {
         validateId(actorId);
-        UserEntity user = userDetailsService.getLoggedUserEntity();
-        actorRateRepository.deleteByActorIdAndUserId(actorId, user.getUserId());
-        Actor actor = actorRepository.findByIdWithRates(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "Actor id", String.valueOf(actorId)));
-        return actor.averageActorRate();
+        Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        if (user.isPresent()) {
+            int deletedRows = actorRateRepository.deleteByActorIdAndUserId(actorId, user.get().getUserId());
+            if (deletedRows == 1) {
+                Actor actor = actorRepository.findByIdWithRates(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "Actor id", String.valueOf(actorId)));
+                return actor.averageActorRate();
+            }
+            else throw new IllegalStateException("You didn't rate this actor");
+        }
+        throw new AccessDeniedException("Log in to remove rate");
+    }
+    @Override
+    @Cacheable("top-rated-actors")
+    public List<EntityWithRate> fetchTopRatedActors() {
+        return actorRepository.findTopRatedActors().stream().map(actor -> (EntityWithRate) ActorMapper.mapToActorDtoWithAverageRate(actor, actor.averageActorRate())).toList();
     }
     /*
         REST API SECTION
@@ -180,10 +195,5 @@ public class ActorServiceImpl implements IActorService {
                     .build();
         }
         return null;
-    }
-    @Override
-    @Cacheable("top-rated-actors")
-    public List<EntityWithRate> fetchTopRatedActors() {
-        return actorRepository.findTopRatedActors().stream().map(actor -> (EntityWithRate) ActorMapper.mapToActorDtoWithUserRate(actor, actor.averageActorRate())).toList();
     }
 }

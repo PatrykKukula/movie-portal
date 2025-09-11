@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
@@ -50,6 +52,15 @@ public class DirectorController {
     @PatchMapping("/edit/{id}")
     public ResponseEntity<ResponseDto> updateDirector(@PathVariable Long id, @Valid @RequestBody DirectorUpdateDto directorDto) {
         directorService.updateDirector(directorDto,id);
+        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
+    }
+    @PostMapping("/rate/add")
+    public ResponseEntity<RatingResult> addRateToDirector(@Valid @RequestBody RateDto rateDto){
+        return ResponseEntity.accepted().body(directorService.addRateToDirector(rateDto));
+    }
+    @DeleteMapping("/rate/remove/{id}")
+    public ResponseEntity<ResponseDto> removeRateFromDirector(@PathVariable Long id){
+        directorService.removeDirector(id);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
 }

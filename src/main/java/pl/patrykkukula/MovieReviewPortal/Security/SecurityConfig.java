@@ -28,8 +28,9 @@ public class SecurityConfig extends VaadinWebSecurity {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.securityContext(scc -> scc.requireExplicitSave(false));
-                http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
+                http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 
         http.authorizeHttpRequests(request ->
             request.requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()

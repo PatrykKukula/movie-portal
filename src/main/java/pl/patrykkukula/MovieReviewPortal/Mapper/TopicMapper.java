@@ -1,11 +1,11 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
+
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.MainViewTopicDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoBasic;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.TopicDtoToDisplay;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
-import pl.patrykkukula.MovieReviewPortal.Model.Movie;
 import pl.patrykkukula.MovieReviewPortal.Model.Topic;
 
 import java.util.Comparator;
@@ -21,7 +21,7 @@ public class TopicMapper {
                 .entityType(topicDto.getEntityType())
                 .build();
     }
-    public static TopicDtoToDisplay mapToTopicDtoToDisplay(Topic topic, List<Comment> comments, Map<Long, Long> commentsCount, List<Comment> allCommentsWithUsers){
+    public static TopicDtoToDisplay mapToTopicDtoToDisplay(Topic topic, Map<Long, Long> commentsCount, List<Comment> allCommentsWithUsers){
         List<CommentDtoWithUser> commentsDto = allCommentsWithUsers.stream()
                 .map(comment -> CommentMapper.mapToCommentDtoWithUser(comment, commentsCount))
                 .sorted(Comparator.comparing(comment -> comment.getCreatedAt()))

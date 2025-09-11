@@ -29,7 +29,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.RecursiveTask;
 
 @Slf4j
 @Service
@@ -145,7 +144,7 @@ public class UserServiceImpl implements IUserService {
     }
     @Override
     public List<DirectorDtoWithUserRate> fetchHighestRatedDirectorsByUser(Long userId) {
-        return userRepository.findTopRatedDirectors(userId).stream().map(DirectorMapper::mapToDirectorDtoWithUserRate).toList();
+        return userRepository.findTopRatedDirectors(userId).stream().map(DirectorMapper::mapToDirectorDtoWithAverageRate).toList();
     }
     @Override
     public Long fetchMovieRateCount(Long userId) {
@@ -172,6 +171,6 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Page<DirectorDtoWithUserRate> fetchAllRatedDirectors(Long userId, Integer pageNo, Integer pageSize) {
         Pageable page = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "rate"));
-        return userRepository.findAllRatedDirectors(userId, page).map(DirectorMapper::mapToDirectorDtoWithUserRate);
+        return userRepository.findAllRatedDirectors(userId, page).map(DirectorMapper::mapToDirectorDtoWithAverageRate);
     }
 }

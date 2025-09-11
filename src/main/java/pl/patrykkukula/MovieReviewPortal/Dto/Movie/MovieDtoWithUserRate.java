@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Dto.Movie;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 public class MovieDtoWithUserRate implements EntityWithRate {
     private Long id;
     private String title;
+    @JsonIgnore
     private Integer userRate;
     private Double averageRate;
 

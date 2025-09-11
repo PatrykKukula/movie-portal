@@ -48,13 +48,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return null;
     }
-    public UserEntity getLoggedUserEntity() {
+    public Optional<UserEntity> getLoggedUserEntity() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            return null;
+            return Optional.empty();
         }
         User user = (User) auth.getPrincipal();
-        return userRepository.findByEmail(user.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Account", "email", user.getUsername()));
+        return userRepository.findByEmail(user.getUsername());
     }
     public UserEntity getLoggedUserEntityWithRoles() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

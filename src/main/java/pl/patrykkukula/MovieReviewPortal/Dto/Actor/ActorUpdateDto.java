@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class ActorUpdateDto {
     private String firstName;
     private String lastName;
-    @PastOrPresent(message = "Date of birth cannot be in the past")
+    @PastOrPresent(message = "Date of birth cannot be in the future")
     private LocalDate dateOfBirth;
     private String country;
     @Size(max = 1000, message = "Biography must not exceed 1000 characters")

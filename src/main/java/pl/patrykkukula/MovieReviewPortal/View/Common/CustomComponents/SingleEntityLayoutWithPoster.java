@@ -1,4 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
@@ -12,7 +13,6 @@ import org.apache.commons.lang3.function.TriFunction;
 import org.springframework.data.domain.Page;
 import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
-import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorDetailsView;

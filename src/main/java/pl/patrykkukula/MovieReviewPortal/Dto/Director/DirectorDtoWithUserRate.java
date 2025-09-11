@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Dto.Director;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ public class DirectorDtoWithUserRate implements EntityWithRate {
     private Long id;
     private String firstName;
     private String lastName;
+    @JsonIgnore
     private Integer userRate;
     private Double averageRate;
 

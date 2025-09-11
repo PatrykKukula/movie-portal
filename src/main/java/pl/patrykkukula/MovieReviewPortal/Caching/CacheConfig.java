@@ -29,16 +29,7 @@ public class CacheConfig {
                 return new LoggingCaffeineCache(name, nativeCache);
             }
         };
-        registerSpecificCaches(cacheManager);
         return cacheManager;
-    }
-    private Caffeine<Object, Object> caffeineCacheBuilder(){
-        return Caffeine.newBuilder()
-                .initialCapacity(100)
-                .maximumSize(500)
-                .expireAfterWrite(Duration.ofMinutes(30))
-                .recordStats()
-                .removalListener(this::onCacheRemoval);
     }
     private Caffeine<Object, Object> getCaffeineBuilder(String cacheName){
         switch (cacheName){
@@ -83,11 +74,13 @@ public class CacheConfig {
             }
         }
     }
-    private void registerSpecificCaches(CaffeineCacheManager cacheManager){
-        cacheManager.getCache("top-rated-movies");
-        cacheManager.getCache("top-rated-actors");
-        cacheManager.getCache("top-rated-directors");
-        cacheManager.getCache("latest-topics");
+    private Caffeine<Object, Object> caffeineCacheBuilder(){
+        return Caffeine.newBuilder()
+                .initialCapacity(100)
+                .maximumSize(500)
+                .expireAfterWrite(Duration.ofMinutes(30))
+                .recordStats()
+                .removalListener(this::onCacheRemoval);
     }
     private void onCacheRemoval(Object key, Object value, RemovalCause cause){
         log.info("Cache removal - Key: {}, Cause: {}", key, cause);

@@ -512,7 +512,7 @@ public class TopicDetailsView extends VerticalLayout implements HasUrlParameter<
                         .replyCommentId(null)
                         .build();
                 try {
-                    commentService.updateComment(comment.getCommentId(), commentDto);
+                    commentService.updateCommentVaadin(comment.getCommentId(), commentDto);
                     UI.getCurrent().getPage().reload();
                 }
                 catch (IllegalResourceModifyException | ResourceNotFoundException ex){

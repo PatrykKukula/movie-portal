@@ -24,6 +24,27 @@ spring:
       mode: always
   application:
     name: "Movie Review Portal - QA profile"
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            trust: smtp.gmail.com
+          ssl:
+            enable: false
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+app:
+  mail:
+    from: "Movie portal <movieportalapp@gmail.com>"
 logging:
   pattern:
     console: "%green(%d{HH:mm:ss}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"

@@ -6,11 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithReplies;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
+import pl.patrykkukula.MovieReviewPortal.Mapper.CommentMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
 import pl.patrykkukula.MovieReviewPortal.Model.Topic;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
@@ -19,7 +23,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.TopicRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ICommentService;
 
-import java.util.List;
+import java.util.*;
 
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 
@@ -32,6 +36,9 @@ public class CommentServiceImpl implements ICommentService {
     private final TopicRepository topicRepository;
     private final UserDetailsServiceImpl userDetailsService;
 
+    /*
+      common section
+   */
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','USER', 'MODERATOR')")
@@ -43,94 +50,108 @@ public class CommentServiceImpl implements ICommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Topic", "topic id",  String.valueOf(topicId)));
         Topic topic = topicWithMaxCommentId.get("topic", Topic.class);
         Long currentMaxCommentId = topicWithMaxCommentId.get("maxId", Long.class);
-        UserEntity user = userDetailsService.getLoggedUserEntity();
+        UserEntity user = getLoggedUserEntity();
+
+        if (commentDto.isReply()){
+            Comment comment = commentRepository.findById(commentDto.getReplyCommentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("comment", "commentId", commentDto.getReplyCommentId().toString()));
+            if (comment.isReply()) throw new IllegalStateException("Comment is reply - you can only reply to the comment that is not a reply");
+        }
 
         Comment comment = Comment.builder()
-                        .text(commentDto.getText())
-                        .topic(topic)
-                        .commentIdInPost(currentMaxCommentId+1)
-                        .isReply(commentDto.isReply())
-                        .repliedCommentId(commentDto.getReplyCommentId())
-                        .user(user)
-                        .build();
+                .text(commentDto.getText())
+                .topic(topic)
+                .commentIdInPost(currentMaxCommentId + 1)
+                .isReply(commentDto.isReply())
+                .repliedCommentId(commentDto.isReply() ? commentDto.getReplyCommentId() : null)
+                .user(user)
+                .build();
         try {
             Comment savedComment = commentRepository.save(comment);
             return savedComment.getCommentId();
-        }
-        catch (DataIntegrityViolationException ex) {
+        } catch (DataIntegrityViolationException ex) {
             throw new IllegalStateException("Comment could not be added due to concurrency conflict");
         }
     }
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','USER', 'MODERATOR')")
-    @CacheEvict(value = "topic", key = "#commentDto.topicId")
-    public void removeComment(Long commentId, boolean hasReplies){
+    @CacheEvict(value = "topic", key = "#result")
+    public Long removeComment(Long commentId, boolean hasReplies){
         validateId(commentId);
+        UserEntity userEntity = getLoggedUserEntity();
+
         Comment comment = commentRepository
-                .findCommentByIdWithUser(commentId)
+                .findCommentByIdWithUserAndTopic(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
-        Long userId = comment.getUser().getUserId();
-        if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to delete this comment");
+
+        if (!userEntity.getUserId().equals(comment.getUser().getUserId()) )
+            throw new IllegalResourceModifyException("You do not have permission to modify this comment");
         commentRepository.delete(comment);
 
         if (hasReplies){
             List<Comment> replies = commentRepository.findAllRepliesByCommentId(commentId);
             commentRepository.deleteAll(replies);
         }
+        return comment.getTopic().getTopicId();
     }
-//    @Override
-//    @PreAuthorize("hasAnyRole('ADMIN','USER')")
-//    public void removeComment(Long commentId){
-//        validateId(commentId);
-//        Comment comment = commentRepository
-//                .findCommentByIdWithUser(commentId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
-//        Long userId = comment.getUser().getUserId();
-//        if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to delete this comment");
-//        commentRepository.delete(comment);
-//    }
-//    @Override
-//    public List<CommentDtoWithUser> fetchAllCommentsForTopic(String sorted, Long topicId){
-//        validateId(topicId);
-//        String validSorting = validateSorting(sorted);
-//        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllByTopicIdSortedAsc(topicId) :
-//                    commentRepository.findAllByTopicIdSortedDesc(topicId);
-//        return mapToCommentsDtoWithUser(comments, "");
-//    }
-//    @Override
-//    public List<CommentDtoWithUser> fetchAllCommentsForUser(String username) {
-//        List<Comment> comments = commentRepository.findByUsername(username);
-//        return mapToCommentsDtoWithUser(comments, "");
-//    }
-//    @Override
-//    public List<CommentDtoWithUser> fetchAllComments(String sorted) {
-//        String validSorting = validateSorting(sorted);
-//        List<Comment> comments = validSorting.equals("ASC") ? commentRepository.findAllWithTopicOrderByIdAsc() :
-//                commentRepository.findAllWithTopicOrderByIdDesc();
-//        return mapToCommentsDtoWithUser(comments, "");
-//    }
+    @Override
+    public CommentDtoWithReplies fetchCommentById(Long commentId) {
+        validateId(commentId);
+
+        Comment comment = commentRepository
+                .findCommentByIdWithUserAndTopic(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
+
+        List<Comment> replies = commentRepository.findAllRepliesByCommentId(commentId);
+
+        return CommentMapper.mapToCommentDtoWithReplies(comment, replies);
+    }
+    @Override
+    public List<CommentDtoWithUser> fetchAllCommentsForUser(String username) {
+        List<Comment> comments = commentRepository.findAllCommentsForUserByUsername(username);
+        return mapToCommentsDtoWithUser(comments);
+    }
+    /*
+        vaadin section
+     */
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = "topic", key = "#commentId")
-    public void updateComment(Long commentId, CommentDto commentDto){
+    public void updateCommentVaadin(Long commentId, CommentDto commentDto){
+        update(commentId, commentDto.getText());
+    }
+    /*
+        REST API section
+     */
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
+    @CacheEvict(value = "topic", key = "#commentId")
+    public void updateComment(Long commentId, String text) {
+        update(commentId, text);
+    }
+
+    private void update(Long commentId, String text){
         validateId(commentId);
+
+        UserEntity userEntity = getLoggedUserEntity();
+
         Comment comment = commentRepository
                 .findCommentByIdWithUser(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "comment id", String.valueOf(commentId)));
-        Long userId = comment.getUser().getUserId();
-        if (!canUserModify(userId)) throw new IllegalResourceModifyException("You do not have permission to modify this comment");
-        comment.setText(commentDto.getText());
+
+        if (!userEntity.getUserId().equals(comment.getUser().getUserId()) )
+            throw new IllegalResourceModifyException("You do not have permission to modify this comment");
+
+        comment.setText(text);
         commentRepository.save(comment);
     }
-    // change
-//    private List<CommentDtoWithUser> mapToCommentsDtoWithUser(List<Comment> comments) {
-//        return comments.stream()
-//                .map(comment -> CommentMapper.mapToCommentDtoWithUser(comment))
-//                .toList();
-//    }
-    private boolean canUserModify(Long userId){
-        UserEntity userEntity = userDetailsService.getLoggedUserEntity();
-        return userEntity.getUserId().equals(userId) || userEntity.getRoles().stream().anyMatch(role -> role.getRoleName().equals("ADMIN"));
+    private List<CommentDtoWithUser> mapToCommentsDtoWithUser(List<Comment> comments) {
+        return comments.stream()
+                .map(comment -> CommentMapper.mapToCommentDtoWithUser(comment, Collections.emptyMap()))
+                .toList();
+    }
+    private UserEntity getLoggedUserEntity(){
+        return userDetailsService.getLoggedUserEntity().orElseThrow(() -> new AccessDeniedException("Log in to add comment"));
     }
 }

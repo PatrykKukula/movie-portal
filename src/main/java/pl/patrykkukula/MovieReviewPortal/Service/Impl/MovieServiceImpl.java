@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
@@ -21,6 +22,8 @@ import pl.patrykkukula.MovieReviewPortal.Repository.MovieRateRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IMovieService;
+
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +44,6 @@ public class MovieServiceImpl implements IMovieService {
     /*
         COMMON SECTION
      */
-
     @Override
     @Cacheable(value = "movie-details")
     public MovieDtoWithDetails fetchMovieDetailsById(Long movieId) {
@@ -50,31 +52,13 @@ public class MovieServiceImpl implements IMovieService {
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
         Double rate = movieRateRepository.getAverageMovieRate(movieId);
         Integer rateNumber = movieRepository.countMovieRates(movieId);
-        return mapToMovieDtoWithDetails(movie, rate, rateNumber);
-    }
-    @Override
-    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
-    @CacheEvict(value = "movie-details", key = "#movieId")
-    public void updateMovie(Long movieId, MovieUpdateDto movieDto) {
-        validateId(movieId);
-        Movie movie = cacheLookupService.findMovieById(movieId);
-        Long directorId = movieDto.getDirectorId();
-        if (directorId != null) {
-            validateId(directorId);
-            Director director = findDirector(directorId);
-            movie.setDirector(director);
-        }
-        MovieCategory category = movieDto.getCategory();
-        if (category != null) {
-            movie.setCategory(findCategory(category));
-        }
-        movieRepository.save(mapMovieUpdateDtoToMovieUpdate(movieDto, movie));
+        return mapMovieToMovieDtoWithDetails(movie, rate, rateNumber);
     }
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = "all-movies", allEntries = true)
     public Long addMovie(MovieDto movieDto) {
-        Movie movie = mapToMovie(movieDto);
+        Movie movie = mapMovieDtoToMovie(movieDto);
         movie.setCategory(findCategory(movieDto.getCategory()));
         movie.setDirector(findDirector(movieDto.getDirectorId()));
         movie.setActors(actorRepository.findAllById(movieDto.getActorIds()));
@@ -95,26 +79,28 @@ public class MovieServiceImpl implements IMovieService {
     @CacheEvict(value = "movie-details", key = "#rateDto.entityId")
     public RatingResult addRateToMovie(RateDto rateDto) {
         validateId(rateDto.getEntityId());
-        UserEntity user = userDetailsService.getLoggedUserEntity();
-        Optional<MovieRate> optCurrentRate = movieRateRepository.findByMovieIdAndUserId(rateDto.getEntityId(), user.getUserId());
-        if (optCurrentRate.isPresent()) {
-            MovieRate currentRate = optCurrentRate.get();
-            currentRate.setRate(rateDto.getRate());
-            MovieRate updatedRate = movieRateRepository.save(currentRate);
-            return new RatingResult(updatedRate.getMovie().averageMovieRate(), true);
-
-        } else {
-            Movie movie = movieRepository.findByIdWithMovieRates(rateDto.getEntityId())
-                    .orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(rateDto.getEntityId())));
-            MovieRate movieRate = MovieRate.builder()
-                    .movie(movie)
-                    .user(user)
-                    .rate(rateDto.getRate())
-                    .build();
-            MovieRate addedRate = movieRateRepository.save(movieRate);
-            movie.getMovieRates().add(addedRate);
-            return new RatingResult(addedRate.getMovie().averageMovieRate(), false);
+        Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        if (user.isPresent()) {
+            Optional<MovieRate> optCurrentRate = movieRateRepository.findByMovieIdAndUserId(rateDto.getEntityId(), user.get().getUserId());
+            if (optCurrentRate.isPresent()) {
+                MovieRate currentRate = optCurrentRate.get();
+                currentRate.setRate(rateDto.getRate());
+                MovieRate updatedRate = movieRateRepository.save(currentRate);
+                return new RatingResult(updatedRate.getMovie().averageMovieRate(), true);
+            } else {
+                Movie movie = movieRepository.findByIdWithMovieRates(rateDto.getEntityId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", String.valueOf(rateDto.getEntityId())));
+                MovieRate movieRate = MovieRate.builder()
+                        .movie(movie)
+                        .user(user.get())
+                        .rate(rateDto.getRate())
+                        .build();
+                MovieRate addedRate = movieRateRepository.save(movieRate);
+                movie.getMovieRates().add(addedRate);
+                return new RatingResult(addedRate.getMovie().averageMovieRate(), false);
+            }
         }
+        throw new AccessDeniedException("Log in to add rate");
     }
     @Override
     @Transactional
@@ -122,14 +108,38 @@ public class MovieServiceImpl implements IMovieService {
     @CacheEvict(value = "movie-details")
     public Double removeRate(Long movieId) {
         validateId(movieId);
-        UserEntity user = userDetailsService.getLoggedUserEntity();
-        movieRateRepository.deleteByMovieIdAndUserId(movieId, user.getUserId());
-        Movie movie = movieRepository.findByIdWithMovieRates(movieId).orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(movieId)));
-        return movie.averageMovieRate();
+        Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        if(user.isPresent()){
+            int deletedRows = movieRateRepository.deleteByMovieIdAndUserId(movieId, user.get().getUserId());
+            if (deletedRows == 1) {
+                Movie movie = movieRepository.findByIdWithMovieRates(movieId).orElseThrow(() -> new ResourceNotFoundException("MovieRate", "movie", String.valueOf(movieId)));
+                return movie.averageMovieRate();
+            }
+            else throw new IllegalStateException("Didn't remove rate successfully. Please try again");
+        }
+        throw new AccessDeniedException("Log in to remove rate");
     }
     /*
         REST API SECTION
      */
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    @CacheEvict(value = "movie-details", key = "#movieId")
+    public void updateMovie(Long movieId, MovieUpdateDto movieDto) {
+        validateId(movieId);
+        Movie movie = cacheLookupService.findMovieById(movieId);
+        Long directorId = movieDto.getDirectorId();
+        if (directorId != null) {
+            validateId(directorId);
+            Director director = findDirector(directorId);
+            movie.setDirector(director);
+        }
+        MovieCategory category = movieDto.getCategory();
+        if (category != null && !category.equals(MovieCategory.ALL)) {
+            movie.setCategory(findCategory(category));
+        }
+        movieRepository.save(mapMovieUpdateDtoToMovieUpdate(movieDto, movie));
+    }
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
@@ -192,17 +202,17 @@ public class MovieServiceImpl implements IMovieService {
         String validatedSorting = validateSorting(sorting);
 
         if (title == null && validatedSorting.equals("ASC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesAsc().stream()
-                .map(MovieMapper::mapToMovieViewDto).toList();
+                .map(MovieMapper::mapMovieToMovieViewDto).toList();
         else if (title == null && validatedSorting.equals("DESC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesDesc().stream()
-                .map(MovieMapper::mapToMovieViewDto).toList();
+                .map(MovieMapper::mapMovieToMovieViewDto).toList();
         else if (title != null && validatedSorting.equals("ASC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesByTitleAsc(title).stream()
-                .map(MovieMapper::mapToMovieViewDto).toList();
+                .map(MovieMapper::mapMovieToMovieViewDto).toList();
         else if (title != null && validatedSorting.equals("DESC") && (category == null || category == MovieCategory.ALL)) return movieRepository.findAllWithRatesByTitleDesc(title).stream()
-                .map(MovieMapper::mapToMovieViewDto).toList();
+                .map(MovieMapper::mapMovieToMovieViewDto).toList();
         else if (title != null && validatedSorting.equals("ASC")) return movieRepository.findAllWithRatesByTitleAndCategoryAsc(title, category)
-                .stream().map(MovieMapper::mapToMovieViewDto).toList();
+                .stream().map(MovieMapper::mapMovieToMovieViewDto).toList();
         else return movieRepository.findAllWithRatesByTitleAndCategoryDesc(title, category)
-                .stream().map(MovieMapper::mapToMovieViewDto).toList();
+                .stream().map(MovieMapper::mapMovieToMovieViewDto).toList();
     }
     @Override
     @Cacheable(value = "movies-dto")
@@ -210,7 +220,7 @@ public class MovieServiceImpl implements IMovieService {
         validateId(movieId);
         Movie movie = movieRepository.findByIdWithDetails(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movie id", String.valueOf(movieId)));
-        return mapToMovieDto(movie);
+        return mapMovieToMovieDto(movie);
     }
     @Override
     @Transactional
@@ -232,7 +242,7 @@ public class MovieServiceImpl implements IMovieService {
         }
         movie.setActors(actorRepository.findAllById(movieDto.getActorIds()));
 
-        movieRepository.save(mapMovieDtoToMovie(movieDto, movie));
+        movieRepository.save(mapMovieDtoToMovieVaadin(movieDto, movie));
     }
     @Override
     public RateDto fetchRateByMovieIdAndUserId(Long movieId, Long userId) {
@@ -249,9 +259,10 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     @Cacheable("top-rated-movies")
     public List<EntityWithRate> fetchTopRatedMovies() {
-        return movieRepository.findTopRatedMovies().stream().map(movie -> (EntityWithRate)MovieMapper.mapToMovieDtoWithUserRate(movie, movie.averageMovieRate())).toList();
+        return movieRepository.findTopRatedMovies().stream().map(movie -> (EntityWithRate)MovieMapper.mapToMovieDtoWithAverageRate(movie, movie.averageMovieRate())).toList();
     }
     private MovieCategory findCategory(MovieCategory category) {
+        if (category.equals(MovieCategory.ALL)) throw new InputMismatchException("Category \"ALL\" cannot be set. Please choose valid category");
         return MovieCategory.valueOf(category.name());
     }
     private Director findDirector(Long directorId) {

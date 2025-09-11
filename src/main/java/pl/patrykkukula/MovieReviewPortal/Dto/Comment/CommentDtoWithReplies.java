@@ -1,31 +1,26 @@
 package pl.patrykkukula.MovieReviewPortal.Dto.Comment;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor @NoArgsConstructor
 @Builder
-public class CommentDtoWithUser {
+public class CommentDtoWithReplies {
     private Long commentId;
     private String text;
     private String createdAt;
     private String updatedAt;
     private String author;
-    @JsonIgnore
-    private Long commentIdInPost;
-    @JsonIgnore
-    private String userRegistered;
-    @JsonIgnore
-    private Long userCommentCount;
     @JsonProperty(index = 1)
     private boolean isReply;
     private Long repliedCommentId;
-    @JsonIgnore
-    private Long userId;
     private Long topicId;
+    private List<CommentDtoWithUser> replies;
 }
+

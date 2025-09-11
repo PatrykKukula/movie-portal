@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.*;
@@ -91,26 +92,28 @@ public class DirectorServiceImpl implements IDirectorService {
     @CacheEvict(value = {"director", "director-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToDirector(RateDto rateDto) {
         validateId(rateDto.getEntityId());
-        UserEntity user = userDetailsService.getLoggedUserEntity();
-        Optional<DirectorRate> optCurrentRate = directorRateRepository.findByDirectorIdAndUserId(rateDto.getEntityId(), user.getUserId());
-        if (optCurrentRate.isPresent()) {
-            DirectorRate currentRate = optCurrentRate.get();
-            currentRate.setRate(rateDto.getRate());
-            DirectorRate updatedRate = directorRateRepository.save(currentRate);
-            return new RatingResult(updatedRate.getDirector().averageDirectorRate(), true);
+        Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        if (user.isPresent()) {
+            Optional<DirectorRate> optCurrentRate = directorRateRepository.findByDirectorIdAndUserId(rateDto.getEntityId(), user.get().getUserId());
+            if (optCurrentRate.isPresent()) {
+                DirectorRate currentRate = optCurrentRate.get();
+                currentRate.setRate(rateDto.getRate());
+                DirectorRate updatedRate = directorRateRepository.save(currentRate);
+                return new RatingResult(updatedRate.getDirector().averageDirectorRate(), true);
+            } else {
+                Director director = directorRepository.findByIdWithRates(rateDto.getEntityId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(rateDto.getEntityId())));
+                DirectorRate directorRate = DirectorRate.builder()
+                        .director(director)
+                        .user(user.get())
+                        .rate(rateDto.getRate())
+                        .build();
+                DirectorRate addedRate = directorRateRepository.save(directorRate);
+                director.getDirectorRates().add(addedRate);
+                return new RatingResult(addedRate.getDirector().averageDirectorRate(), false);
+            }
         }
-        else {
-            Director director = directorRepository.findByIdWithRates(rateDto.getEntityId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(rateDto.getEntityId())));
-            DirectorRate directorRate = DirectorRate.builder()
-                    .director(director)
-                    .user(user)
-                    .rate(rateDto.getRate())
-                    .build();
-            DirectorRate addedRate = directorRateRepository.save(directorRate);
-            director.getDirectorRates().add(addedRate);
-            return new RatingResult(addedRate.getDirector().averageDirectorRate(), false);
-        }
+        throw new AccessDeniedException("Log in to add rate");
     }
     @Override
     @Transactional
@@ -118,10 +121,22 @@ public class DirectorServiceImpl implements IDirectorService {
     @CacheEvict(value = {"director", "director-details"})
     public Double removeRate(Long directorId) {
         validateId(directorId);
-        UserEntity user = userDetailsService.getLoggedUserEntity();
-        directorRateRepository.deleteByDirectorIdAndUserId(directorId, user.getUserId());
-        Director director = directorRepository.findByIdWithRates(directorId).orElseThrow(() -> new ResourceNotFoundException("Director", "director id", String.valueOf(directorId)));
-        return director.averageDirectorRate();
+        Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        if (user.isPresent()) {
+            int deletedRows = directorRateRepository.deleteByDirectorIdAndUserId(directorId, user.get().getUserId());
+            if (deletedRows == 1) {
+                Director director = directorRepository.findByIdWithRates(directorId).orElseThrow(
+                        () -> new ResourceNotFoundException("Director", "director id", String.valueOf(directorId)));
+                return director.averageDirectorRate();
+            }
+            else throw new IllegalStateException("You didn't rate this director");
+        }
+        throw new AccessDeniedException("Log in to remove rate");
+    }
+    @Override
+    @Cacheable(value = "top-rated-directors")
+    public List<EntityWithRate> fetchTopRatedDirectors() {
+        return directorRepository.findTopRatedDirectors().stream().map(director -> (EntityWithRate) DirectorMapper.mapToDirectorDtoWithAverageRate(director, director.averageDirectorRate())).toList();
     }
     /*
         REST API SECTION
@@ -186,10 +201,5 @@ public class DirectorServiceImpl implements IDirectorService {
                     .build();
         }
         return null;
-    }
-    @Override
-    @Cacheable(value = "top-rated-directors")
-    public List<EntityWithRate> fetchTopRatedDirectors() {
-        return directorRepository.findTopRatedDirectors().stream().map(director -> (EntityWithRate) DirectorMapper.mapToDirectorDtoWithUserRate(director, director.averageDirectorRate())).toList();
     }
 }

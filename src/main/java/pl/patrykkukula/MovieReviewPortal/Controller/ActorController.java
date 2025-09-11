@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithMovies;
+import pl.patrykkukula.MovieReviewPortal.Dto.EntityWithRate;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Dto.Response.ResponseDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Service.IActorService;
@@ -48,9 +51,22 @@ public class ActorController {
         }
         return ResponseEntity.ok(actorService.fetchAllActorsByNameOrLastName(findBy, sorted));
     }
+    @GetMapping("/top-rated")
+    public ResponseEntity<List<EntityWithRate>> getTopRatedActors(){
+        return ResponseEntity.ok(actorService.fetchTopRatedActors());
+    }
     @PatchMapping("/{id}")
     public ResponseEntity<ResponseDto> updateActor(@PathVariable Long id, @Valid @RequestBody ActorUpdateDto actorUpdateDto) {
         actorService.updateActor(actorUpdateDto, id);
+        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
+    }
+    @PostMapping("/rate/add")
+    public ResponseEntity<RatingResult> addRateToActor(@Valid @RequestBody RateDto rateDto){
+        return ResponseEntity.accepted().body(actorService.addRateToActor(rateDto));
+    }
+    @DeleteMapping("/rate/remove/{id}")
+    public ResponseEntity<ResponseDto> removeRateFromActor(@PathVariable Long id){
+        actorService.removeActor(id);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
 }

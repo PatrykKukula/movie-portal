@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Topic.*;
@@ -40,29 +41,38 @@ public class TopicServiceImpl implements ITopicService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
+    @CacheEvict(value = "latest-topics")
     public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long entityId, String entityType) {
         validateId(entityId);
-        UserEntity user = userDetailsService.getLoggedUserEntity();
+        UserEntity user = getLoggedUserEntity();
+            boolean isPresent = false;
+            switch (entityType) {
+                case "actor" -> isPresent = actorRepository.findById(entityId).isPresent();
+                case "director" -> isPresent = directorRepository.findById(entityId).isPresent();
+                case "movie" -> isPresent = movieRepository.findById(entityId).isPresent();
+            }
+            if (isPresent) {
+                Topic topic = TopicMapper.mapToTopic(topicWithComment.getTopic());
+                topic.setUser(user);
 
-        Topic topic = TopicMapper.mapToTopic(topicWithComment.getTopic());
-        topic.setUser(user);
-
-        Comment comment = Comment.builder()
-                .commentIdInPost(1L)
-                .text(topicWithComment.getComment().getText())
-                .topic(topic)
-                .user(user)
-                .build();
-        topic.setComments(List.of(comment));
-        Topic savedTopic = topicRepository.save(topic);
-        return savedTopic.getTopicId();
+                Comment comment = Comment.builder()
+                        .commentIdInPost(1L)
+                        .text(topicWithComment.getComment().getText())
+                        .topic(topic)
+                        .user(user)
+                        .build();
+                topic.setComments(List.of(comment));
+                Topic savedTopic = topicRepository.save(topic);
+                return savedTopic.getTopicId();
+            }
+            else throw new ResourceNotFoundException(entityType, "Id", entityId.toString());
     }
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = "topic")
     public void deleteTopic(Long topicId) {
         validateId(topicId);
-        UserEntity userEntity = userDetailsService.getLoggedUserEntity();
+        UserEntity userEntity = getLoggedUserEntity();
         Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topicRepository.deleteById(topicId);
@@ -86,7 +96,7 @@ public class TopicServiceImpl implements ITopicService {
             commentsCount.put(userId, count);
         }
 
-        TopicDtoToDisplay topicDtoToDisplay = TopicMapper.mapToTopicDtoToDisplay(topic, comments, commentsCount, allCommentsWithUsers);
+        TopicDtoToDisplay topicDtoToDisplay = TopicMapper.mapToTopicDtoToDisplay(topic, commentsCount, allCommentsWithUsers);
 
         topicDtoToDisplay.setPostCount((long)comments.size());
 
@@ -125,10 +135,10 @@ public class TopicServiceImpl implements ITopicService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN','USER', 'MODERATOR')")
-    @CacheEvict(value = "topic", key = "topicId")
+    @CacheEvict(value = "topic", key = "#topicId")
     public void updateTopic(Long topicId, TopicUpdateDto topicUpdateDto) {
         validateId(topicId);
-        UserEntity userEntity = userDetailsService.getLoggedUserEntity();
+        UserEntity userEntity = getLoggedUserEntity();
         Topic topic = topicRepository.findByIdWithUser(topicId).orElseThrow(() -> new ResourceNotFoundException("Topic", "Topic id", String.valueOf(topicId)));
         if (!userEntity.getUserId().equals(topic.getUser().getUserId())) throw new IllegalResourceModifyException("You are not author of this topic");
         topic.setTitle(topicUpdateDto.getTitle());
@@ -161,5 +171,8 @@ public class TopicServiceImpl implements ITopicService {
                         }
                     }
                 }).toList();
+    }
+    private UserEntity getLoggedUserEntity(){
+        return userDetailsService.getLoggedUserEntity().orElseThrow(() -> new AccessDeniedException("User not logged in"));
     }
 }

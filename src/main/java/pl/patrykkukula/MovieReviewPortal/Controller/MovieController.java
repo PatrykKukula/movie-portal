@@ -2,6 +2,7 @@ package pl.patrykkukula.MovieReviewPortal.Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.List;
 import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
@@ -38,15 +40,16 @@ public class MovieController {
          movieService.deleteMovie(movieId);
          return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
-    @PostMapping("/{movieId}/actors/{actorId}")
+    @PostMapping("/{movieId}/add-actor/{actorId}")
     public ResponseEntity<?> addActorToMovie(@PathVariable Long movieId, @PathVariable Long actorId, HttpServletRequest request) {
         boolean isAdded = movieService.addActorToMovie(movieId, actorId);
+        log.info("Is added:{} ", isAdded);
 
         return isAdded ? ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE)) :
                          ResponseEntity.badRequest().
                                  body(new ErrorResponseDto(request.getRequestURI(),STATUS_400, STATUS_400_MESSAGE, "Actor already added to movie", LocalDateTime.now()));
     }
-    @DeleteMapping("/{movieId}/actors/{actorId}")
+    @DeleteMapping("/{movieId}/remove-actor/{actorId}")
     public ResponseEntity<?> removeActorFromMovie(@PathVariable Long movieId, @PathVariable Long actorId, HttpServletRequest request) {
         boolean isRemoved = movieService.removeActorFromMovie(movieId, actorId);
 
@@ -72,12 +75,12 @@ public class MovieController {
         movieService.updateMovie(movieId, movieDto);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
-    @PostMapping("/rate")
+    @PostMapping("/add-rate")
     public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody RateDto movieRateDto){
         movieService.addRateToMovie(movieRateDto);
         return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
     }
-    @DeleteMapping("/{movieId}/rate")
+    @DeleteMapping("/remove-rate/{movieId}")
     public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
         Double newRate = movieService.removeRate(movieId);
         return newRate !=null ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :

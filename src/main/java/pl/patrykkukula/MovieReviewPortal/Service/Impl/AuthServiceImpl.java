@@ -1,10 +1,20 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
+import jakarta.mail.Address;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +45,7 @@ import java.util.regex.Pattern;
 import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.ONLY_LETTER_REGEX;
 import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.USERNAME_REGEX;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
@@ -43,6 +54,9 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordResetRepository pwdRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
+    private final JavaMailSender mailSender;
+    @Value("${app.mail.from}")
+    private String from;
 
     @Override
     @Transactional
@@ -227,7 +241,7 @@ public class AuthServiceImpl implements IAuthService {
     private String resendVerificationToken(UserEntity user){
         if (user.isEnabled()) throw new IllegalStateException("Account is verified");
         userRepository.save(user);
-        pwdRepository.flush();
+        verificationRepository.flush();
 
      return verificationTokenBase(user);
     }
@@ -240,6 +254,23 @@ public class AuthServiceImpl implements IAuthService {
                 .user(user)
                 .build();
         verificationRepository.save(verificationToken);
+
+//        MimeMessage mimeMessage = mailSender.createMimeMessage();
+//        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
+//        try {
+//            helper.setTo("kukla1416@wp.pl");
+//            helper.setText("This is test message");
+//            helper.setSubject("Verify account");
+//            helper.setFrom(from);
+//        } catch (MessagingException e) {
+//            throw new RuntimeException(e);
+//        }
+//        mailSender.send(mimeMessage);
+//        try {
+//            log.info("Sending email message:{} ", mimeMessage.getSender());
+//        } catch (MessagingException e) {
+//            throw new RuntimeException(e);
+//        }
         return token;
 //        return  "Verification token has been created and will be valid for 12 hours: " + lineSeparator() +
 //                "To activate your account, send a POST request to the following URL: " +

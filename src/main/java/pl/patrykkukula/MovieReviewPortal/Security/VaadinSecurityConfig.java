@@ -3,6 +3,7 @@ import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,7 +23,8 @@ import pl.patrykkukula.MovieReviewPortal.View.Account.LoginView;
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
-public class SecurityConfig extends VaadinWebSecurity {
+@Order(2)
+public class VaadinSecurityConfig extends VaadinWebSecurity {
     private static final String LOGOUT_URL = "/movies";
 
     @Override
@@ -30,7 +32,7 @@ public class SecurityConfig extends VaadinWebSecurity {
         http.securityContext(scc -> scc.requireExplicitSave(false));
                 http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
+//        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
 
         http.authorizeHttpRequests(request ->
             request.requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
@@ -43,11 +45,11 @@ public class SecurityConfig extends VaadinWebSecurity {
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
         );
-        http.exceptionHandling(ehc -> {
-            ehc.accessDeniedHandler(new AccessDeniedHandlerImpl());
-            ehc.authenticationEntryPoint(new AuthEntryPointImpl());
-        });
-
+//        http.exceptionHandling(ehc -> {
+//            ehc.accessDeniedHandler(new AccessDeniedHandlerImpl());
+//            ehc.authenticationEntryPoint(new AuthEntryPointImpl());
+//        });
+        http.securityMatcher("/**");
         super.configure(http);
         setLoginView(http, LoginView.class);
         http.logout(logout -> logout

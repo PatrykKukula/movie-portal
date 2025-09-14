@@ -42,6 +42,7 @@ public class ActorServiceImpl implements IActorService {
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = {"all-actors", "all-actors-summary"}, allEntries = true)
     public Long addActor(ActorDto actorDto) {
+        log.info("Invoking add actor service method");
         Actor actor = actorRepository.save(mapToActor(actorDto));
         return actor.getActorId();
     }

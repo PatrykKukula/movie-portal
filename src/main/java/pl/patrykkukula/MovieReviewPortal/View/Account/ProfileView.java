@@ -67,7 +67,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
 
     @Override
     public void setParameter(BeforeEvent event, Long userId) {
-        UserEntity userEntity = userService.loadUserEntityById(userId);
+        UserEntity userEntity = userService.loadUserEntityByIdVaadin(userId);
         HorizontalLayout userDetailsLayout = new HorizontalLayout();
         userDetailsLayout.addClassName("details-layout");
         userDetailsLayout.getStyle().set("padding-bottom", "20px");
@@ -126,7 +126,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
     private VerticalLayout avgMovieRate(Long userId){
         VerticalLayout layout = new VerticalLayout();
 
-        Double rate = userService.fetchAverageRate(userId, "Movie");
+        Double rate = userService.fetchAverageRate(userId);
         Div avgRate = new Div("Average movie rate");
         avgRate.addClassName("bold-component");
         Div text = new Div();

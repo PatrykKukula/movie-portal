@@ -43,7 +43,6 @@ public class MovieController {
     @PostMapping("/{movieId}/add-actor/{actorId}")
     public ResponseEntity<?> addActorToMovie(@PathVariable Long movieId, @PathVariable Long actorId, HttpServletRequest request) {
         boolean isAdded = movieService.addActorToMovie(movieId, actorId);
-        log.info("Is added:{} ", isAdded);
 
         return isAdded ? ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE)) :
                          ResponseEntity.badRequest().
@@ -75,12 +74,12 @@ public class MovieController {
         movieService.updateMovie(movieId, movieDto);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
-    @PostMapping("/add-rate")
+    @PostMapping("/rate/add")
     public ResponseEntity<ResponseDto> addRateToMovie(@Valid @RequestBody RateDto movieRateDto){
         movieService.addRateToMovie(movieRateDto);
         return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
     }
-    @DeleteMapping("/remove-rate/{movieId}")
+    @DeleteMapping("/rate/remove/{movieId}")
     public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
         Double newRate = movieService.removeRate(movieId);
         return newRate !=null ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :

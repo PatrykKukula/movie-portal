@@ -1,29 +1,28 @@
 package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 
-import jakarta.mail.Address;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
 import pl.patrykkukula.MovieReviewPortal.Constants.UserSex;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.LoginDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.PasswordResetDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserEntityDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserUpdateDto;
 import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.UserEntityMapper;
+import pl.patrykkukula.MovieReviewPortal.Mapper.UserMapper;
 import pl.patrykkukula.MovieReviewPortal.Model.PasswordResetToken;
 import pl.patrykkukula.MovieReviewPortal.Model.Role;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
@@ -33,6 +32,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.RoleRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.UserEntityRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.VerificationTokenRepository;
 import pl.patrykkukula.MovieReviewPortal.Service.IAuthService;
+import pl.patrykkukula.MovieReviewPortal.Utils.JwtUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,7 +43,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.ONLY_LETTER_REGEX;
-import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.USERNAME_REGEX;
 
 @Slf4j
 @Service
@@ -54,10 +53,25 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordResetRepository pwdRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
     private final JavaMailSender mailSender;
     @Value("${app.mail.from}")
     private String from;
 
+    @Override
+    public String login(LoginDto loginDto) {
+        Optional<UserEntity> user = userRepository.findByEmail(loginDto.getEmail());
+        if (user.isPresent()){
+            if (!user.get().isEnabled()) throw new AuthenticationServiceException("You are not verified - please verify your account");
+            if (user.get().getBanned() != null && user.get().getBanned()) throw new IllegalStateException("You account is banned and will be back available at: " + user.get().getBanExpiration());
+        }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return jwtUtils.generateJwtToken();
+    }
     @Override
     @Transactional
     public String register(UserEntityDto userDto) {
@@ -145,6 +159,20 @@ public class AuthServiceImpl implements IAuthService {
 //                "{\"password\":" + "your new password" + lineSeparator() +
 //                "\"token\": \"" + token + "\"" + "}";
     }
+    /*
+    REST API Section
+ */
+    @Override
+    public void updateUserData(UserUpdateDto userUpdateDto) {
+        UserEntity user = userRepository.findById(userUpdateDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userUpdateDto.getId().toString()));
+
+        UserEntity updatedUser = UserMapper.mapUserUpdateDtoToUserEntity(user, userUpdateDto);
+        userRepository.save(updatedUser);
+    }
+    /*
+        Vaadin section
+     */
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public boolean changePassword(UserEntity user, String newPassword) {
@@ -218,21 +246,6 @@ public class AuthServiceImpl implements IAuthService {
         }
         return false;
     }
-    //
-//    @Override
-//    public boolean login(String email, String password) {
-//        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
-//        if (optionalUser.isEmpty()) {
-//            return false;
-//        }
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        boolean isPasswordCorrect = encoder.matches(password, optionalUser.get().getPassword());
-//        if (isPasswordCorrect) {
-//            authenticationManager.authenticate(auth);
-//            return true;
-//        }
-//        else return false;
-//    }
     private String generateVerificationToken(UserEntity user){
         if (user.isEnabled()) throw new IllegalStateException("Account is verified");
 

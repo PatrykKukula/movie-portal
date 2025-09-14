@@ -6,23 +6,23 @@ import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.BanDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserDataDto;
 import pl.patrykkukula.MovieReviewPortal.Model.UserEntity;
 
-import java.time.Duration;
 import java.util.List;
 
 public interface IUserService {
-    UserEntity loadUserEntityById(Long userId);
-    UserEntity loadUserEntityByEmail(String email);
-    String getUsername(String email);
-    boolean banUser(String username, Duration banTime);
-    boolean removeBan (UserEntity user);
+    /*
+        Common section
+     */
+    boolean banUser(BanDto banDto);
+    boolean removeBan (String username);
     boolean addRole(String username, String roleName);
     boolean removeRole(String username, String roleName);
     Integer countUsers(String username);
     Page<UserDataDto> fetchAllUsers(int pageNo, int pageSize, Sort sort, String searchText);
-    Double fetchAverageRate(Long userId, String entityType);
+    Double fetchAverageRate(Long userId);
     MovieCategory fetchMostRatedCategory(Long userId);
     List<MovieDtoWithUserRate> fetchHighestRatedMoviesByUser(Long userId);
     List<ActorDtoWithUserRate> fetchHighestRatedActorsByUser(Long userId);
@@ -33,4 +33,14 @@ public interface IUserService {
     Page<MovieDtoWithUserRate> fetchAllRatedMovies(Long userId, Integer pageNo, Integer pageSize);
     Page<ActorDtoWithUserRate> fetchAllRatedActors(Long userId, Integer pageNo, Integer pageSize);
     Page<DirectorDtoWithUserRate> fetchAllRatedDirectors(Long userId, Integer pageNo, Integer pageSize);
+    /*
+        REST API Section
+     */
+    UserDataDto loadUserEntityById(Long userId);
+    /*
+        Vaadin section
+     */
+    UserEntity loadUserEntityByIdVaadin(Long userId);
+    UserEntity loadUserEntityByEmail(String email);
+    String getUsername(String email);
 }

@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 @Builder
 public class UserDataDto {
+    private Long userId;
     private String username;
     private String email;
     private String status;

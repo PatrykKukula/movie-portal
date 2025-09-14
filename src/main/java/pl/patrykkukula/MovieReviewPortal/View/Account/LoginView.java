@@ -78,7 +78,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
                         return;
                     }
                     else {
-                        boolean removed = userService.removeBan(user);
+                        boolean removed = userService.removeBan(user.getUsername());
                         if (!removed) return; // possibly issue for failed login when not banned
                     }
                 }

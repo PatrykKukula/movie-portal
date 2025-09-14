@@ -1,5 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Exception;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +34,6 @@ public class AuthEntryPointImpl implements AuthenticationEntryPoint {
                 "Error message: " + message,
                 LocalDateTime.now());
 
-        response.getWriter().write(errorResponse.toString());
+        new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
     }
 }

@@ -15,17 +15,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
-    @Query("SELECT DISTINCT u.userId FROM UserEntity u")
-    Page<Long> findAllUsersIds(Pageable pageable);
-    @EntityGraph(attributePaths = {"roles"})
-    @Query("SELECT DISTINCT u FROM UserEntity u WHERE u.userId IN :ids")
-    List<UserEntity> findAllByIdWithRoles(@Param("ids") List<Long> ids);
     @Query("SELECT DISTINCT u FROM UserEntity u LEFT JOIN FETCH u.roles")
     Page<UserEntity> findAllWithRoles(Pageable pageable);
     @Query("SELECT DISTINCT u FROM UserEntity u LEFT JOIN FETCH u.roles WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))")
     Page<UserEntity> findAllWithRolesByUsername(Pageable pageable, @Param(value = "username") String username);
-    @Query("SELECT DISTINCT u.userId FROM UserEntity u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))")
-    Page<Long> findAllUsersIdsByUsername(Pageable pageable, @Param(value = "username") String username);
     @Query("SELECT COUNT(u) FROM UserEntity u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))")
     Integer countUsersByUsername(@Param(value = "username") String username);
     Optional<UserEntity> findByEmail(String email);

@@ -1,4 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.View.Account;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -14,10 +15,11 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.BanDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserDataDto;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.FormFields;
-import java.time.Duration;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -128,25 +130,18 @@ public class AdminView extends VerticalLayout {
         Button button = new Button(banDuration);
 
         button.addClickListener(e -> {
-           Duration duration;
-           switch (banDuration){
-               case "7 days" -> duration = Duration.ofDays(7);
-               case "30 days" -> duration = Duration.ofDays(30);
-               case "Permanent" -> duration = Duration.ofDays(9999999);
-               default -> duration = Duration.ofHours(24);
-           }
-           ConfirmDialog confirmDialog = createConfirmDialog(username, duration, banDuration);
+           ConfirmDialog confirmDialog = createConfirmDialog(username, banDuration);
            confirmDialog.open();
         });
         return button;
     }
-    private ConfirmDialog createConfirmDialog(String username, Duration duration, String banDuration){
+    private ConfirmDialog createConfirmDialog(String username, String banDuration){
         ConfirmDialog dialog = new ConfirmDialog(
                 "Are you sure you want to ban user?",
                 null,
                 "confirm",
                 e -> {
-                    boolean banned = userService.banUser(username, duration);
+                    boolean banned = userService.banUser(new BanDto(username,banDuration));
                     if (banned) show("User banned for %s successfully".formatted(banDuration), 3000, Position.MIDDLE);
                     else show("Something went wrong. Please try again", 3000, Position.MIDDLE);
                     },

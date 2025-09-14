@@ -329,7 +329,7 @@ public class CommentServiceImplTest {
         IllegalResourceModifyException ex = assertThrows(IllegalResourceModifyException.class, () -> commentService.updateComment(1L, updateText));
         assertEquals("You do not have permission to modify this comment", ex.getMessage());
     }
-    
+
     private UserEntity setCurrentUser() {
         Role role = Role.builder()
                 .roleId(1L)

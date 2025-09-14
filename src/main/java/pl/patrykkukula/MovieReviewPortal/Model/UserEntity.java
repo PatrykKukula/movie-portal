@@ -1,8 +1,6 @@
 package pl.patrykkukula.MovieReviewPortal.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.Constraint;
 import lombok.*;
 import pl.patrykkukula.MovieReviewPortal.Constants.UserSex;
 
@@ -32,14 +30,13 @@ public class UserEntity {
     private String lastName;
     private boolean isEnabled = false;
     private LocalDateTime registeredAt;
-    @Column(nullable = true)
     private Boolean banned;
     private LocalDateTime banExpiration;
-//
-//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    private VerificationToken verificationToken;
-//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    private PasswordResetToken passwordResetToken;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private VerificationToken verificationToken;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private PasswordResetToken passwordResetToken;
 
 
     @ManyToMany(fetch = FetchType.LAZY)

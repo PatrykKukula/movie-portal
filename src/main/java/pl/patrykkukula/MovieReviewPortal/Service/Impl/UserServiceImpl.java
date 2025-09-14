@@ -14,7 +14,9 @@ import pl.patrykkukula.MovieReviewPortal.Constants.MovieCategory;
 import pl.patrykkukula.MovieReviewPortal.Dto.Actor.ActorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Director.DirectorDtoWithUserRate;
 import pl.patrykkukula.MovieReviewPortal.Dto.Movie.MovieDtoWithUserRate;
+import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.BanDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserDataDto;
+import pl.patrykkukula.MovieReviewPortal.Exception.ResourceNotFoundException;
 import pl.patrykkukula.MovieReviewPortal.Mapper.ActorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.DirectorMapper;
 import pl.patrykkukula.MovieReviewPortal.Mapper.MovieMapper;
@@ -30,6 +32,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,34 +41,31 @@ public class UserServiceImpl implements IUserService {
     private final UserEntityRepository userRepository;
     private final RoleRepository roleRepository;
 
-    @Override
-    public UserEntity loadUserEntityById(Long userId) {
-        return userRepository.findByIdWithComments(userId)
-                    .orElse(null);
-    }
-    @Override
-    public UserEntity loadUserEntityByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
-    }
-    @Override
-    public String getUsername(String email) {
-        UserEntity user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
-        return user.getUsername();
-    }
+    /*
+        Common section
+     */
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public boolean banUser(String username, Duration banTime) {
-        Optional<UserEntity> userOpt = userRepository.findByUsername(username);
+    public boolean banUser(BanDto banDto) {
+        Duration duration;
+        switch (banDto.getBanDuration()){
+            case "24 hours" -> duration = Duration.ofHours(24);
+            case "7 days" -> duration = Duration.ofDays(7);
+            case "30 days" -> duration = Duration.ofDays(30);
+            case "Permanent" -> duration = Duration.ofDays(9999999);
+            default -> throw new IllegalStateException("Choose valid ban duration: 24 hours, 7 days, 30 days or permanent");
+        }
+        Optional<UserEntity> userOpt = userRepository.findByUsername(banDto.getUsername());
         if (userOpt.isPresent()){
             UserEntity user = userOpt.get();
             user.setBanned(true);
             if (user.getBanExpiration() != null && user.getBanExpiration().isAfter(LocalDateTime.now())){
-                user.setBanExpiration(user.getBanExpiration().plus(banTime));
+                user.setBanExpiration(user.getBanExpiration().plus(duration));
+                userRepository.save(user);
             }
             else {
-                user.setBanExpiration(LocalDateTime.now().plus(banTime));
+                user.setBanExpiration(LocalDateTime.now().plus(duration));
                 userRepository.save(user);
             }
             return true;
@@ -74,9 +75,11 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public boolean removeBan(UserEntity user) {
-        if (user != null) {
+    public boolean removeBan(String username) {
+        UserEntity user =   userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        if (user.getBanned()) {
             user.setBanned(false);
+            user.setBanExpiration(null);
             userRepository.save(user);
             return true;
         }
@@ -86,10 +89,11 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public boolean addRole(String username, String roleName) {
+        if (!roleName.equals("MODERATOR")) throw new IllegalStateException("Choose valid role: MODERATOR");
         Optional<UserEntity> userOpt = userRepository.findByUsernameWithRoles(username);
         if (userOpt.isPresent()){
             UserEntity user = userOpt.get();
-            Role role = roleRepository.findRoleByRoleName(roleName).orElseThrow(() -> new RuntimeException("Role not found. Please contact technical support"));
+            Role role = roleRepository.findRoleByRoleName(roleName).orElse(null);
             List<Role> roles = user.getRoles();
             if (roles.stream().anyMatch(r -> r.getRoleName().equals("MODERATOR"))) throw new IllegalStateException("User already has Moderator role");
             roles.add(role);
@@ -107,7 +111,8 @@ public class UserServiceImpl implements IUserService {
             UserEntity user = userOpt.get();
             Role role = roleRepository.findRoleByRoleName(roleName).orElseThrow(() -> new RuntimeException("Role USER not found. Please contact technical support"));
             List<Role> roles = user.getRoles();
-            if (roles.stream().noneMatch(r -> r.getRoleName().equals("MODERATOR"))) throw new IllegalStateException("User doesn't have Moderator role");
+            if (roles.stream().noneMatch(r -> r.getRoleName().equals("MODERATOR")))
+                throw new IllegalStateException("You can only remove MODERATOR role. If you tried to remove MODERATOR role and see this response, user doesn't have that role");
             roles.remove(role);
             userRepository.save(user);
             return true;
@@ -126,11 +131,13 @@ public class UserServiceImpl implements IUserService {
                 userRepository.findAllWithRolesByUsername(pageable, searchText).map(UserMapper::mapToUserDataDto);
     }
     @Override
-    public Double fetchAverageRate(Long userId, String entityType) {
+    public Double fetchAverageRate(Long userId) {
+        validateId(userId);
         return userRepository.findAverageMovieRate(userId);
     }
     @Override
     public MovieCategory fetchMostRatedCategory(Long userId) {
+        validateId(userId);
         List<MovieCategory> movieRates = userRepository.findUserMovieRates(userId);
         return movieRates.isEmpty() ? null : movieRates.getFirst();
     }
@@ -148,14 +155,17 @@ public class UserServiceImpl implements IUserService {
     }
     @Override
     public Long fetchMovieRateCount(Long userId) {
+        validateId(userId);
         return userRepository.findMovieRateCount(userId);
     }
     @Override
     public Long fetchActorRateCount(Long userId) {
+        validateId(userId);
         return userRepository.findActorRateCount(userId);
     }
     @Override
     public Long fetchDirectorRateCount(Long userId) {
+        validateId(userId);
         return userRepository.findDirectorRateCount(userId);
     }
     @Override
@@ -172,5 +182,31 @@ public class UserServiceImpl implements IUserService {
     public Page<DirectorDtoWithUserRate> fetchAllRatedDirectors(Long userId, Integer pageNo, Integer pageSize) {
         Pageable page = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "rate"));
         return userRepository.findAllRatedDirectors(userId, page).map(DirectorMapper::mapToDirectorDtoWithAverageRate);
+    }
+    /*
+        REST API Section
+     */
+    @Override
+    public UserDataDto loadUserEntityById(Long userId) {
+        UserEntity user = userRepository.findByIdWithComments(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId.toString()));
+        return UserMapper.mapToUserDataDto(user);
+    }
+    /*
+        Vaadin section
+     */
+    @Override
+    public UserEntity loadUserEntityByIdVaadin(Long userId) {
+        return userRepository.findByIdWithComments(userId)
+                .orElse(null);
+    }
+    @Override
+    public UserEntity loadUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Account not found"));
+    }
+    @Override
+    public String getUsername(String email) {
+        UserEntity user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new UsernameNotFoundException("Account with email " + email + " not found"));
+        return user.getUsername();
     }
 }

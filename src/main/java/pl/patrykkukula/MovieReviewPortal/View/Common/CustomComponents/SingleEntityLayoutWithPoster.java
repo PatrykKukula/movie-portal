@@ -161,7 +161,7 @@ public class SingleEntityLayoutWithPoster<T extends EntityWithRate> extends Hori
         });
     }
     public Div setHeader(Long userId, UserServiceImpl userService){
-        UserEntity user = userService.loadUserEntityById(userId);
+        UserEntity user = userService.loadUserEntityByIdVaadin(userId);
 
         Anchor link = new Anchor("user/%s".formatted(userId), user.getFirstName() + " " + user.getLastName());
         Div div = new Div((new Span("Movies rated by ")), link, new Span(" (%s)".formatted(user.getUsername())));

@@ -3,6 +3,7 @@ package pl.patrykkukula.MovieReviewPortal.Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import java.util.List;
 import static pl.patrykkukula.MovieReviewPortal.Constants.ResponseConstants.*;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ControllerUtils.setUri;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/actors", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
@@ -30,6 +32,7 @@ public class ActorController {
 
     @PostMapping
     public ResponseEntity<ResponseDto> addActor(@Valid @RequestBody ActorDto actorDto, HttpServletRequest request) {
+        log.info("Invoking add actor controller");
         Long actorId = actorService.addActor(actorDto);
         URI location = setUri(actorId, request.getRequestURI());
         return ResponseEntity.created(location).body(new ResponseDto(STATUS_201, STATUS_201_MESSAGE));

@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
         String path = request.getDescription(false);
         LocalDateTime occurrenceTime = now();
         String errorMessage = ex.getMessage();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponseDto(path, STATUS_500, STATUS_500_MESSAGE, errorMessage, occurrenceTime));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponseDto(path, STATUS_400, STATUS_400_MESSAGE, errorMessage, occurrenceTime));
     }
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponseDto> handleMissingRequestParameterException(MissingServletRequestParameterException ex, WebRequest request) {

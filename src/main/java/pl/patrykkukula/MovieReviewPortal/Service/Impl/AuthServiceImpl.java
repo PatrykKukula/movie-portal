@@ -7,11 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
@@ -43,6 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants.ONLY_LETTER_REGEX;
+import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 
 @Slf4j
 @Service
@@ -53,7 +49,6 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordResetRepository pwdRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final JavaMailSender mailSender;
     @Value("${app.mail.from}")
@@ -61,15 +56,11 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public String login(LoginDto loginDto) {
-        Optional<UserEntity> user = userRepository.findByEmail(loginDto.getEmail());
-        if (user.isPresent()){
-            if (!user.get().isEnabled()) throw new AuthenticationServiceException("You are not verified - please verify your account");
-            if (user.get().getBanned() != null && user.get().getBanned()) throw new IllegalStateException("You account is banned and will be back available at: " + user.get().getBanExpiration());
-        }
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserEntity user = userRepository.findByEmail(loginDto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("User", "email", loginDto.getEmail()));
+
+        if (!user.isEnabled()) throw new IllegalStateException("You are not verified - please verify your account");
+        if (user.getBanned() != null && user.getBanned()) throw new IllegalStateException("Your account is banned and will be back available at: " + user.getBanExpiration());
+
         return jwtUtils.generateJwtToken();
     }
     @Override
@@ -84,7 +75,6 @@ public class AuthServiceImpl implements IAuthService {
         UserEntity user = UserEntityMapper.mapToUserEntity(userDto);
         user.setPassword(hashedPassword);
         user.setRoles(List.of(role));
-
         try {
            userRepository.save(user);
         }
@@ -98,7 +88,7 @@ public class AuthServiceImpl implements IAuthService {
     public void verifyAccount(String token) {
         if (token == null || token.isEmpty()) throw new IllegalArgumentException("token cannot be null or empty");
         VerificationToken verificationToken = verificationRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalStateException("Invalid or expired token"));
+                .orElseThrow(() -> new IllegalStateException("verification token not found"));
         if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) throw new IllegalStateException("Token expired");
         UserEntity userEntity = verificationToken.getUser();
         if (userEntity.isEnabled()) throw new IllegalStateException("Account already verified");
@@ -117,9 +107,9 @@ public class AuthServiceImpl implements IAuthService {
     @Transactional
     public boolean resetPassword(PasswordResetDto passwordResetDto) {
         PasswordResetToken token = pwdRepository.findByToken(passwordResetDto.getPwdResetToken())
-                .orElseThrow(() -> new IllegalStateException("Invalid token"));
-        if (token == null || token.getToken().isEmpty()) throw new IllegalStateException("No password reset token provided. Make sure to click valid link");
-        if (token.getExpiryDate().isBefore(LocalDateTime.now())) throw new IllegalStateException("Token expired");
+                .orElseThrow(() -> new IllegalStateException("Password reset token not found"));
+
+        if (token.getExpiryDate().isBefore(LocalDateTime.now())) throw new IllegalStateException("Password reset token expired");
         UserEntity user = token.getUser();
 
         if (!passwordResetDto.getNewPassword().equals(passwordResetDto.getConfirmPassword())){
@@ -141,7 +131,7 @@ public class AuthServiceImpl implements IAuthService {
         Optional<PasswordResetToken> existingToken = pwdRepository.findByUser(user);
         existingToken.ifPresent(token -> {
 //            user.setPasswordResetToken(null);
-            userRepository.save(user);
+//            userRepository.save(user);
             pwdRepository.delete(token);
             pwdRepository.flush();
         });
@@ -164,6 +154,7 @@ public class AuthServiceImpl implements IAuthService {
  */
     @Override
     public void updateUserData(UserUpdateDto userUpdateDto) {
+        validateId(userUpdateDto.getId());
         UserEntity user = userRepository.findById(userUpdateDto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userUpdateDto.getId().toString()));
 
@@ -252,7 +243,7 @@ public class AuthServiceImpl implements IAuthService {
         return verificationTokenBase(user);
     }
     private String resendVerificationToken(UserEntity user){
-        if (user.isEnabled()) throw new IllegalStateException("Account is verified");
+        if (user.isEnabled()) throw new IllegalStateException("Account already verified");
         userRepository.save(user);
         verificationRepository.flush();
 

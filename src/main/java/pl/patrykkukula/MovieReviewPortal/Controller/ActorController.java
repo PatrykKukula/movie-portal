@@ -32,7 +32,6 @@ public class ActorController {
 
     @PostMapping
     public ResponseEntity<ResponseDto> addActor(@Valid @RequestBody ActorDto actorDto, HttpServletRequest request) {
-        log.info("Invoking add actor controller");
         Long actorId = actorService.addActor(actorDto);
         URI location = setUri(actorId, request.getRequestURI());
         return ResponseEntity.created(location).body(new ResponseDto(STATUS_201, STATUS_201_MESSAGE));
@@ -47,7 +46,7 @@ public class ActorController {
         return ResponseEntity.ok(actorService.fetchActorByIdWithMovies(id));
     }
     @GetMapping
-    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false) String sorted,
+    public ResponseEntity<List<ActorDto>> getAllActors(@RequestParam(name = "sorted", required = false, defaultValue = "ASC") String sorted,
                                                         @RequestParam(name = "findBy", required = false) String findBy) {
         if (findBy == null || findBy.isEmpty()) {
             return ResponseEntity.ok(actorService.fetchAllActors(sorted));
@@ -69,7 +68,7 @@ public class ActorController {
     }
     @DeleteMapping("/rate/remove/{id}")
     public ResponseEntity<ResponseDto> removeRateFromActor(@PathVariable Long id){
-        actorService.removeActor(id);
+        actorService.removeRate(id);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
 }

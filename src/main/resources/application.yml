@@ -27,3 +27,5 @@ logging:
     org.springframework.cache: DEBUG
     com.github.benmanes.caffeine: DEBUG
     pl.patrykkukula.MovieReviewPortal: DEBUG
+Jwt:
+  secret: ${SECRET_KEY}

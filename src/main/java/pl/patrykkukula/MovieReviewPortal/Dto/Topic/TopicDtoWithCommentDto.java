@@ -13,9 +13,10 @@ import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
 @NoArgsConstructor
 @Builder
 public class TopicDtoWithCommentDto {
-    @NotNull(message = "Topic cannot be empty")
+    @NotNull(message = "Topic cannot be null or empty")
+    @Valid
     private TopicDto topic;
-    @NotNull(message = "Comment cannot be empty")
+    @NotNull(message = "Comment cannot be null empty")
     @Valid
     private CommentDto comment;
 }

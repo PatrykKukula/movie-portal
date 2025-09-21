@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Builder
 public class DirectorDto {
     private Long id;
-    @NotEmpty(message = "First name cannot be or empty")
+    @NotEmpty(message = "First name cannot be null or empty")
     private String firstName;
     @NotEmpty(message = "Last name cannot be empty")
     private String lastName;

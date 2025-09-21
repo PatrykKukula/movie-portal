@@ -16,6 +16,8 @@ import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
 
 import java.util.List;
 
+import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
+
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDataDto> findUserById(@PathVariable(value = "userId") Long userId){
+        validateId(userId);
         return ResponseEntity.ok(userService.loadUserEntityById(userId));
     }
     @PostMapping("/ban")

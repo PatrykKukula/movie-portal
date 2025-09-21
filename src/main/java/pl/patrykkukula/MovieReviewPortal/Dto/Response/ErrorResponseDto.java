@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor @NoArgsConstructor
 @Builder
 public class ErrorResponseDto {
-
     private String path;
     private String statusCode;
     private String statusMessage;

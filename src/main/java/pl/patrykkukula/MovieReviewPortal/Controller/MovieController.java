@@ -80,15 +80,8 @@ public class MovieController {
         return ResponseEntity.ok(new ResponseDto(STATUS_200, STATUS_200_MESSAGE));
     }
     @DeleteMapping("/rate/remove/{movieId}")
-    public ResponseEntity<?> removeRateFromMovie(@PathVariable Long movieId, WebRequest request){
-        Double newRate = movieService.removeRate(movieId);
-        return newRate !=null ? ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE)) :
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponseDto(
-                        request.getDescription(false),
-                        STATUS_404,
-                        STATUS_404_MESSAGE,
-                        "You didn't set rate for this movie",
-                        LocalDateTime.now()
-                        ));
+    public ResponseEntity<ResponseDto> removeRateFromMovie(@PathVariable Long movieId) {
+        movieService.removeRate(movieId);
+        return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
 }

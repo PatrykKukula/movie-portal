@@ -13,3 +13,5 @@ spring:
   sql:
     init:
       mode: never
+jwt:
+  secret: POAKldkg84960spelto948uytj2mgkxod04i6ksmsngHjlekyop2305ksmdnjslgoris

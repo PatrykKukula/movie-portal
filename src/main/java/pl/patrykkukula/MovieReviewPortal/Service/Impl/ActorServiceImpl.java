@@ -42,7 +42,6 @@ public class ActorServiceImpl implements IActorService {
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
     @CacheEvict(value = {"all-actors", "all-actors-summary"}, allEntries = true)
     public Long addActor(ActorDto actorDto) {
-        log.info("Invoking add actor service method");
         Actor actor = actorRepository.save(mapToActor(actorDto));
         return actor.getActorId();
     }
@@ -76,7 +75,7 @@ public class ActorServiceImpl implements IActorService {
     }
     @Override
     public List<ActorDto> fetchAllActorsByNameOrLastName(String name, String sorted) {
-        String validatedSorted = validateSorting(sorted);
+       String validatedSorted = validateSorting(sorted);
        return validatedSorted.equals("ASC") ?
                actorRepository.findAllByFirstOrLastNameAsc(name).stream().map(ActorMapper::mapToActorDto).toList() :
                actorRepository.findAllByFirstOrLastNameDesc(name).stream().map(ActorMapper::mapToActorDto).toList();

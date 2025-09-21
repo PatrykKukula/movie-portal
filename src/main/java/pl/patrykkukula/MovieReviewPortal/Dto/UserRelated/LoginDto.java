@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Dto.UserRelated;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +15,10 @@ import javax.annotation.MatchesPattern;
 @Data
 @AllArgsConstructor @Builder
 public class LoginDto {
+    @NotNull(message = "Email is required")
     @Email
     private String email;
+    @NotNull(message = "Password is required")
     @Pattern(regexp = GlobalConstants.PASSWORD_REGEX,
             message = "Password must contain small and capital letter, number, special character and be at lest 8 character long")
     private String password;

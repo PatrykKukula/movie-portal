@@ -1,18 +1,13 @@
 package pl.patrykkukula.MovieReviewPortal.Utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -25,60 +20,55 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtUtils{
 
-    @Value("${SECRET_KEY}")
+    @Value("${jwt.secret}")
     private String secretKey;
-    private final UserDetailsServiceImpl userDetailsService;
 
-    public String generateJwtToken(){
+    public String generateJwtToken(String username, List<? extends GrantedAuthority> authorities){
         SecretKey secret = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
-        UserDetails authenticatedUser = userDetailsService.getAuthenticatedUser();
 
         return Jwts.builder()
                 .issuedAt(new Date())
-                .subject(authenticatedUser.getUsername())
-                .claim("authorities", authenticatedUser.getAuthorities().stream().map((GrantedAuthority::getAuthority)).collect(Collectors.joining(",")))
+                .subject(username)
+                .claim("authorities",authorities.stream().map((GrantedAuthority::getAuthority)).collect(Collectors.joining(",")))
                 .expiration(new Date(new Date().getTime() + 900000))
                 .signWith(secret)
                 .compact();
     }
-    public boolean validateJwtToken(String token){
+    public boolean validateJwtToken(String jwt){
         try {
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-            Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token.substring(7));
+            parseToken(jwt);
             return true;
         } catch (SecurityException ex) {
-            log.error("Invalid JWT signature");
+            log.error("Invalid JWT signature: {}", ex.getMessage());
+        } catch (MalformedJwtException ex) {
+            log.error("Invalid JWT token: {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            log.error("Expired JWT token");
+            log.error("Expired JWT token: {}", ex.getMessage());
         } catch (UnsupportedJwtException ex) {
-            log.error("Unsupported JWT token");
+            log.error("Unsupported JWT token: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims string is empty");
+            log.error("JWT claims string is empty: {}", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("JWT token validation error: {}", ex.getMessage());
         }
         return false;
     }
     public String getUsernameFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        Claims claims = parseToken(token);
         return claims.getSubject();
     }
     public List<GrantedAuthority> getAuthoritiesFromToken(String token) {
+        Claims claims = parseToken(token);
+
+        String authorities = claims.get("authorities", String.class);
+        return AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+    }
+    private Claims parseToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-        Claims claims = Jwts.parser()
+        return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
-        String authorities = claims.get("authorities", String.class);
-        return AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
     }
 }

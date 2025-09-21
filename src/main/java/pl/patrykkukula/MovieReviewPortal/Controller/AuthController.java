@@ -40,7 +40,7 @@ public class AuthController {
         return ResponseEntity.ok("Account verified successfully");
     }
     @GetMapping("/register/sendToken")
-    public ResponseEntity<String> resendActivationLink(@RequestParam("email") String username) {
+    public ResponseEntity<String> resendVerificationToken(@RequestParam("email") String username) {
         return ResponseEntity.ok(registerService.sendVerificationToken(username));
     }
     @PostMapping("/reset")

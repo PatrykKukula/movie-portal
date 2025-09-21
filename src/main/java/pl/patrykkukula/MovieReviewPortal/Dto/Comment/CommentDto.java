@@ -15,6 +15,7 @@ public class CommentDto {
     @NotEmpty(message = "Text cannot be empty")
     @Size(max = 1000, message = "Title must not exceed 1000 characters")
     private String text;
+    @Positive
     private Long topicId;
     @JsonProperty(index = 1)
     private boolean isReply;

@@ -8,7 +8,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,7 +36,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -53,15 +51,11 @@ public class AuthServiceImplTest {
     @Mock
     private RoleRepository roleRepository;
     @Mock
-    AuthenticationManager authenticationManager;
-    @Mock
     private JwtUtils jwtUtils;
     @Mock
     private SecurityContext securityContext;
     @Mock
     private BCryptPasswordEncoder encoder;
-    @Mock
-    private UUID uuid;
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -119,7 +113,7 @@ public class AuthServiceImplTest {
     @Test
     public void shouldLoginCorrectly(){
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
-        when(jwtUtils.generateJwtToken()).thenReturn("token-is-here");
+        when(jwtUtils.generateJwtToken(anyString(), anyList())).thenReturn("token-is-here");
 
         String token = authService.login(loginDto);
 

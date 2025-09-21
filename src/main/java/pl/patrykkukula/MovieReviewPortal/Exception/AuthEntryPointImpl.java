@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,12 +29,14 @@ public class AuthEntryPointImpl implements AuthenticationEntryPoint {
 
         String path = request.getRequestURI();
         ErrorResponseDto errorResponse = new ErrorResponseDto(
-                "Path: " + path,
-                "Status code: " + STATUS_401,
-                "Status message: " + STATUS_401_MESSAGE,
-                "Error message: " + message,
+                path,
+                STATUS_401,
+                STATUS_401_MESSAGE,
+                message,
                 LocalDateTime.now());
 
-        new ObjectMapper().writeValue(response.getOutputStream(), errorResponse);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.writeValue(response.getOutputStream(), errorResponse);
     }
 }

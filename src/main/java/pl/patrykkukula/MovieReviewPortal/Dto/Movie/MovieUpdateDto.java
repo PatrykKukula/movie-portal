@@ -1,6 +1,7 @@
 package pl.patrykkukula.MovieReviewPortal.Dto.Movie;
 
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,5 +23,6 @@ public class MovieUpdateDto {
     @PastOrPresent(message = "Release date cannot be in the future")
     private LocalDate releaseDate;
     private MovieCategory category;
+    @Positive(message = "Director ID cannot less than 1")
     private Long directorId;
 }

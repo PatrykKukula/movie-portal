@@ -143,14 +143,17 @@ public class UserServiceImpl implements IUserService {
     }
     @Override
     public List<MovieDtoWithUserRate> fetchHighestRatedMoviesByUser(Long userId) {
-          return userRepository.findTopRatedMovies(userId).stream().map(MovieMapper::mapToMovieDtoWithUserRate).toList();
+        validateId(userId);
+        return userRepository.findTopRatedMovies(userId).stream().map(MovieMapper::mapToMovieDtoWithUserRate).toList();
     }
     @Override
     public List<ActorDtoWithUserRate> fetchHighestRatedActorsByUser(Long userId) {
+        validateId(userId);
         return userRepository.findTopRatedActors(userId).stream().map(ActorMapper::mapToActorDtoWithUserRate).toList();
     }
     @Override
     public List<DirectorDtoWithUserRate> fetchHighestRatedDirectorsByUser(Long userId) {
+        validateId(userId);
         return userRepository.findTopRatedDirectors(userId).stream().map(DirectorMapper::mapToDirectorDtoWithAverageRate).toList();
     }
     @Override
@@ -175,11 +178,13 @@ public class UserServiceImpl implements IUserService {
     }
     @Override
     public Page<ActorDtoWithUserRate> fetchAllRatedActors(Long userId, Integer pageNo, Integer pageSize) {
+        validateId(userId);
         Pageable page = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "rate"));
         return userRepository.findAllRatedActors(userId, page).map(ActorMapper::mapToActorDtoWithUserRate);
     }
     @Override
     public Page<DirectorDtoWithUserRate> fetchAllRatedDirectors(Long userId, Integer pageNo, Integer pageSize) {
+        validateId(userId);
         Pageable page = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "rate"));
         return userRepository.findAllRatedDirectors(userId, page).map(DirectorMapper::mapToDirectorDtoWithAverageRate);
     }
@@ -188,6 +193,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public UserDataDto loadUserEntityById(Long userId) {
+        validateId(userId);
         UserEntity user = userRepository.findByIdWithComments(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId.toString()));
         return UserMapper.mapToUserDataDto(user);
     }
@@ -196,6 +202,7 @@ public class UserServiceImpl implements IUserService {
      */
     @Override
     public UserEntity loadUserEntityByIdVaadin(Long userId) {
+        validateId(userId);
         return userRepository.findByIdWithComments(userId)
                 .orElse(null);
     }

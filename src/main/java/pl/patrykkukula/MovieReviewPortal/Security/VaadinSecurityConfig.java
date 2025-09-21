@@ -32,8 +32,6 @@ public class VaadinSecurityConfig extends VaadinWebSecurity {
         http.securityContext(scc -> scc.requireExplicitSave(false));
                 http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
-//        http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"));
-
         http.authorizeHttpRequests(request ->
             request.requestMatchers("/movies/{movieId}/rate", "/movies/rate").authenticated()
                     .requestMatchers("/actors/add", "/actors/edit").hasRole("ADMIN")
@@ -45,10 +43,6 @@ public class VaadinSecurityConfig extends VaadinWebSecurity {
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
         );
-//        http.exceptionHandling(ehc -> {
-//            ehc.accessDeniedHandler(new AccessDeniedHandlerImpl());
-//            ehc.authenticationEntryPoint(new AuthEntryPointImpl());
-//        });
         http.securityMatcher("/**");
         super.configure(http);
         setLoginView(http, LoginView.class);

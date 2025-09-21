@@ -5,16 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 import pl.patrykkukula.MovieReviewPortal.Exception.AccessDeniedHandlerImpl;
 import pl.patrykkukula.MovieReviewPortal.Exception.AuthEntryPointImpl;
 
@@ -34,16 +30,21 @@ public class RestApiSecurityConfig {
 
             http.authorizeHttpRequests(request ->
                     request.requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers(HttpMethod.POST, "/api/actors", "/api/movies", "/api/directors", "/api/user/**"
-                            ,"/api/topics/**", "/api/comments/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/api/actors", "/api/movies", "/api/directors", "/api/user/**",
+                                    "/api/movies/*/add-actor/*", "/api/movies/*/remove-actor/*"
+                            ).hasAnyRole("ADMIN", "MODERATOR")
+                            .requestMatchers(HttpMethod.POST,"/api/topics/**", "/api/comments/**").authenticated()
+                            .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasRole("ADMIN")
                             .requestMatchers(HttpMethod.DELETE, "/api/actors/*", "/api/movies/*", "/api/directors/*", "/api/user/**"
-                            ,"/api/topics/*", "/api/comments/*").hasRole("ADMIN")
+                           ).hasAnyRole("ADMIN", "MODERATOR")
+                            .requestMatchers(HttpMethod.DELETE ,"/api/topics/*", "/api/comments/*").authenticated()
                             .requestMatchers(HttpMethod.GET, "/api/actors/**", "/api/movies/**", "/api/directors/**", "/api/user/**"
                             , "/api/topics/**", "/api/comments/**").permitAll()
-                            .requestMatchers(HttpMethod.PATCH, "/api/actors/*", "/api/movies/*", "/api/directors/*", "/api/topics/*"
-                            , "/api/comments/*").hasRole("ADMIN")
-                            .requestMatchers("/api/actors/rate/**", "/api/directors/rate/**", "/api/directors/rate").authenticated()
-                            .requestMatchers("/api/movies/*/**").hasRole("ADMIN")
+                            .requestMatchers(HttpMethod.PATCH, "/api/actors/*", "/api/movies/*", "/api/directors/*").hasAnyRole("ADMIN", "MODERATOR")
+                            .requestMatchers(HttpMethod.PATCH, "/api/topics/*", "/api/comments/*").authenticated()
+                            .requestMatchers("/api/actors/rate/**", "/api/directors/rate/**", "/api/movies/rate/**").authenticated()
+                            .requestMatchers("/api/movies/*/**", "/api/user/remove-role", "/api/user/ban", "/api/user/remove-ban").hasRole("ADMIN")
             );
             http.exceptionHandling(ehc -> {
                 ehc.accessDeniedHandler(new AccessDeniedHandlerImpl());

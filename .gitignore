@@ -32,3 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 node_modules/
+
+### images ###
+*.jpg
+*.jpeg
+*.png
+!placeholder.png

@@ -30,7 +30,7 @@ public class CommentController {
         return ResponseEntity.created(location).body(new ResponseDto(STATUS_201, STATUS_201_MESSAGE));
     }
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<ResponseDto> deleteComment(@PathVariable(name = "commentId") Long commentId){
+    public ResponseEntity<ResponseDto> deleteComment(@PathVariable Long commentId){
         commentService.removeComment(commentId, true);
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
@@ -40,7 +40,7 @@ public class CommentController {
         return ResponseEntity.accepted().body(new ResponseDto(STATUS_202, STATUS_202_MESSAGE));
     }
     @GetMapping("/{commentId}")
-    public ResponseEntity<CommentDtoWithReplies> fetchCommentById(@PathVariable(name = "commentId") Long commentId){
+    public ResponseEntity<CommentDtoWithReplies> fetchCommentById(@PathVariable Long commentId){
         return ResponseEntity.ok(commentService.fetchCommentById(commentId));
     }
     @GetMapping("/user/{username}")

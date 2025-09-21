@@ -3,10 +3,13 @@ package pl.patrykkukula.MovieReviewPortal.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Constants.GlobalConstants;
@@ -50,18 +53,26 @@ public class AuthServiceImpl implements IAuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
     private final JwtUtils jwtUtils;
-    private final JavaMailSender mailSender;
-    @Value("${app.mail.from}")
-    private String from;
+    private final AuthenticationManager authenticationManager;
+//    private final JavaMailSender mailSender;
+//    @Value("${app.mail.from}")
+//    private String from;
 
     @Override
     public String login(LoginDto loginDto) {
         UserEntity user = userRepository.findByEmail(loginDto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("User", "email", loginDto.getEmail()));
-
+        if (!encoder.matches(loginDto.getPassword(), user.getPassword())) {
+            log.warn("Failed login attempt for user: {}", loginDto.getEmail());
+            throw new BadCredentialsException("Invalid credentials");
+        }
         if (!user.isEnabled()) throw new IllegalStateException("You are not verified - please verify your account");
         if (user.getBanned() != null && user.getBanned()) throw new IllegalStateException("Your account is banned and will be back available at: " + user.getBanExpiration());
 
-        return jwtUtils.generateJwtToken();
+        List<? extends GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+
+        log.info("User {} logged in successfully", user.getEmail());
+
+        return jwtUtils.generateJwtToken(user.getUsername(), authorities);
     }
     @Override
     @Transactional

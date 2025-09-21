@@ -27,7 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtTokenValidationFilter extends OncePerRequestFilter {
-    @Value("${SECRET_KEY}")
+
+    @Value("${jwt.secret}")
     private String secretKey;
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtils jwtUtils;
@@ -36,19 +37,26 @@ public class JwtTokenValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = request.getHeader(HttpHeaders.AUTHORIZATION);
-            if (token != null && jwtUtils.validateJwtToken(token)) {
+            if (token != null && token.startsWith("Bearer ")) {
                 String jwt = token.substring(7).trim();
-                String username = jwtUtils.getUsernameFromToken(jwt);
-                List<GrantedAuthority> grantedAuthorities = jwtUtils.getAuthoritiesFromToken(jwt);
+                if (jwtUtils.validateJwtToken(jwt)) {
+                    String username = jwtUtils.getUsernameFromToken(jwt);
+                    List<GrantedAuthority> grantedAuthorities = jwtUtils.getAuthoritiesFromToken(jwt);
+                    log.info("Granted authorities:{} ", grantedAuthorities.getFirst().getAuthority());
 
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
             filterChain.doFilter(request, response);
         } catch (Exception ex) {
             log.info("Jwt validation failed:{} ", ex.getMessage());
-            throw new AuthenticationServiceException("Invalid Jwt Token", ex);
         }
+    }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/api/auth/") || request.getMethod().startsWith("GET");
     }
 }

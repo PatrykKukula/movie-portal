@@ -50,7 +50,6 @@ public class RestApiSecurityConfig {
                 ehc.accessDeniedHandler(new AccessDeniedHandlerImpl());
                 ehc.authenticationEntryPoint(new AuthEntryPointImpl());
             });
-            http.httpBasic(Customizer.withDefaults());
             http.addFilterBefore(jwtTokenValidationFilter, UsernamePasswordAuthenticationFilter.class);
             return http.build();
         }

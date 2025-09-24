@@ -36,13 +36,13 @@ public class CommonComponents {
 
         VerticalLayout dialogLayout = new VerticalLayout();
         Div errorMessage = validationErrorsMessage(validationResults);
-        errorMessage.getStyle().set("text-align", "start");
+        errorMessage.getStyle().set("text-align", "center").set("width", "100%");
         Div closeText = new Div("Press X button or ESC on keyboard to close");
-        closeText.getStyle().set("font-size","0.7rem");
+        closeText.getStyle().set("font-size","0.7rem").set("text-align", "center").set("width", "100%");
 
         dialogLayout.add(errorMessage, closeText);
         dialogLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-        dialogLayout.getStyle().set("padding", "0rem 0.8rem");
+        dialogLayout.getStyle().set("padding", "0rem");
 
         dialog.add(dialogLayout);
 
@@ -91,7 +91,7 @@ public class CommonComponents {
                 .collect(Collectors.joining(System.lineSeparator()));
 
         Div errorMessage = new Div(joinedErrors);
-        errorMessage.getStyle().set("white-space", "pre-line");
+        errorMessage.getStyle().set("white-space", "pre-line").set("line-height", "30px");
 
         return errorMessage;
     }

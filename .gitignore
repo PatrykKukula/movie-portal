@@ -34,7 +34,7 @@ build/
 node_modules/
 
 ### images ###
-*.jpg
-*.jpeg
-*.png
-!placeholder.png
+#*.jpg
+#*.jpeg
+#*.png
+#!placeholder.png

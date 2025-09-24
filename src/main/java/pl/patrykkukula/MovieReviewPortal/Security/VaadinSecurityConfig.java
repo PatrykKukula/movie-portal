@@ -40,7 +40,6 @@ public class VaadinSecurityConfig extends VaadinWebSecurity {
                     .requestMatchers("/topics/add", "/topics/edit").authenticated()
                     .requestMatchers("/comments/add", "/comments/edit").authenticated()
                     .requestMatchers("/login/**", "/logout/**", "/register", "/verify", "/reset", "/error/**").permitAll()
-                    .requestMatchers("/api/**").permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
         );
         http.securityMatcher("/**");
@@ -49,7 +48,6 @@ public class VaadinSecurityConfig extends VaadinWebSecurity {
         http.logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl(LOGOUT_URL));
-        http.httpBasic(Customizer.withDefaults());
     }
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

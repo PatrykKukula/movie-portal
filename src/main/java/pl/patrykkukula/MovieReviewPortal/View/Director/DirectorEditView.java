@@ -5,6 +5,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
@@ -32,6 +33,7 @@ import java.util.List;
 @Route("directors/edit")
 @PageTitle("Edit director")
 @RolesAllowed({"ADMIN", "MODERATOR"})
+@CssImport("./styles/common-styles.css")
 public class DirectorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final DirectorServiceImpl directorService;
@@ -49,6 +51,7 @@ public class DirectorEditView extends Composite<FormLayout> implements HasUrlPar
         CustomDatePicker customDatePicker = new CustomDatePicker();
 
         FormLayout layout = getContent();
+        layout.addClassName("main-layout");
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         layout.setMaxWidth("25%");
         DirectorDto dto = directorService.fetchDirectorById(directorId);
@@ -68,12 +71,8 @@ public class DirectorEditView extends Composite<FormLayout> implements HasUrlPar
         binder.bind(customDatePicker, "dateOfBirth");
 
         binder.setBean(dto);
-//        binder.setChangeDetectionEnabled(true);
         Button saveButton = saveButton(binder, directorId);
         Button cancelButton = Buttons.cancelButton(DirectorDetailsView.class, directorId);
-//        binder.addValueChangeListener(e -> {
-//            saveButton.setEnabled(binder.hasChanges());
-//        });
 
         layout.add(firstNameField, lastNameField, countryField, biographyField, datePickerLayout, saveButton, cancelButton);
     }

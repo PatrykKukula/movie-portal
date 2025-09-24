@@ -20,6 +20,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.ActorRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IActorService;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import static java.lang.String.valueOf;
@@ -50,6 +51,7 @@ public class ActorServiceImpl implements IActorService {
     @Transactional
     @CacheEvict(value = {"actor", "actor-details"})
     public void removeActor(Long actorId) {
+        log.info("invoking remove actor");
         validateId(actorId);
         Actor actor = actorRepository.findByIdWithMovies(actorId).orElseThrow(() -> new ResourceNotFoundException("Actor", "id", valueOf(actorId)));
         actor.getMovies().forEach(movie -> movie.getActors().remove(actor));
@@ -85,8 +87,10 @@ public class ActorServiceImpl implements IActorService {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
     @CacheEvict(value = {"actor", "actor-details"}, key = "#rateDto.entityId")
     public RatingResult addRateToActor(RateDto rateDto) {
+        log.info("Invoking add rate service");
         validateId(rateDto.getEntityId());
         Optional<UserEntity> user = userDetailsService.getLoggedUserEntity();
+        log.info("invoking get logged user entity");
         if (user.isPresent()) {
             Optional<ActorRate> optCurrentRate = actorRateRepository.findByActorIdAndUserId(rateDto.getEntityId(), user.get().getUserId());
             if (optCurrentRate.isPresent()) {
@@ -102,7 +106,9 @@ public class ActorServiceImpl implements IActorService {
                         .user(user.get())
                         .rate(rateDto.getRate())
                         .build();
+                log.info("Invoking save new rate");
                 ActorRate addedRate = actorRateRepository.save(actorRate);
+                log.info("Added rate:{} ", addedRate);
                 actor.getActorRates().add(addedRate);
                 return new RatingResult(addedRate.getActor().averageActorRate(), false);
             }
@@ -129,7 +135,8 @@ public class ActorServiceImpl implements IActorService {
     @Override
     @Cacheable("top-rated-actors")
     public List<EntityWithRate> fetchTopRatedActors() {
-        return actorRepository.findTopRatedActors().stream().map(actor -> (EntityWithRate) ActorMapper.mapToActorDtoWithAverageRate(actor, actor.averageActorRate())).toList();
+        return actorRepository.findTopRatedActors().stream().map(actor -> (EntityWithRate) ActorMapper.mapToActorDtoWithAverageRate(actor, actor.averageActorRate()))
+                .sorted(Comparator.comparingDouble(EntityWithRate::getAverageRate).reversed()).limit(5).toList();
     }
     /*
         REST API SECTION

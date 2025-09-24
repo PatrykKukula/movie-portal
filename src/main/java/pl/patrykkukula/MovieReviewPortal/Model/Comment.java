@@ -22,6 +22,7 @@ public class Comment extends BaseEntity{
     private boolean isReply;
     private Long repliedCommentId;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
     private Topic topic;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

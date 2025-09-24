@@ -52,7 +52,7 @@ public class ActorDetailsView extends VerticalLayout implements HasUrlParameter<
                 actorService::fetchRateByActorIdAndUserId,
                 actorService::addRateToActor,
                 actorService::removeRate,
-                "Actor",
+                "actor",
                 actorService::removeActor,
                 ActorView.class,
                 imageService,

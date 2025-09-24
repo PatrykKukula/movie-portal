@@ -33,6 +33,6 @@ public interface ActorRepository extends JpaRepository<Actor, Long> {
     List<Actor> findAllWithActorRates(Sort sort);
     @Query("SELECT a FROM Actor a LEFT JOIN FETCH a.actorRates WHERE LOWER(a.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(a.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Actor> findAllWithRatesByNameOrLastName(@Value("name") String name, Sort sort);
-    @Query("SELECT a FROM Actor a LEFT JOIN FETCH a.actorRates r ORDER BY r.rate DESC LIMIT 5")
+    @Query("SELECT a FROM Actor a LEFT JOIN FETCH a.actorRates r")
     List<Actor> findTopRatedActors();
 }

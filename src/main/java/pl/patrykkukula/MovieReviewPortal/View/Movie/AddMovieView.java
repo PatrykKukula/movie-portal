@@ -27,11 +27,15 @@ import pl.patrykkukula.MovieReviewPortal.Service.Impl.ActorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.DirectorServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.MovieServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.View.Common.*;
+import pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.CustomDatePicker;
+import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.UploadComponent;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PosterConstants.*;
 
 @Slf4j
 @Route("movies/add")
@@ -54,6 +58,7 @@ public class AddMovieView extends Composite<FormLayout> {
         this.actorService = actorService;
 
         FormLayout layout = getContent();
+        layout.addClassName("main-layout");
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1));
         layout.setMaxWidth("25%");
 
@@ -85,7 +90,6 @@ public class AddMovieView extends Composite<FormLayout> {
 
         MovieDto dto = new MovieDto();
         binder.setBean(dto);
-        binder.validate();
 
         layout.add(titleField, descriptionField, datePickerLayout, categoryField, directorField,
                 actorComboBox, pickedActors, saveButton, cancelButton);

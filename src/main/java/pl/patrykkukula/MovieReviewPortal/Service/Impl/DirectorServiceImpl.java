@@ -21,6 +21,8 @@ import pl.patrykkukula.MovieReviewPortal.Repository.DirectorRepository;
 import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IDirectorService;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import static java.lang.String.valueOf;
@@ -136,7 +138,8 @@ public class DirectorServiceImpl implements IDirectorService {
     @Override
     @Cacheable(value = "top-rated-directors")
     public List<EntityWithRate> fetchTopRatedDirectors() {
-        return directorRepository.findTopRatedDirectors().stream().map(director -> (EntityWithRate) DirectorMapper.mapToDirectorDtoWithAverageRate(director, director.averageDirectorRate())).toList();
+        return directorRepository.findTopRatedDirectors().stream().map(director -> (EntityWithRate) DirectorMapper.mapToDirectorDtoWithAverageRate(director, director.averageDirectorRate()))
+                .sorted(Comparator.comparingDouble(EntityWithRate::getAverageRate).reversed()).limit(5).toList();
     }
     /*
         REST API SECTION

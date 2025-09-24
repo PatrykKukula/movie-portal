@@ -23,6 +23,7 @@ import pl.patrykkukula.MovieReviewPortal.Repository.MovieRepository;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.IMovieService;
 
+import java.util.Comparator;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
@@ -225,6 +226,7 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'MODERATOR')")
+    @CacheEvict(value = "movie-details", key = "#movieId")
     public void updateMovieVaadin(Long movieId, MovieDto movieDto) {
         validateId(movieId);
         Movie movie = movieRepository.findById(movieId)
@@ -259,7 +261,8 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     @Cacheable("top-rated-movies")
     public List<EntityWithRate> fetchTopRatedMovies() {
-        return movieRepository.findTopRatedMovies().stream().map(movie -> (EntityWithRate)MovieMapper.mapToMovieDtoWithAverageRate(movie, movie.averageMovieRate())).toList();
+        return movieRepository.findTopRatedMovies().stream().map(movie -> (EntityWithRate)MovieMapper.mapToMovieDtoWithAverageRate(movie, movie.averageMovieRate()))
+                .sorted(Comparator.comparingDouble(EntityWithRate::getAverageRate).reversed()).limit(5).toList();
     }
     private MovieCategory findCategory(MovieCategory category) {
         if (category.equals(MovieCategory.ALL)) throw new InputMismatchException("Category \"ALL\" cannot be set. Please choose valid category");

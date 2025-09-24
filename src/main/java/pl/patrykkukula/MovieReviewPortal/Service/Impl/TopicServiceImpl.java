@@ -22,7 +22,10 @@ import pl.patrykkukula.MovieReviewPortal.Repository.*;
 import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.ITopicService;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateId;
 import static pl.patrykkukula.MovieReviewPortal.Utils.ServiceUtils.validateSorting;
@@ -41,7 +44,7 @@ public class TopicServiceImpl implements ITopicService {
     @Override
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')")
-    @CacheEvict(value = "latest-topics")
+    @CacheEvict(value = "latest-topics", allEntries = true)
     public Long createTopic(TopicDtoWithCommentDto topicWithComment, Long entityId, String entityType) {
         validateId(entityId);
         UserEntity user = getLoggedUserEntity();
@@ -103,15 +106,17 @@ public class TopicServiceImpl implements ITopicService {
         return topicDtoToDisplay;
     }
     @Override
-    @Cacheable(value = "all-entity-topics")
     public Page<TopicDtoBasic> findAllTopics(int page, int size, String sorted, String entityType, Long entityId) {
+        log.info("Invoking findAllTopics with parameters page:{} size:{}, sorted:{}, entityType:{}, entityId:{}",
+                page,size,sorted,entityType,entityId);
         String validatedSorting = validateSorting(sorted);
         Sort sort = validatedSorting.equals("ASC") ?
-                Sort.by("topicId").ascending() :
-                Sort.by("topicId").descending();
+                Sort.by("createdAt").ascending() :
+                Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Topic> topicsPage = topicRepository.findAllByEntityTypeAndEntityId(entityType, entityId, pageable);
+        log.info("Found topics pages:{} and content:{}  ", topicsPage.getTotalPages(), topicsPage.getContent().size());
 
         return topicsPage.map(topic -> {
             TopicDtoBasic topicDtoBasic = TopicMapper.mapToTopicDtoBasic(topic);
@@ -170,7 +175,9 @@ public class TopicServiceImpl implements ITopicService {
                             return new MainViewTopicDto();
                         }
                     }
-                }).toList();
+                })
+                .limit(5)
+                .toList();
     }
     private UserEntity getLoggedUserEntity(){
         return userDetailsService.getLoggedUserEntity().orElseThrow(() -> new AccessDeniedException("User not logged in"));

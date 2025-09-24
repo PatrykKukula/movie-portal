@@ -111,7 +111,7 @@ public class SingleEntityLayoutWithPoster<T extends EntityWithRate> extends Hori
                     .set("display", "inline-block");
             posterWrapper.add(poster);
 
-            Div ratingOverlay = new Div(starIcon(), new Div(String.valueOf(rate != null ? rate : entity.getAverageRate())));
+            Div ratingOverlay = new Div(starIcon(), new Div(rate != null ? String.valueOf(rate) : String.format("%.2f", entity.getAverageRate())));
             ratingOverlay.getStyle()
                     .set("position", "absolute")
                     .set("top", "5px")

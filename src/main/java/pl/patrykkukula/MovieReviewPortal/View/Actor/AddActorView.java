@@ -3,6 +3,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -24,6 +25,7 @@ import java.util.List;
 @Route("actors/add")
 @PageTitle("Add actor")
 @RolesAllowed({"ADMIN", "MODERATOR"})
+@CssImport("./styles/common-styles.css")
 public class AddActorView extends Composite<FormLayout> {
     private final ActorServiceImpl actorService;
     private final BeanValidationBinder<ActorDto> binder = new BeanValidationBinder<>(ActorDto.class);
@@ -37,6 +39,7 @@ public class AddActorView extends Composite<FormLayout> {
         ActorDto dto = new ActorDto();
 
         FormLayout layout = getContent();
+        layout.addClassName("main-layout");
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1));
         layout.setMaxWidth("25%");
 
@@ -61,7 +64,6 @@ public class AddActorView extends Composite<FormLayout> {
         Button cancelButton = Buttons.cancelButton(ActorView.class);
 
         binder.setBean(dto);
-        binder.validate();
 
         layout.add(firstNameField, lastNameField, countryField, biographyField, datePickerLayout, saveButton, cancelButton);
     }

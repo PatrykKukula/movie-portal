@@ -21,6 +21,10 @@ public class PageButtons extends Div {
     private VerticalLayout layout;
     private PagedList<?> pagedList;
     private Consumer<VerticalLayout> renderView;
+    private BiConsumer<UserDetails, Long> renderViewTopic;
+    private UserDetails user;
+    private Long id;
+
 
     public PageButtons(int currentPage, int totalPages){
         this.currentPage = currentPage;
@@ -28,14 +32,18 @@ public class PageButtons extends Div {
         setCurrentPageNumber(currentPage, totalPages);
         div = buttonsLayout();
         setVisible();
-        configureListeners();
+        if (renderView!=null) configureListeners();
         add(div);
     }
     public void setCurrentPageNumber(int currentPage, int totalPages){
         this.currentPage = currentPage;
         page.setText(currentPage + 1 + " / " + totalPages);
     }
-    public <T> void configurePageButtons(UserDetails user, Long id, PagedList<T> pagedList, BiConsumer<UserDetails, Long> renderView){
+    public <T> void configurePageButtons(UserDetails user, Long id, PagedList<T> pagedList, BiConsumer<UserDetails, Long> renderViewTopic){
+        this.user = user;
+        this.id = id;
+        this.renderViewTopic = renderViewTopic;
+        this.pagedList = pagedList;
         nextButton.setEnabled(currentPage < totalPages - 1);
         previousButton.setEnabled(false);
         nextButton.addClickListener(e -> {
@@ -44,7 +52,7 @@ public class PageButtons extends Div {
             nextButton.setEnabled(currentPage < totalPages - 1);
             previousButton.setEnabled(currentPage != 0);
             if (isValid) {
-                renderView.accept(user, id);
+                renderViewTopic.accept(user, id);
                 page.setText(currentPage + 1 + " / " + totalPages);
             }
         });
@@ -54,7 +62,7 @@ public class PageButtons extends Div {
             previousButton.setEnabled(currentPage != 0);
             nextButton.setEnabled(currentPage < totalPages - 1);
             if (isValid) {
-                renderView.accept(user, id);
+                renderViewTopic.accept(user, id);
                 page.setText(currentPage + 1 + " / " + totalPages);
             }
         });
@@ -76,7 +84,10 @@ public class PageButtons extends Div {
             nextButton.setEnabled(currentPage < totalPages - 1);
             previousButton.setEnabled(currentPage != 0);
             if (isValid) {
-                renderView.accept(layout);
+                if (renderView != null) {
+                    renderView.accept(layout);
+                }
+                else renderViewTopic.accept(user,id);
                 page.setText(currentPage + 1 + " / " + totalPages);
             }
         });
@@ -86,7 +97,10 @@ public class PageButtons extends Div {
             previousButton.setEnabled(currentPage != 0);
             nextButton.setEnabled(currentPage < totalPages - 1);
             if (isValid) {
-                renderView.accept(layout);
+                if (renderView != null) {
+                    renderView.accept(layout);
+                }
+                else renderViewTopic.accept(user,id);
                 page.setText(currentPage + 1 + " / " + totalPages);
             }
         });

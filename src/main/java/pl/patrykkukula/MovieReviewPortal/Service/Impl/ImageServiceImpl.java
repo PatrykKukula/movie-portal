@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ImageServiceImpl implements IImageService {
@@ -29,6 +32,7 @@ public class ImageServiceImpl implements IImageService {
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Transactional
+    @CacheEvict(value = "image", key = "#id + '_' + #imageDir")
     public void saveImage(String id, int maxBytes, String mimeType, String imageDir, InputStream uploadStream) {
         try (InputStream input = limitSize(uploadStream, maxBytes);
         BufferedInputStream buffered = new BufferedInputStream(input)){
@@ -66,6 +70,8 @@ public class ImageServiceImpl implements IImageService {
     public Optional<byte[]> loadImage(Long id, String imageDir, String placeholderDir) throws IOException {
         Path dirPath = Paths.get(imageDir);
         Path formatPath = dirPath.resolve(METADATA_FILE);
+
+        log.info("Try to read image on path:{} and path is:{} ", formatPath, Files.exists(formatPath));
 
         if (!Files.exists(formatPath)) return Optional.empty();
         try {

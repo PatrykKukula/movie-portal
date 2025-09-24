@@ -23,4 +23,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Tuple> countCommentsForUserByTopicId(@Param(value = "topicId") Long topicId);
     @Query("SELECT c FROM Comment c JOIN FETCH c.user u WHERE u.username= :username ORDER BY c.createdAt DESC")
     List<Comment> findAllCommentsForUserByUsername(@Param(value = "username") String username);
+    @Query("SELECT c FROM Comment c JOIN FETCH c.topic t JOIN c.user u WHERE u.username= :username ORDER BY c.createdAt DESC")
+    List<Comment> findAllCommentsForUserByUsernameFetchTopic(@Param(value = "username") String username);
 }

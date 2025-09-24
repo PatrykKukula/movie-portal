@@ -4,6 +4,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
+import lombok.extern.slf4j.Slf4j;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RateDto;
 import pl.patrykkukula.MovieReviewPortal.Dto.Rate.RatingResult;
 import pl.patrykkukula.MovieReviewPortal.Dto.ViewableEntityWithMovies;
@@ -13,6 +14,7 @@ import pl.patrykkukula.MovieReviewPortal.Security.UserDetailsServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.ImageServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.TopicServiceImpl;
 import pl.patrykkukula.MovieReviewPortal.Service.Impl.UserServiceImpl;
+import pl.patrykkukula.MovieReviewPortal.View.Actor.ActorEditView;
 import pl.patrykkukula.MovieReviewPortal.View.Common.Buttons;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CommonComponents;
 import pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating.RatingStarsLayout;
@@ -30,6 +32,7 @@ import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableCo
 /*
     Layout for view for person entity details
  */
+@Slf4j
 @CssImport("./styles/common-styles.css")
 public class PersonDetailsLayout<T extends ViewableEntityWithMovies> extends VerticalLayout {
 
@@ -61,9 +64,14 @@ public class PersonDetailsLayout<T extends ViewableEntityWithMovies> extends Ver
                     (newRate, id) -> addRate.apply(new RateDto(newRate, id)),
                     id -> removeRate.apply(entityId)
             );
+            Class entityViewClass = DirectorEditView.class;
+            switch (entityType) {
+                case "director" -> entityViewClass = DirectorEditView.class;
+                case "actor" -> entityViewClass = ActorEditView.class;
+            }
 
-            Button editButton = Buttons.editButton(DirectorEditView.class, "Edit director", entityId);
-            Button deleteButton = new Button(entityType.toLowerCase(), e -> CommonComponents.confirmDelete(
+            Button editButton = Buttons.editButton(entityViewClass, "Edit %s".formatted(entityType.toLowerCase()), entityId);
+            Button deleteButton = new Button("Delete %s".formatted(entityType.toLowerCase()), e -> CommonComponents.confirmDelete(
                     entityId, entityType, y -> removeEntity.accept(y), viewClass));
             Button backButton = Buttons.backButton(viewClass, "Back to %ss".formatted(entityType.toLowerCase()));
 

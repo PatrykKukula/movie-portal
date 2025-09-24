@@ -72,6 +72,8 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
         userDetailsLayout.addClassName("details-layout");
         userDetailsLayout.getStyle().set("padding-bottom", "20px");
 
+        Button browseCommentsButton = browseCommentsButton(userEntity.getUsername());
+
         if (userEntity == null) add(userNotFound());
         else {
             try {
@@ -92,7 +94,7 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
             VerticalLayout top5Rated = topRatedLayout(userId);
             top5Rated.add(seeAllButton);
 
-            add(userDetailsLayout, statsHeader, statistics, top5Rated);
+            add(userDetailsLayout, browseCommentsButton, statsHeader, statistics, top5Rated);
         }
     }
     private VerticalLayout statisticsLayout(Long userId, UserEntity user){
@@ -249,6 +251,12 @@ public class ProfileView extends VerticalLayout implements HasUrlParameter<Long>
                     topRatedLayout
             );
         }
+    }
+    private Button browseCommentsButton(String username){
+        Button button = new Button("Browse user comments");
+        button.addClickListener(e -> UI.getCurrent().navigate(UserCommentsView.class, username));
+        button.getStyle().set("align-self", "center");
+        return button;
     }
     private Div userNotFound(){
         Div notFound = new Div("User not found");

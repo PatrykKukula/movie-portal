@@ -22,12 +22,12 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     Optional<Tuple> findTopicWithCurrentMaxCommentId(@Param(value = "topicId") Long topicId);
     @Query("SELECT DISTINCT t FROM Topic t LEFT JOIN FETCH t.comments WHERE t.topicId = :topicId")
     Optional<Topic> findByTopicIdWithComments(Long topicId);
-    @Query("SELECT DISTINCT t FROM Topic t JOIN FETCH t.comments WHERE t.entityType= :entityType AND t.entityId= :entityId")
+    @Query("SELECT DISTINCT t FROM Topic t LEFT JOIN FETCH t.comments WHERE t.entityType= :entityType AND t.entityId= :entityId")
     Page<Topic> findAllByEntityTypeAndEntityId(@Param(value = "entityType") String entityType, @Param(value = "entityId") Long entityId, Pageable pageable);
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleAsc(String title);
     List<Topic> findByTitleContainingIgnoreCaseOrderByTitleDesc(String title);
     @Query("SELECT t FROM Topic t INNER JOIN t.user WHERE topicId= :topicId")
     Optional<Topic> findByIdWithUser(@Param(value = "topicId") Long topicId);
-    @Query("SELECT t FROM Topic t JOIN FETCH t.comments JOIN FETCH t.user ORDER BY t.createdAt DESC LIMIT 5")
+    @Query("SELECT t FROM Topic t LEFT JOIN FETCH t.comments LEFT JOIN FETCH t.user ORDER BY t.createdAt DESC")
     List<Topic> findLatestTopics();
 }

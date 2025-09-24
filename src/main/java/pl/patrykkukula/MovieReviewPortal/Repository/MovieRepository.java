@@ -43,6 +43,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     List<Movie> findAllWithRatesByTitleAndCategoryDesc(@Value("title") String title, MovieCategory category);
     @Query("SELECT SIZE(m.movieRates) FROM Movie m WHERE m.movieId =:movieId")
     Integer countMovieRates(@Param(value = "movieId") Long movieId);
-    @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates r ORDER BY r.rate DESC LIMIT 5")
+    @Query("SELECT m FROM Movie m LEFT JOIN FETCH m.movieRates r")
     List<Movie> findTopRatedMovies();
 }

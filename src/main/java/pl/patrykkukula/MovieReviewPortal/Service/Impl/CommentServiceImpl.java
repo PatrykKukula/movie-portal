@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoForUserComments;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithReplies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Exception.IllegalResourceModifyException;
@@ -121,6 +122,14 @@ public class CommentServiceImpl implements ICommentService {
     public void updateCommentVaadin(Long commentId, CommentDto commentDto){
         update(commentId, commentDto.getText());
     }
+
+    @Override
+    public List<CommentDtoForUserComments> fetchAllCommentsForUserWithTopic(String username) {
+        return commentRepository.findAllCommentsForUserByUsernameFetchTopic(username).stream()
+                .map(CommentMapper::mapCommentToCommentDtoForUserComments)
+                .toList();
+    }
+
     /*
         REST API section
      */

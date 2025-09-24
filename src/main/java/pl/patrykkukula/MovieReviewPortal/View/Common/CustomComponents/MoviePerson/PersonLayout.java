@@ -43,8 +43,8 @@ public class PersonLayout<T extends ViewableEntity> extends VerticalLayout {
     private final IImageService imageService;
     private final String imagePath;
     private final String placeholderPath;
-    private final int PAGE_SIZE = 2;
-    private static final String WIDTH = "100px";
+    private final int PAGE_SIZE = 10;
+    private static final String WIDTH = "110px";
     private static final String HEIGHT = "140px";
 
     public PersonLayout(String titleText, String addLabel, Class<? extends Component> addTarget,

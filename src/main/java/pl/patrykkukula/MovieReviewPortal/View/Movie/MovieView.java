@@ -49,7 +49,7 @@ public class MovieView extends VerticalLayout {
     private PageButtons pageButtons;
     private int currentPage = 0;
     private int totalPages;
-    private final int PAGE_SIZE = 2;
+    private final int PAGE_SIZE = 10;
     private final VerticalLayout moviesLayout;
     private static final String WIDTH = "100px";
     private static final String HEIGHT = "140px";

@@ -2,7 +2,6 @@ package pl.patrykkukula.MovieReviewPortal.View;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
@@ -25,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Supplier;
 
-@Route
+@Route("")
 @PageTitle("Movie Portal")
 @CssImport("./styles/common-styles.css")
 @AnonymousAllowed
@@ -74,7 +73,7 @@ public class MainView extends VerticalLayout {
     private VerticalLayout singleTopicLayout(MainViewTopicDto topic){
         VerticalLayout layout = new VerticalLayout();
         Span title = new Span(topic.getTitle());
-        title.getStyle().set("cursor", "pointer");
+        title.getStyle().set("cursor", "pointer").set("font-weight", "bold");
 
         Anchor createdBy = new Anchor("user/%s".formatted(topic.getUserId()), topic.getCreatedBy());
         Span created = new Span(new Span("Posted by: "), createdBy, new Span(" Posted at: %s"
@@ -141,7 +140,7 @@ public class MainView extends VerticalLayout {
             case "Directors" -> button.addClickListener(e -> UI.getCurrent().navigate(DirectorView.class));
             case "Movies" -> button.addClickListener(e -> UI.getCurrent().navigate(MovieView.class));
         }
-        button.getStyle().set("align-self", "center").set("color", "dark-blue");
+        button.getStyle().set("align-self", "center").set("color", "dark-blue").set("margin-bottom", "20px");
 
         return button;
     }

@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.notification.Notification;
@@ -28,6 +29,7 @@ import java.util.List;
 @Route("actors/edit")
 @PageTitle("Edit actor")
 @RolesAllowed({"ADMIN", "MODERATOR"})
+@CssImport("./styles/common-styles.css")
 public class ActorEditView extends Composite<FormLayout> implements HasUrlParameter<Long> {
 
     private final ActorServiceImpl actorService;
@@ -44,6 +46,7 @@ public class ActorEditView extends Composite<FormLayout> implements HasUrlParame
         CustomDatePicker customDatePicker = new CustomDatePicker();
 
         FormLayout layout = getContent();
+        layout.addClassName("main-layout");
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1, FormLayout.ResponsiveStep.LabelsPosition.TOP));
         layout.setMaxWidth("25%");
         ActorDto dto = actorService.fetchActorById(actorId);

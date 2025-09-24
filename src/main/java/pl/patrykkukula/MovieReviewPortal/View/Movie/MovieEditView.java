@@ -59,6 +59,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
     @Override
     public void setParameter(BeforeEvent event, Long movieId) {
         FormLayout layout = getContent();
+        layout.addClassName("main-layout");
         layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0px", 1));
         layout.setMaxWidth("25%");
 
@@ -107,7 +108,7 @@ public class MovieEditView extends Composite<FormLayout> implements HasUrlParame
         saveButton.addClickListener(e -> {
             if (binder.validate().isOk()) {
                 MovieDto movieDto = binder.getBean();
-                Long directorId = directorField.getValue().getId();
+                Long directorId = directorField.getValue() != null ? directorField.getValue().getId() : null;
                 if(directorId != null) {
                     movieDto.setDirectorId(directorField.getValue().getId());
                 }

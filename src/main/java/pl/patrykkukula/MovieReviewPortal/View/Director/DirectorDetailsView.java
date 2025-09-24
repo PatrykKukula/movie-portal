@@ -49,7 +49,7 @@ public class DirectorDetailsView extends VerticalLayout implements HasUrlParamet
                 directorService::fetchRateByDirectorIdAndUserId,
                 directorService::addRateToDirector,
                 directorService::removeRate,
-                "Director",
+                "director",
                 directorService::removeDirector,
                 DirectorView.class,
                 imageService,

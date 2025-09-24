@@ -7,7 +7,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,11 +67,11 @@ public class AuthServiceImpl implements IAuthService {
         if (!user.isEnabled()) throw new IllegalStateException("You are not verified - please verify your account");
         if (user.getBanned() != null && user.getBanned()) throw new IllegalStateException("Your account is banned and will be back available at: " + user.getBanExpiration());
 
-        List<? extends GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
+        List<? extends GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName())).toList();
 
         log.info("User {} logged in successfully", user.getEmail());
 
-        return jwtUtils.generateJwtToken(user.getUsername(), authorities);
+        return jwtUtils.generateJwtToken(user.getEmail(), authorities);
     }
     @Override
     @Transactional

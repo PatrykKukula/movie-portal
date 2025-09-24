@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 
 import static pl.patrykkukula.MovieReviewPortal.View.Common.Constants.PageableConstants.*;
 
+@Slf4j
 public class TopicSectionLayout extends VerticalLayout {
     private final TopicServiceImpl topicService;
     private final UserDetailsServiceImpl userDetailsService;
@@ -70,12 +71,14 @@ public class TopicSectionLayout extends VerticalLayout {
         if (user != null) {
             firstLine.addComponentAtIndex(2, createTopicButton);
         }
+        log.info("Page size:{} ", PAGE_SIZE);
         updatePagingButtons(allTopics.hasNext(), allTopics.hasPrevious(), allTopics.getNumber(), allTopics.getTotalPages());
         addPageButtonsListeners(entityId);
         updateTopicsLayout(allTopics);
         add(firstLine, topicLayout, pageButtons);
     }
     private void updateTopicsLayout(Page<TopicDtoBasic> allTopics){
+        log.info("Fetched topics:{} ", allTopics.getNumberOfElements());
         topicLayout.removeAll();
         if (areTopicsAvailable()){
         allTopics.map(topic -> {
@@ -97,6 +100,7 @@ public class TopicSectionLayout extends VerticalLayout {
             if (allTopics.hasNext()) {
                 Pageable pageable = allTopics.nextPageable();
                 allTopics = topicService.findAllTopics(pageable.getPageNumber(), pageSize, sort, entityType, entityId);
+                log.info("Invoking next page button with currentPageNo:{} totalPages {} ", allTopics.getNumber(), allTopics.getTotalPages());
                 updatePagingButtons(allTopics.hasNext(), allTopics.hasPrevious(), allTopics.getNumber(), allTopics.getTotalPages());
                 updateTopicsLayout(allTopics);
             }
@@ -105,6 +109,7 @@ public class TopicSectionLayout extends VerticalLayout {
             if (allTopics.hasPrevious()) {
                 Pageable pageable = allTopics.previousPageable();
                 allTopics = topicService.findAllTopics(pageable.getPageNumber(), pageSize, sort, entityType, entityId);
+                log.info("Invoking previous page button with currentPageNo:{} totalPages {} ", allTopics.getNumber(), allTopics.getTotalPages());
                 updatePagingButtons(allTopics.hasNext(), allTopics.hasPrevious(), allTopics.getNumber(), allTopics.getTotalPages());
                 updateTopicsLayout(allTopics);
             }
@@ -119,6 +124,7 @@ public class TopicSectionLayout extends VerticalLayout {
 
         String createdAtFormatted = topic.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         Span createdAt = new Span(new Span("Post date: "), new Span(createdAtFormatted));
+
         String username = userService.getUsername(topic.getCreatedBy());
         Span createdBy = new Span(new Span("Created by: "), new Span(username));
         Span postCount = new Span(new Span("Comments: "), new Span(String.valueOf(topic.getPostCount())));

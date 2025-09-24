@@ -1,6 +1,8 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDto;
+import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoForUserComments;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithReplies;
 import pl.patrykkukula.MovieReviewPortal.Dto.Comment.CommentDtoWithUser;
 import pl.patrykkukula.MovieReviewPortal.Model.Comment;
@@ -55,6 +57,15 @@ public class CommentMapper {
 
         commentDtoWithReplies.setReplies(commentReplies);
         return commentDtoWithReplies;
+    }
+    public static CommentDtoForUserComments mapCommentToCommentDtoForUserComments(Comment comment){
+        return CommentDtoForUserComments.builder()
+                .text(comment.getText())
+                .createdAt(getCreatedAt(comment))
+                .updatedAt(getUpdatedAt(comment))
+                .topicId(comment.getTopic().getTopicId())
+                .topicTitle(comment.getTopic().getTitle())
+                .build();
     }
     private static String getCreatedAt(Comment comment){
         return comment.getCreatedAt() != null ?

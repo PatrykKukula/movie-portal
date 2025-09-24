@@ -3,6 +3,7 @@ package pl.patrykkukula.MovieReviewPortal.View.Common.CustomComponents.Rating;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
+@Slf4j
 public class RatingStars extends Div {
     private final List<Icon> stars = new ArrayList<>();
     private int initialRate;

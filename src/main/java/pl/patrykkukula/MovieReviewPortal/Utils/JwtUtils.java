@@ -23,13 +23,13 @@ public class JwtUtils{
     @Value("${jwt.secret}")
     private String secretKey;
 
-    public String generateJwtToken(String username, List<? extends GrantedAuthority> authorities){
+    public String generateJwtToken(String email, List<? extends GrantedAuthority> authorities){
         SecretKey secret = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
                 .issuedAt(new Date())
-                .subject(username)
-                .claim("authorities",authorities.stream().map((GrantedAuthority::getAuthority)).collect(Collectors.joining(",")))
+                .subject(email)
+                .claim("authorities",authorities.stream().map((authority -> authority.getAuthority())).collect(Collectors.joining(",")))
                 .expiration(new Date(new Date().getTime() + 900000))
                 .signWith(secret)
                 .compact();

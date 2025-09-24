@@ -32,6 +32,6 @@ public interface DirectorRepository extends JpaRepository<Director, Long> {
     List<Director> findAllWithDirectorRates(Sort sort);
     @Query("SELECT d FROM Director d LEFT JOIN FETCH d.directorRates WHERE LOWER(d.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(d.lastName) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Director> findAllWithRatesByNameOrLastName(@Value("name") String name, Sort sort);
-    @Query("SELECT d FROM Director d LEFT JOIN FETCH d.directorRates r ORDER BY r.rate DESC LIMIT 5")
+    @Query("SELECT d FROM Director d LEFT JOIN FETCH d.directorRates r")
     List<Director> findTopRatedDirectors();
 }

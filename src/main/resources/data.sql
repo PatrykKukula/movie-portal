@@ -56,7 +56,7 @@ INSERT INTO director (first_name, last_name, date_of_birth, country, biography, 
 ('Francis', 'Coppola', '1939-04-07', 'USA', 'American director and screenwriter, famous for The Godfather trilogy and Apocalypse Now.', NOW(), 'system'),
 ('Clint', 'Eastwood', '1930-05-31', 'USA', 'Actor and filmmaker known for Unforgiven, Million Dollar Baby and American Sniper.', NOW(), 'system'),
 ('George', 'Lucas', '1944-05-14', 'USA', 'American filmmaker and creator of the Star Wars and Indiana Jones franchises.', NOW(), 'system'),
-('Guillermo', 'del Toro', '1964-10-09', 'Mexico', 'Mexican director and writer, known for Pan''s Labyrinth and The Shape of Water.', NOW(), 'system'),
+('Guille    rmo', 'del Toro', '1964-10-09', 'Mexico', 'Mexican director and writer, known for Pan''s Labyrinth and The Shape of Water.', NOW(), 'system'),
 ('Denis', 'Villeneuve', '1967-10-03', 'Canada', 'Canadian director of Arrival, Blade Runner 2049 and Dune.', NOW(), 'system'),
 ('Wes', 'Anderson', '1969-05-01', 'USA', 'American director recognized for his distinctive style in The Grand Budapest Hotel.', NOW(), 'system'),
 ('David', 'Fincher', '1962-08-28', 'USA', 'American filmmaker known for Fight Club, Seven and The Social Network.', NOW(), 'system'),
@@ -985,17 +985,3 @@ INSERT INTO comment (text, comment_id_in_post, is_reply, replied_comment_id, top
 ('Comment 11 on topic about Se7en', 11, false, NULL, 12, 8, NOW(), 'user008'),
 ('Comment 12 on topic about Se7en', 12, false, NULL, 12, 8, NOW(), 'user008')
 ON CONFLICT DO NOTHING;
-
---INSERT INTO comment (text, comment_id_in_post, is_reply, replied_comment_id, topic_id, user_id, created_at, created_by) VALUES
---('Comment', SELECT FROM topic t WHERE topic_id = topic_id )
-
---INSERT INTO actor_rate (actor_rate_id, rate, actor_id, user_id) VALUES
---('1', '6', '2', '2');
---('2', '6', '2', '3');
-
---INSERT INTO user_roles (user_id, role_id)
---SELECT 1, 2
---WHERE NOT EXISTS (
---    SELECT 1 FROM user_roles
---    WHERE user_id = 1 AND role_id = 2
---);

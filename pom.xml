@@ -13,7 +13,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>MovieReviewPortal</name>
-	<description>REST API for movie review portal</description>
+	<description>Movie Portal</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -165,7 +165,6 @@
 			</build>
 		</profile>
 	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -185,9 +184,9 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<name>asteez/movieportalrestapi:v1.1</name>
+						<name>asteez/movieportalrestapi:v2.1</name>
 						<env>
-							<BP_SPRING_PROFILES_ACTIVE>test</BP_SPRING_PROFILES_ACTIVE>
+							<BP_SPRING_PROFILES_ACTIVE>default</BP_SPRING_PROFILES_ACTIVE>
 						</env>
 					</image>
 					<excludes>

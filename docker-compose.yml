@@ -14,14 +14,14 @@ services:
       POSTGRES_DB: MoviePortal
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      SECRET_KEY: ajkgptksj563aksmgjyGGtaW5268KjlskgmBNHajkdlgpytr652fGttQAxv8Jlka
+      SECRET_KEY: ajkgptksj563aksmgjyGGtaW5268KjlskgmBNHajkdlgpytr652fGttQAxv8Jlka #any 256 bit char sequence
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
       retries: 5
 
   movie_portal:
-    image: asteez/movieportalrestapi:v1.1
+    image: asteez/movieportalrestapi:v2.1
     container_name: MoviePortal
     ports:
       - "8082:8081"

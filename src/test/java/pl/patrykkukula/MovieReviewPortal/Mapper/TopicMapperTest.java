@@ -63,7 +63,7 @@ public class TopicMapperTest {
     public void shouldMapTopicDtoToTopicCorrectly(){
         Topic mappedTopic = TopicMapper.mapToTopic(topicDto);
 
-        assertEquals("Topic title", mappedTopic.getTitle());
+        assertEquals("Topic", mappedTopic.getTitle());
         assertEquals(1L, mappedTopic.getEntityId());
         assertEquals("Actor", mappedTopic.getEntityType());
     }

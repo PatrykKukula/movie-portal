@@ -130,7 +130,7 @@ public class ActorServiceImplTest {
     public void shouldFetchActorCorrectly() {
         when(actorRepository.findByIdWithMovies(anyLong())).thenReturn(Optional.of(actor1));
         when(actorRateRepository.getAverageActorRate(anyLong())).thenReturn(5.0);
-        when(actorRepository.countActorRates(anyLong())).thenReturn(0);
+        when(actorRepository.countActorRates(anyLong())).thenReturn(100);
 
         ActorDtoWithMovies fetchedActor = actorService.fetchActorByIdWithMovies(1L);
 

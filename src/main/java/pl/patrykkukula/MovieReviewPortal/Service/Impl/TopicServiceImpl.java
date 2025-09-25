@@ -111,8 +111,8 @@ public class TopicServiceImpl implements ITopicService {
                 page,size,sorted,entityType,entityId);
         String validatedSorting = validateSorting(sorted);
         Sort sort = validatedSorting.equals("ASC") ?
-                Sort.by("createdAt").ascending() :
-                Sort.by("createdAt").descending();
+                Sort.by("createdAt").descending() :
+                Sort.by("createdAt").ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Topic> topicsPage = topicRepository.findAllByEntityTypeAndEntityId(entityType, entityId, pageable);

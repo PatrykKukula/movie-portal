@@ -112,6 +112,7 @@ public class AuthServiceImplTest {
     }
     @Test
     public void shouldLoginCorrectly(){
+        when(encoder.matches(anyString(), any())).thenReturn(true);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
         when(jwtUtils.generateJwtToken(anyString(), anyList())).thenReturn("token-is-here");
 
@@ -129,6 +130,7 @@ public class AuthServiceImplTest {
     @Test
     public void shouldThrowIllegalStateExceptionWhenLoginAndUserIsNotEnabled(){
         user.setEnabled(false);
+        when(encoder.matches(anyString(), any())).thenReturn(true);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(loginDto));
@@ -137,6 +139,7 @@ public class AuthServiceImplTest {
     @Test
     public void shouldThrowIllegalStateExceptionWhenLoginAndUserIsBanned(){
         user.setBanned(true);
+        when(encoder.matches(anyString(), any())).thenReturn(true);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> authService.login(loginDto));

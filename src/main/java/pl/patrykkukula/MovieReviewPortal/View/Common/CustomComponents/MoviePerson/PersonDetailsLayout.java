@@ -88,12 +88,8 @@ public class PersonDetailsLayout<T extends ViewableEntityWithMovies> extends Ver
             add(moviePersonEntityLayout, topicSectionLayout);
 
 
-        } catch (ResourceNotFoundException ex) {
-            event.rerouteToError(ResourceNotFoundException.class, ex.getMessage());
-        } catch (InvalidIdException ex) {
-            event.rerouteToError(InvalidIdException.class, ex.getMessage());
-        } catch (IOException ex) {
-            event.rerouteToError(IOException.class, ex.getMessage());
+        } catch (ResourceNotFoundException | InvalidIdException | IOException ex) {
+            event.rerouteToError(RuntimeException.class, ex.getMessage());
         }
     }
 }

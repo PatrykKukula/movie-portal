@@ -1,6 +1,5 @@
 package pl.patrykkukula.MovieReviewPortal.Mapper;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pl.patrykkukula.MovieReviewPortal.Dto.UserRelated.UserDataDto;
 import pl.patrykkukula.MovieReviewPortal.Model.Role;
@@ -12,7 +11,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserMapperTest {
 

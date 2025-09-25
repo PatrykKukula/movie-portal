@@ -32,7 +32,6 @@ public class PageButtons extends Div {
         setCurrentPageNumber(currentPage, totalPages);
         div = buttonsLayout();
         setVisible();
-        if (renderView!=null) configureListeners();
         add(div);
     }
     public void setCurrentPageNumber(int currentPage, int totalPages){
@@ -73,12 +72,14 @@ public class PageButtons extends Div {
         this.renderView = renderView;
         this.currentPage = 0;
         this.totalPages = pagedList.getTotalPages();
+        configureListeners();
         setCurrentPageNumber(currentPage, totalPages);
         updateButtons();
         setVisible();
     }
     private void configureListeners(){
         nextButton.addClickListener(e -> {
+            log.info("Invoking next page button");
             currentPage++;
             boolean isValid = pagedList.isValidPage(currentPage);
             nextButton.setEnabled(currentPage < totalPages - 1);
@@ -92,6 +93,7 @@ public class PageButtons extends Div {
             }
         });
         previousButton.addClickListener(e -> {
+            log.info("Invoking previous page button");
             currentPage--;
             boolean isValid = pagedList.isValidPage(currentPage);
             previousButton.setEnabled(currentPage != 0);

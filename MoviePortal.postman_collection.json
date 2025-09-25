@@ -1,0 +1,1872 @@
+{
+	"info": {
+		"_postman_id": "65e0c4e2-9189-4ee9-b27c-51a109f44bab",
+		"name": "MoviePortal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40528242"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"user1\",\r\n    \"email\": \"user1@example.com\",\r\n    \"password\": \"User123!\",\r\n    \"dateOfBirth\": \"2000-01-01\",\r\n    \"userSex\": \"HE\",\r\n    \"firstName\": \"Joe\",\r\n    \"LastName\": \"Doe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/auth/register",
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUserData",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"2\",\r\n    \"email\": \"user11@user.pl\",\r\n    \"dateOfBirth\": \"2000-01-01\",\r\n    \"userSex\": \"HE\",\r\n    \"firstName\": \"Patrick\",\r\n    \"LastName\": \"Doe\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/auth/update",
+							"path": [
+								"api",
+								"auth",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verifyAccount",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"bbf887bf-d756-46f6-a76d-a9d47afe615a\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/auth/register/confirm",
+							"path": [
+								"api",
+								"auth",
+								"register",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resetPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newPassword\": \"Newpassword123!\",\r\n    \"confirmPassword\": \"Newpassword123!\",\r\n    \"email\": \"user1@example.com\",\r\n    \"pwdResetToken\": \"933aa701-06f9-4b0b-9919-fae7ec43c920\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/auth/reset",
+							"path": [
+								"api",
+								"auth",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "generatePasswordResetToken",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/auth/reset?email=user@example.com",
+							"path": [
+								"api",
+								"auth",
+								"reset"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"description": "email"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "generateVerificationToken",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/auth/register/sendToken?email=user@example.com",
+							"path": [
+								"api",
+								"auth",
+								"register",
+								"sendToken"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"description": "email"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@admin.pl\",\r\n    \"password\": \"Admin123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/auth/login",
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "actor",
+			"item": [
+				{
+					"name": "createActor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTg0NzU2NDMsInN1YiI6IkFkbWluIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU4NDc2NTQzfQ.bcI5j7M6J4FGfeAbByLwLS3HaHp9Vrv06Qmw5Yk1AM38sfnmFq-3CMo1-StgIo-xBdQqM0jtTmazvh-eF144ew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Patrick\",\r\n    \"lastName\": \"Swayze\",\r\n    \"dateOfBirth\": \"1952-08-18\",\r\n    \"country\": \"USA\",\r\n    \"biography\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/actors",
+							"path": [
+								"api",
+								"actors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addRateToActor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rate\": 3,\r\n    \"entityId\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/actors/rate/add",
+							"path": [
+								"api",
+								"actors",
+								"rate",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeRateFromActor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/actors/rate/remove/2",
+							"path": [
+								"api",
+								"actors",
+								"rate",
+								"remove",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateActor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Agatha\",\r\n    \"lastName\": \"Moore\",\r\n    \"dateOfBirth\": \"1901-05-05\",\r\n    \"country\": \"Scotland\",\r\n    \"biography\": \"Popular actres\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/actors/1",
+							"path": [
+								"api",
+								"actors",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteActor",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTg0NzU2NDMsInN1YiI6IkFkbWluIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU4NDc2NTQzfQ.bcI5j7M6J4FGfeAbByLwLS3HaHp9Vrv06Qmw5Yk1AM38sfnmFq-3CMo1-StgIo-xBdQqM0jtTmazvh-eF144ew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/actors/2",
+							"path": [
+								"api",
+								"actors",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findActorById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/actors/16",
+							"path": [
+								"api",
+								"actors",
+								"16"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllActors",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/actors?sorted=DESC&findBy=",
+							"path": [
+								"api",
+								"actors"
+							],
+							"query": [
+								{
+									"key": "sorted",
+									"value": "DESC",
+									"description": "Sort direction ASC or DESC. Default is ASC"
+								},
+								{
+									"key": "findBy",
+									"value": "",
+									"description": "Actor name or last name"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findTopRatedActors",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/actors/top-rated",
+							"path": [
+								"api",
+								"actors",
+								"top-rated"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "director",
+			"item": [
+				{
+					"name": "addDirector",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Frank\",\r\n    \"lastName\": \"Darabont\",\r\n    \"dateOfBirth\": \"1959-01-28\",\r\n    \"country\": \"France\",\r\n    \"biography\": \"Born in France\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/directors",
+							"path": [
+								"api",
+								"directors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addRateToDirector",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rate\": 3,\r\n    \"entityId\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/directors/rate/add",
+							"path": [
+								"api",
+								"directors",
+								"rate",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateDirector",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Michael\",\r\n    \"lastName\": \"Moore\",\r\n    \"dateOfBirth\": \"2002-12-15\",\r\n    \"country\": \"England\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/directors/1",
+							"path": [
+								"api",
+								"directors",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findDirectorById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/directors/15",
+							"path": [
+								"api",
+								"directors",
+								"15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteDirector",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/directors/1",
+							"path": [
+								"api",
+								"directors",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeRateFromDirector",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/directors/rate/remove/15",
+							"path": [
+								"api",
+								"directors",
+								"rate",
+								"remove",
+								"15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllDirectors",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/directors?sorted=DESC&findBy=",
+							"path": [
+								"api",
+								"directors"
+							],
+							"query": [
+								{
+									"key": "sorted",
+									"value": "DESC",
+									"description": "insert sorted type ASC or DESC. Default is ASC"
+								},
+								{
+									"key": "findBy",
+									"value": "",
+									"description": "insert name ot last name to find matching actors"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "movie",
+			"item": [
+				{
+					"name": "addMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTg2NjE2MTIsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU4NjYyNTEyfQ.prqACLY3sSN5Q4DjJfkYohw8fjsEfVBMttgL6470UXBl1vspLVy-Jlbg8finVw8EBe5F42UHLDeIaKfojFIMtA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Scary Movie\",\r\n    \"description\": \"\",\r\n    \"releaseDate\": \"2005-11-03\",\r\n    \"category\": \"COMEDY\",\r\n    \"directorId\": 16,\r\n    \"actorIds\": [2, 11]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/movies",
+							"path": [
+								"api",
+								"movies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addActorToMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "/api/movies/14/add-actor/3",
+							"path": [
+								"api",
+								"movies",
+								"14",
+								"add-actor",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addRateToMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rate\": 4,\r\n    \"entityId\": 14\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/movies/rate/add",
+							"path": [
+								"api",
+								"movies",
+								"rate",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteActorFromMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/movies/14/remove-actor/3",
+							"path": [
+								"api",
+								"movies",
+								"14",
+								"remove-actor",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Rush Hours\",\r\n    \"description\": \"Epic comedy movie\",\r\n    \"releaseDate\": \"2000-02-01\",\r\n    \"category\": \"COMEDY\",\r\n    \"directorId\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/movies/14",
+							"path": [
+								"api",
+								"movies",
+								"14"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMovieById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/movies/23",
+							"path": [
+								"api",
+								"movies",
+								"23"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeRateFromMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/movies/rate/remove/14",
+							"path": [
+								"api",
+								"movies",
+								"rate",
+								"remove",
+								"14"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteMovie",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzc4MjcsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc4NzI3fQ.y4N7d0tK7eKI8DoWUNnvvjnS5VBMx4Vh0__Lt6pmX3WMMTudCt4Y3dn_IJSruErJMRN6yzhfbrXni0oysvoQew",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/movies/19",
+							"path": [
+								"api",
+								"movies",
+								"19"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllMoviesByTitle",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/movies/search?title=Avatar&sorted=DESC",
+							"path": [
+								"api",
+								"movies",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Avatar",
+									"description": "insert text to search within movies titles"
+								},
+								{
+									"key": "sorted",
+									"value": "DESC",
+									"description": "insert sorted type ASC or DESC. Default is ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllMovies",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/movies?sorted=ASC",
+							"path": [
+								"api",
+								"movies"
+							],
+							"query": [
+								{
+									"key": "sorted",
+									"value": "ASC",
+									"description": "insert sorted type ASC or DESC. Default is ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "topic",
+			"item": [
+				{
+					"name": "addTopic",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4NzgyMTUsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc5MTE1fQ.Cz3Ifzy6nElJLb-bMFaA_y2tz_IvKuYPWS4cAcpqzr7Ro2cQR9hdMfCGDNjc4OdJgfOwiryU9Wi1oeO3lC9f5Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \r\n    \"topic\": {\r\n        \"title\": \"Topic title 4\",\r\n        \"entityId\": 2,\r\n        \"entityType\": \"actor\"\r\n    },\r\n    \"comment\": {\r\n        \"text\": \"Comment\"\r\n    }\r\n}   ",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/topics",
+							"path": [
+								"api",
+								"topics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findTopicById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/topics/600",
+							"path": [
+								"api",
+								"topics",
+								"600"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllTopics",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/topics?sorted=DESC&page=0&page-size=10&entity-type=movie&entity-id=1",
+							"path": [
+								"api",
+								"topics"
+							],
+							"query": [
+								{
+									"key": "sorted",
+									"value": "DESC",
+									"description": "insert sorted type ASC or DESC. Default is ASC"
+								},
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Page number"
+								},
+								{
+									"key": "page-size",
+									"value": "10",
+									"description": "Page size"
+								},
+								{
+									"key": "entity-type",
+									"value": "movie",
+									"description": "Type of entity to fetch topics (movie, actor, director)"
+								},
+								{
+									"key": "entity-id",
+									"value": "1",
+									"description": "Id of entity to fetch topics"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findLatestTopics",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/topics/latest",
+							"path": [
+								"api",
+								"topics",
+								"latest"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateTopic",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4NzgyMTUsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc5MTE1fQ.Cz3Ifzy6nElJLb-bMFaA_y2tz_IvKuYPWS4cAcpqzr7Ro2cQR9hdMfCGDNjc4OdJgfOwiryU9Wi1oeO3lC9f5Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"updated title\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/topics/1",
+							"path": [
+								"api",
+								"topics",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTopic",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTg0NzYzMDYsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU4NDc3MjA2fQ.0Gb-BaN9dhlwWLtVT9e14-NrYaxxRAtTi3HKH93DXl6EfVpSgtTjKIB77mMduCxQ4J6H3nJlqbLwr1rNmPaWqA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/topics/37",
+							"path": [
+								"api",
+								"topics",
+								"37"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllTopicsByTitle",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/topics/search?sorted=DESC&title=",
+							"path": [
+								"api",
+								"topics",
+								"search"
+							],
+							"query": [
+								{
+									"key": "sorted",
+									"value": "DESC",
+									"description": "Insert sorted type ASC or DESC. Default is ASC"
+								},
+								{
+									"key": "title",
+									"value": "",
+									"description": "Insert text to find matching title. Can be empty"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "comment",
+			"item": [
+				{
+					"name": "addComment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTg4MjE0ODYsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU4ODIyMzg2fQ.RwCA4hkIJ-UGi697LOsK09wKRQzIKvbR0_N1IjolzdcQwftl9cHaHiR-A_IL8Y2DAxxXZT6UHJ6YX2CBMSW1lw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"Comment here\",\r\n    \"topicId\": 1,\r\n    \"isReply\": false,\r\n    \"replyCommentId\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/comments",
+							"path": [
+								"api",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateComment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4NzgyMTUsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc5MTE1fQ.Cz3Ifzy6nElJLb-bMFaA_y2tz_IvKuYPWS4cAcpqzr7Ro2cQR9hdMfCGDNjc4OdJgfOwiryU9Wi1oeO3lC9f5Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "updated",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/comments/2",
+							"path": [
+								"api",
+								"comments",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteComment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4NzgyMTUsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODc5MTE1fQ.Cz3Ifzy6nElJLb-bMFaA_y2tz_IvKuYPWS4cAcpqzr7Ro2cQR9hdMfCGDNjc4OdJgfOwiryU9Wi1oeO3lC9f5Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/comments/103",
+							"path": [
+								"api",
+								"comments",
+								"103"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllCommentsForUser",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/comments/user/Admin",
+							"path": [
+								"api",
+								"comments",
+								"user",
+								"Admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCommentById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/comments/102",
+							"path": [
+								"api",
+								"comments",
+								"102"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "findUserById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/15",
+							"path": [
+								"api",
+								"user",
+								"15"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "countMoviesRatedByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/rated-movies-count?userId=1",
+							"path": [
+								"api",
+								"user",
+								"rated-movies-count"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findMoviesRatedByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/rated-movies?userId=1&pageNo=0&pageSize=3",
+							"path": [
+								"api",
+								"user",
+								"rated-movies"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								},
+								{
+									"key": "pageNo",
+									"value": "0",
+									"description": "page number"
+								},
+								{
+									"key": "pageSize",
+									"value": "3",
+									"description": "page size"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findDirectorsRatedByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/rated-directors?userId=1&pageNo=0&pageSize=3",
+							"path": [
+								"api",
+								"user",
+								"rated-directors"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								},
+								{
+									"key": "pageNo",
+									"value": "0",
+									"description": "page number"
+								},
+								{
+									"key": "pageSize",
+									"value": "3",
+									"description": "page size"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findActorsRatedByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/rated-actors?userId=1&pageNo=0&pageSize=3",
+							"path": [
+								"api",
+								"user",
+								"rated-actors"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "pageNo",
+									"value": "0"
+								},
+								{
+									"key": "pageSize",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "countActorsRatedByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/rated-actors-count?userId=1",
+							"path": [
+								"api",
+								"user",
+								"rated-actors-count"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "countDirectorsRatedByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/rated-directors-count?userId=1",
+							"path": [
+								"api",
+								"user",
+								"rated-directors-count"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findHighestRatedMoviesForUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/highest-rated-movies?userId=1&pageNo=0&pageSize=2",
+							"path": [
+								"api",
+								"user",
+								"highest-rated-movies"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								},
+								{
+									"key": "pageNo",
+									"value": "0",
+									"description": "page number"
+								},
+								{
+									"key": "pageSize",
+									"value": "2",
+									"description": "page size"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findHighestRatedDirectorsForUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/highest-rated-directors?userId=1&pageNo=0&pageSize=2",
+							"path": [
+								"api",
+								"user",
+								"highest-rated-directors"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								},
+								{
+									"key": "pageNo",
+									"value": "0",
+									"description": "page number"
+								},
+								{
+									"key": "pageSize",
+									"value": "2",
+									"description": "page size"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findHighestRatedActorsForUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/highest-rated-actors?userId=1&pageNo=0&pageSize=2",
+							"path": [
+								"api",
+								"user",
+								"highest-rated-actors"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								},
+								{
+									"key": "pageNo",
+									"value": "0",
+									"description": "page number"
+								},
+								{
+									"key": "pageSize",
+									"value": "2",
+									"description": "page size"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/find-all?pageNo=0&pageSize=10",
+							"path": [
+								"api",
+								"user",
+								"find-all"
+							],
+							"query": [
+								{
+									"key": "pageNo",
+									"value": "0",
+									"description": "page numer"
+								},
+								{
+									"key": "pageSize",
+									"value": "10",
+									"description": "page size"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "countRegisteredUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/count",
+							"path": [
+								"api",
+								"user",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "banUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzk4NjQsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODgwNzY0fQ.-Dta8xeYuxVMjF408m1ZsgpcLf8Rd2KFklpXE-WhjK04pu1MAFZLUJHftoi-dQ0QSHhFEvWuzD3prsWSaWvlGw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"user122\",\r\n    \"banDuration\": \"7 days\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/user/ban",
+							"path": [
+								"api",
+								"user",
+								"ban"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addRoleToUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzk4NjQsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODgwNzY0fQ.-Dta8xeYuxVMjF408m1ZsgpcLf8Rd2KFklpXE-WhjK04pu1MAFZLUJHftoi-dQ0QSHhFEvWuzD3prsWSaWvlGw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "/api/user/add-role?username=user&role=MODERATOR",
+							"path": [
+								"api",
+								"user",
+								"add-role"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "user",
+									"description": "username"
+								},
+								{
+									"key": "role",
+									"value": "MODERATOR",
+									"description": "role - only MODERATOR for now"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeRoleFromUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzk4NjQsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODgwNzY0fQ.-Dta8xeYuxVMjF408m1ZsgpcLf8Rd2KFklpXE-WhjK04pu1MAFZLUJHftoi-dQ0QSHhFEvWuzD3prsWSaWvlGw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "/api/user/remove-role?username=user&role=MODERATOR",
+							"path": [
+								"api",
+								"user",
+								"remove-role"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "user",
+									"description": "username"
+								},
+								{
+									"key": "role",
+									"value": "MODERATOR",
+									"description": "role - only MODERATOR for now"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "removeBan",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3NTc4Nzk4NjQsInN1YiI6ImFkbWluQGFkbWluLnBsIiwiYXV0aG9yaXRpZXMiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU3ODgwNzY0fQ.-Dta8xeYuxVMjF408m1ZsgpcLf8Rd2KFklpXE-WhjK04pu1MAFZLUJHftoi-dQ0QSHhFEvWuzD3prsWSaWvlGw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "/api/user/remove-ban?username=user122",
+							"path": [
+								"api",
+								"user",
+								"remove-ban"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "user122",
+									"description": "username"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAverageMovieRateForUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/average-movie-rate?userId=1",
+							"path": [
+								"api",
+								"user",
+								"average-movie-rate"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findMostRatedCategoryByUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "/api/user/most-rated-category?userId=1",
+							"path": [
+								"api",
+								"user",
+								"most-rated-category"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1",
+									"description": "user id"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.request.url.protocol=\"http\";\r",
+					"pm.request.url.host=\"localhost\";\r",
+					"pm.request.url.port=\"8081\";"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -49,11 +49,11 @@ REST API is secured with Security Configuration that uses **JWT token authentica
 
 Each config has configured access rules on each possible endpoint. REST API config is first in order to execute and to check for any request with /api/** prefix in url.
 ### Roles and authorities
-USER - basic role that each account has on creation. It allows to rate content and take part in discussion threads.
+**USER** - basic role that each account has on creation. It allows to rate content and take part in discussion threads.
 
-MODERATOR - additionally can manage content (add, delete, update)
+**MODERATOR** - additionally can manage content (add, delete, update)
 
-ADMIN - additionaly can manage users (banning users, adding roles, editing user's posts)
+**ADMIN** - additionaly can manage users (banning users, adding roles, editing user's posts)
 
 If user is not logged in, he can only interact with public content (GET requests for REST API) and create an account.
 
@@ -64,13 +64,13 @@ In actor page, there are many more components (like edit actor data, delete acto
 **While being logged in as ADMIN you can see aditional buttons and upload avatar component:**
 
 
-<img width="1086" height="777" alt="image" src="https://github.com/user-attachments/assets/41c9c66c-926a-4358-a683-dcae31991bb4" />
+<img width="1887" height="904" alt="image" src="https://github.com/user-attachments/assets/7804ef29-1daa-4569-968b-096da768fd1b" />
 
 
 **While being logged in as USER these components are not visible:**
 
 
-<img width="1048" height="742" alt="image" src="https://github.com/user-attachments/assets/3b0f1d89-c2ad-44a3-94bb-07f6b12c386f" />
+<img width="1879" height="892" alt="image" src="https://github.com/user-attachments/assets/06c0a162-6134-4d84-9eab-b1f7f1dd9e98" />
 
 
 ## Form and request validation
@@ -97,9 +97,9 @@ Using **Postman** repsponse is with proper body and status code:
 
 ## Caching
 
-Most common fetched data is cached and stored with different rules **using Caffeine**, to optimize future requests and reduce database traffic. For example method to fetch top rated actors has long storing time but method to fetch topic has a short storing time. 
+Most common fetched data is cached and stored with different rules **using Caffeine**, to optimize future requests and reduce database traffic. For example method to fetch top rated actors is excpeted to be used more, since it will be invoked in the landing page and is not likely to change very often so it has longer storing time than method to fetch topic, which is more likely to be invoked often with any new topic on comment.
 
-Also there are implemented functions like cache evict under some operations, to avoid returning outdated data.
+There are also operations that invoke cache eviction, to avoid returning outdated data.
 
 ## Testing
 
@@ -110,12 +110,18 @@ App is tested with **unit tests and @SpringBoot integration tests** for various 
 
 ### Let's explore some of the application functions
 
+> **IMPORTANT**
+>
+> Hibernate is configured with **create-drop ddl-auto** to avoid multiplying SQL inserts when restarting program multiple times.
+>
+> Everytime application is restarted, SQL script will run and insert records to the table, but records added manualy while app was running will be evicted.
+
 #### Registration & user account
 
 To register user need to fill registration form or send post request with valid body.
 After registration user can change it's information (except username) and can upload avatar, that will be displayed in certain places.
 
-After creating account, **user needs to verify** it to be able to use all functions - link to account verification will be displatyed after successful registration event. 
+After creating account, **user needs to verify** it to be able to use all functions - link to account verification will be displayed after successful registration event. 
 
 <img width="428" height="574" alt="image" src="https://github.com/user-attachments/assets/96a09eb8-d1de-4239-aa99-84188555fecc" />
 
@@ -153,7 +159,7 @@ If user forget password, there is possibility to reset it by clicking **forgot p
 
 #### My account
 
-In my account tab user can change data about himself and upload avatar. Avatar is displated in various places like in user profile or in posted comments. If there is no avatar the placeholder image will be displayed.
+In my account tab user can change data about himself and upload avatar. Avatar is displayed in various places like in user profile or in posted comments. If there is no avatar the placeholder image will be displayed.
 
 <img width="600" height="780" alt="image" src="https://github.com/user-attachments/assets/a76bf6fd-9b4e-4328-9753-62c8ebb26ecf" />
 
@@ -170,24 +176,27 @@ List of users is lazily fetched while scrolling through and can be filtered.
 
 Users have public profile with it’s basic information and various statistics like rated content, top rated movie category etc. By clicking specific buttons there is redirection to different page for example, you can get redirected to all movies rated or to all comments posted by user.
 
-<img width="1084" height="830" alt="image" src="https://github.com/user-attachments/assets/fc07486d-419b-4315-973a-0a01b19227dc" />
+<img width="1048" height="818" alt="image" src="https://github.com/user-attachments/assets/99a56d8b-24c7-4ccd-bb95-092046fffeda" />
+
 
 #### Landing page
 
 Main page contains things like latest comments and top rated entities with their rates. Topics have clickable hyperlinks that redirect to entity page or user profile.
 
-<img width="1088" height="803" alt="image" src="https://github.com/user-attachments/assets/a123ca38-7fc9-4597-942c-e6515cc0e19b" />
+<img width="968" height="842" alt="image" src="https://github.com/user-attachments/assets/d511abb8-7d74-46dc-a921-721635435f9a" />
+
 
 #### Browsing content
 
-You can browse movies, actors and directors and filter them by certain key (like title, name or last name) and list with see basic information. Movies can also be sorted by category.
+You can browse movies, actors and directors and filter them by certain key (like title, name or last name) and see list with basic information. Movies can also be sorted by category.
 
-<img width="1890" height="908" alt="image" src="https://github.com/user-attachments/assets/6d6adc5c-eb47-4c25-9bb0-bf4875a2071f" />
+<img width="1144" height="832" alt="image" src="https://github.com/user-attachments/assets/fe94f456-5e99-46c7-a346-70e1ad618b2e" />
+
 
 
 #### Content details
 
-Each entity has its own unique URI. User can see more details about that entity, add rate to it and see it's topic section. User can add rate by clicking on the star next to poster, change or remove rate by clicking on a star again. Content managers can also upload poster, remove or edit entity by clicking corresponding button.
+Each entity has its own unique URL. User can see more details about that entity, add rate to it and see it's topic section. User can add rate by clicking on the star next to poster, change or remove rate by clicking on a star again. Content managers can also upload poster, remove or edit entity by clicking corresponding button.
 
 <img width="1887" height="904" alt="image" src="https://github.com/user-attachments/assets/8d2ce2dc-d8f2-4482-acaa-dfa05029d894" />
 
@@ -341,24 +350,25 @@ Endpoints to menage comments.
 
   **User**
 
-  - **GET** /api/user/{userId} - find user by id
-  - **GET** /api/user/rated-movies-count?userId= - count movies rated by user, params - userId
-  - **GET** /api/user/rated-movies?userId=&pageNo=&pageSize= - find movies rated by user, params: userId, pageNo, pageSize
-  - **GET** /api/user/rated-directors?userId=&pageNo=&pageSize= - find directors rated by user, params: userId, pageNo, pageSize
-  - **GET** /api/user/rated-actors?userId=&pageNo=&pageSize= - find actors rated by user, params: userId, pageNo, pageSize
-  - **GET** */api/user/rated-actors-count?userId=* - count actors rated by user, params: userId
-  - **GET** */api/user/rated-directors-count?userId=* - count directors rated by user, params: userId
-  - **GET** */api/user/highest-rated-movies?userId=&pageNo=&pageSize=* - fetch highest rated movies by user, params: userId, pageNo, pageSize
-  - **GET** */api/user/highest-rated-actors?userId=&pageNo=&pageSize=* - fetch highest rated actors by user, params: userId, pageNo, pageSize
-  - **GET** */api/user/highest-rated-directors?userId=&pageNo=&pageSize=* - fetch highest rated directors by user, params: userId, pageNo, pageSize
-  - **GET** */api/user/find-all?pageNo=&pageSize=* - find all users, params: pageNo, pageSize
-  - **GET** */api/user/count* - count registered users
-  - **POST** */api/user/ban* - ban user for given time
-  - **POST** */api/user/add-role?username=&role=MODERATOR* - add role to user, params, username, role (MODERATOR)
-  - **DELETE** */api/user/remove-role?username=&role=MODERATOR* - remove role from user, params: username, role(MODERATOR)
-  - **POST** */api/user/remove-ban?username=* - remove ban from user, params: username
-  - **GET** */api/user/average-movie-rate?userId=* - find average movie rate, params: userId
-  - **GET** */api/user/most-rated-category?userId=* - find most rated category by user, params: userId
+- **GET** /api/user/{userId} - find user by id
+- **GET** /api/user/rated-movies-count?userId= - count movies rated by user, params - userId
+- **GET** /api/user/rated-movies?userId=&pageNo=&pageSize= - find movies rated by user, params: userId, pageNo, pageSize
+- **GET** /api/user/rated-directors?userId=&pageNo=&pageSize= - find directors rated by user, params: userId, pageNo, pageSize
+- **GET** /api/user/rated-actors?userId=&pageNo=&pageSize= - find actors rated by user, params: userId, pageNo, pageSize
+- **GET** */api/user/rated-actors-count?userId=* - count actors rated by user, params: userId
+- **GET** */api/user/rated-directors-count?userId=* - count directors rated by user, params: userId
+- **GET** */api/user/highest-rated-movies?userId=&pageNo=&pageSize=* - fetch highest rated movies by user, params: userId, pageNo, pageSize
+- **GET** */api/user/highest-rated-actors?userId=&pageNo=&pageSize=* - fetch highest rated actors by user, params: userId, pageNo, pageSize
+- **GET** */api/user/highest-rated-directors?userId=&pageNo=&pageSize=* - fetch highest rated directors by user, params: userId, pageNo, pageSize
+- **GET** */api/user/find-all?pageNo=&pageSize=* - find all users, params: pageNo, pageSize
+- **GET** */api/user/count* - count registered users
+- **POST** */api/user/ban* - ban user for given time
+- **POST** */api/user/add-role?username=&role=MODERATOR* - add role to user, params, username, role (MODERATOR)
+- **DELETE** */api/user/remove-role?username=&role=MODERATOR* - remove role from user, params: username, role(MODERATOR)
+- **POST** */api/user/remove-ban?username=* - remove ban from user, params: username
+- **GET** */api/user/average-movie-rate?userId=* - find average movie rate, params: userId
+- **GET** */api/user/most-rated-category?userId=* - find most rated category by user, params: userId
+
 
 **Every request has prepared body. You just need to insert data you want and send request.**
 

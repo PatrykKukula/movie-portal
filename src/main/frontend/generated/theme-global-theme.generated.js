@@ -4,6 +4,7 @@ import { webcomponentGlobalCssInjector } from 'Frontend/generated/jar-resources/
 import './theme-global-theme.components.generated.js';
 let needsReloadOnChanges = false;
 import { badge } from '@vaadin/vaadin-lumo-styles/badge.js';
+import stylesCss from 'themes/global-theme/styles.css?inline';
 
   let themeRemovers = new WeakMap();
   let targets = [];
@@ -12,7 +13,8 @@ import { badge } from '@vaadin/vaadin-lumo-styles/badge.js';
     const removers = [];
     if (target !== document) {
       removers.push(injectGlobalCss(badge.cssText, '', target, true));
-
+removers.push(injectGlobalCss(stylesCss.toString(), '', target));
+    
       
     }
     

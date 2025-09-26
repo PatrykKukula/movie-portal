@@ -29,3 +29,5 @@ logging:
     pl.patrykkukula.MovieReviewPortal: DEBUG
 Jwt:
   secret: ${SECRET_KEY}
+Vaadin:
+  productionMode: true

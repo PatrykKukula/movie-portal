@@ -184,9 +184,10 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<image>
-						<name>asteez/movieportalrestapi:v2.1</name>
+						<name>asteez/movieportalrestapi:v2.2</name>
 						<env>
 							<BP_SPRING_PROFILES_ACTIVE>default</BP_SPRING_PROFILES_ACTIVE>
+							<BP_JVM_VERSION>21</BP_JVM_VERSION>
 						</env>
 					</image>
 					<excludes>

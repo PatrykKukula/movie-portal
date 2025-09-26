@@ -81,7 +81,6 @@ public class AddTopicView extends FormLayout implements BeforeEnterObserver {
             return;
         }
         entityType = entityTypeOpt.get();
-        log.info("entity type:{} ", entityType);
         try {
             entityId = Long.parseLong(entityIdOpt.get());
         }

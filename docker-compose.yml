@@ -14,7 +14,7 @@ services:
       POSTGRES_DB: MoviePortal
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      SECRET_KEY: ajkgptksj563aksmgjyGGtaW5268KjlskgmBNHajkdlgpytr652fGttQAxv8Jlka #any 256 bit char sequence
+      SECRET_KEY: ajkgptksj563aksmgjyGGtaW5268KjlskgmBNHajkdlgpytr652fGttQAxv8Jlka
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s

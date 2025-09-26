@@ -28,9 +28,17 @@ public class ImageServiceImpl implements IImageService {
     private static final List<String> ALLOWED_FORMATS = List.of(".png", ".jpg", ".jpeg");
     private static final String METADATA_FILE = "metadata.json";
 
-    @Value("${image.base-dir:/opt/app/images}")
+    @Value("${image.base-dir:/tmp/images}")
     private String baseImageDir;
+    private static final List<String> FOLDERS = List.of("MoviePoster", "ActorPoster", "DirectorPoster", "avatars");
 
+    @PostConstruct
+    public void copyInitialPosters() {
+        log.info("Invoking PostConstruct on ImageServiceImpl");
+        for (String folder : FOLDERS) {
+            copyFolderFromResources(folder);
+        }
+    }
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Transactional
@@ -107,19 +115,11 @@ public class ImageServiceImpl implements IImageService {
             if (image.exists()) image.delete();
         }
     }
-
-    private static final List<String> FOLDERS = List.of("MoviePoster", "ActorPoster", "DirectorPoster", "avatars");
-
-    @PostConstruct
-    public void copyInitialPosters() {
-        for (String folder : FOLDERS) {
-            copyFolderFromResources(folder);
-        }
-    }
-
     private void copyFolderFromResources(String folderName) {
         try {
+            log.info("Invoking copyFolder");
             Path targetDir = Paths.get(baseImageDir, folderName);
+            log.info("Target Dir: {} ", targetDir);
             Files.createDirectories(targetDir);
 
             try (InputStream listStream = getClass().getResourceAsStream("/" + folderName + "/file-list.txt")) {
@@ -134,9 +134,11 @@ public class ImageServiceImpl implements IImageService {
                         .toList();
 
                 for (String fileName : files) {
+                    log.info("Copying file {} from {}", fileName, folderName);
                     try (InputStream is = getClass().getResourceAsStream("/" + folderName + "/" + fileName)) {
                         if (is != null) {
                             Path targetFile = targetDir.resolve(fileName);
+                            log.info("Copying to {}", targetFile);
                             Files.copy(is, targetFile, StandardCopyOption.REPLACE_EXISTING);
                         } else {
                             log.warn("File not found in Resources: {}/{}", folderName, fileName);
@@ -144,7 +146,6 @@ public class ImageServiceImpl implements IImageService {
                     }
                 }
             }
-
         } catch (IOException e) {
             log.error("Error copying folder {} from resources to {}", folderName, baseImageDir, e);
         }

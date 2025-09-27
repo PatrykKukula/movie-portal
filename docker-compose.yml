@@ -24,7 +24,7 @@ services:
     image: asteez/movieportalrestapi:v2.2
     container_name: MoviePortal
     ports:
-      - "8082:8081"
+      - "8081:8081"
     deploy:
       resources:
         limits:
